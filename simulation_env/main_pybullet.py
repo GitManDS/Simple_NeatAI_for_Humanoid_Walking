@@ -1,0 +1,76 @@
+import pybullet as p 
+import time
+import pybullet_data
+import assisting_functions as af
+
+#Settings
+TPS = 60            #updates per second
+sim_time = 0.1        #seconds
+sim_type = 0        #0 for real-time limited, 1 for step-by-step limited
+assets_folder = "C:/Users/diogo serra/Desktop/trabalhos, documentose afixos de programas/TUDelft-MEaer/een/even semester/AI/Bipedal agent project/simulation_env/assets"
+
+def sim_init():
+    if sim_type == 0:
+        p.connect(p.GUI)
+    else:
+        p.connect(p.DIRECT)
+    p.setGravity(0,0,-9.81)
+    
+    #advanced settings
+    p.setAdditionalSearchPath(pybullet_data.getDataPath())
+    #p.setAdditionalSearchPath(assets_folder)
+    print(pybullet_data.getDataPath())
+    
+    pass
+
+def sim_loop():  
+    
+    #run with GUI open and time limited (will run forever until GUI is closed)
+    if sim_type == 0:
+        p.setRealTimeSimulation(1)
+        while True:
+            af.focus_camera(MainObJ)
+            pass
+        
+    #run without GUI and step-by-step limited (will run for simulation time and is limited by processing power)
+    else:
+        p.stepSimulation()
+        for i in range(int(sim_time*TPS)):  #loop for all updates
+                
+            
+            #end of loop
+            time.sleep(1/TPS)              #seconds per tick
+            p.stepSimulation()
+            #end of loop
+    
+    p.disconnect()
+    pass
+
+#MAIN
+
+#initialize simulation
+sim_init()
+
+#create objects
+planeId = p.loadURDF("plane.urdf", useFixedBase=True) 
+
+StartPos = [0,0,1] 
+StartOrientation = p.getQuaternionFromEuler([0,0,0]) 
+MainObJ = p.loadURDF("r2d2.urdf",StartPos, StartOrientation) 
+
+
+#object joints
+for i in range(p.getNumJoints(MainObJ)):
+    print(p.getJointInfo(MainObJ,i))
+    pass
+
+
+#run simulation
+sim_loop()
+
+
+
+
+
+
+

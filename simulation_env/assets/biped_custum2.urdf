@@ -13,53 +13,6 @@
     <color rgba="0 0 1 1"/>
   </material>
 
-	<link name="world">
-	<inertial>
-      <mass value="0"/>
-      <inertia ixx="0.2125" ixy="-0.005" ixz="0.0225" iyy="0.205" iyz="0.045" izz="0.0125"/>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-    </inertial>
-	</link>
-
-	<link name="y_prismatic">
-	 <inertial>
-      <mass value="0"/>
-      <inertia ixx="0.2125" ixy="-0.005" ixz="0.0225" iyy="0.205" iyz="0.045" izz="0.0125"/>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-    </inertial>
-	</link>
-	
-	<joint name="y_to_world" type="prismatic">
-    <parent link="world"/>
-    <child link="y_prismatic"/>
-    <axis xyz="0 1 0"/>
-    <limit effort="0.0" lower="1" upper="-1" velocity="1000.0"/>
-    <origin rpy="0 0 0" xyz="0 0 0"/>
-  </joint>
-		
-	<link name="z_prismatic">
-	 <inertial>
-      <mass value="0"/>
-      <inertia ixx="0.2125" ixy="-0.005" ixz="0.0225" iyy="0.205" iyz="0.045" izz="0.0125"/>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-    </inertial>
-	</link>
-	
-	<joint name="z_to_y" type="prismatic">
-    <parent link="y_prismatic"/>
-    <child link="z_prismatic"/>
-    <axis xyz="0 0 1"/>
-     <limit effort="0.0" lower="1" upper="-1" velocity="1000.0"/>
-    <origin rpy="0 0 0" xyz="0 0 0"/>
-  </joint>
-	
-	<joint name="torso_to_z" type="continuous">
-    <parent link="z_prismatic"/>
-    <child link="torso"/>
-    <axis xyz="1 0 0"/>
-    <origin rpy="0 0 0" xyz="0 0 1.4"/>
-  </joint>
-	
   <link name="torso">
     <visual>
       <geometry>
@@ -81,6 +34,54 @@
       <origin rpy="0 0 0" xyz="0 0.0 0"/>
     </inertial>
   </link>
+
+	<link name="y_prismatic">
+	 <inertial>
+      <mass value="10"/>
+      <inertia ixx="0.2125" ixy="-0.005" ixz="0.0225" iyy="0.205" iyz="0.045" izz="0.0125"/>
+      <origin rpy="0 0 0" xyz="0 0.0 0"/>
+    </inertial>
+	</link>
+		
+	<link name="z_prismatic">
+	 <inertial>
+      <mass value="10"/>
+      <inertia ixx="0.2125" ixy="-0.005" ixz="0.0225" iyy="0.205" iyz="0.045" izz="0.0125"/>
+      <origin rpy="0 0 0" xyz="0 0.0 0"/>
+    </inertial>
+	</link>
+
+  <link name="x_prismatic">
+	 <inertial>
+      <mass value="10"/>
+      <inertia ixx="0.2125" ixy="-0.005" ixz="0.0225" iyy="0.205" iyz="0.045" izz="0.0125"/>
+      <origin rpy="0 0 0" xyz="0 0.0 0"/>
+    </inertial>
+	</link>
+
+  <joint name="Torso_to_x" type="prismatic">
+    <parent link="torso"/>
+    <child link="x_prismatic"/>
+    <axis xyz="1 0 0"/>
+     <limit effort="0.0" lower="1" upper="-1" velocity="1000.0"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+
+  <joint name="Torso_to_y" type="prismatic">
+    <parent link="torso"/>
+    <child link="y_prismatic"/>
+    <axis xyz="0 1 0"/>
+     <limit effort="0.0" lower="1" upper="-1" velocity="1000.0"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+
+  <joint name="Torso_to_z" type="prismatic">
+    <parent link="torso"/>
+    <child link="z_prismatic"/>
+    <axis xyz="0 0 1"/>
+     <limit effort="0.0" lower="1" upper="-1" velocity="1000.0"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
   
   <link name="r_upperleg">
     <visual>

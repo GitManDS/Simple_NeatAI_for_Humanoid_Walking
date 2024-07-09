@@ -31,9 +31,7 @@ def sim_loop():
         elapsed_time = 0
         while True:
             af.focus_camera(NeatROBOT)
-            print(p.getBasePositionAndOrientation(NeatROBOT))
             
-            #p.resetBasePositionAndOrientation(NeatROBOT,[0,0,1],[0,0,0,1])
             af.biped_testing_walk(NeatROBOT,elapsed_time)
             
             elapsed_time += 1/TPS
@@ -61,9 +59,9 @@ sim_init()
 #create objects
 planeId = p.loadURDF("plane.urdf", useFixedBase=True) 
 
-StartPos = [0,0,1] 
+StartPos = [0,0,2] 
 StartOrientation = p.getQuaternionFromEuler([0,0,0]) 
-NeatROBOT = p.loadURDF("biped_custum.urdf", StartPos, StartOrientation, useFixedBase=True) 
+NeatROBOT = p.loadURDF("biped_custum2.urdf", StartPos, StartOrientation, useFixedBase=True) 
 
 #disable the default velocity motors
 #relax the muscles

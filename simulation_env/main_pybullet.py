@@ -4,7 +4,7 @@ import pybullet_data
 import assisting_functions as af
 
 #Settings
-TPS = 60            #updates per second
+TPS = 240            #updates per second
 sim_time = 0.1        #seconds
 sim_type = 0        #0 for real-time limited, 1 for step-by-step limited
 assets_folder = "C:/Users/diogo serra/Desktop/trabalhos, documentose afixos de programas/TUDelft-MEaer/een/even semester/AI/Bipedal agent project/simulation_env/assets"
@@ -17,8 +17,8 @@ def sim_init():
     p.setGravity(0,0,-9.81)
     
     #advanced settings
-    p.setAdditionalSearchPath(pybullet_data.getDataPath())
-    #p.setAdditionalSearchPath(assets_folder)
+    #p.setAdditionalSearchPath(pybullet_data.getDataPath())
+    p.setAdditionalSearchPath(assets_folder)
     print(pybullet_data.getDataPath())
     
     pass
@@ -28,8 +28,15 @@ def sim_loop():
     #run with GUI open and time limited (will run forever until GUI is closed)
     if sim_type == 0:
         p.setRealTimeSimulation(1)
+        elapsed_time = 0
         while True:
-            af.focus_camera(MainObJ)
+            af.focus_camera(NeatROBOT)
+            print(p.getBasePositionAndOrientation(NeatROBOT))
+            
+            #p.resetBasePositionAndOrientation(NeatROBOT,[0,0,1],[0,0,0,1])
+            af.biped_testing_walk(NeatROBOT,elapsed_time)
+            
+            elapsed_time += 1/TPS
             pass
         
     #run without GUI and step-by-step limited (will run for simulation time and is limited by processing power)
@@ -56,12 +63,18 @@ planeId = p.loadURDF("plane.urdf", useFixedBase=True)
 
 StartPos = [0,0,1] 
 StartOrientation = p.getQuaternionFromEuler([0,0,0]) 
-MainObJ = p.loadURDF("r2d2.urdf",StartPos, StartOrientation) 
+NeatROBOT = p.loadURDF("biped_custum.urdf", StartPos, StartOrientation, useFixedBase=True) 
+
+#disable the default velocity motors
+#relax the muscles
+jointFrictionForce = 1
+for joint in range(p.getNumJoints(NeatROBOT)):
+  p.setJointMotorControl2(NeatROBOT, joint, p.POSITION_CONTROL, force=jointFrictionForce)
 
 
 #object joints
-for i in range(p.getNumJoints(MainObJ)):
-    print(p.getJointInfo(MainObJ,i))
+for i in range(p.getNumJoints(NeatROBOT)):
+    print(p.getJointInfo(NeatROBOT,i)[0:4])
     pass
 
 

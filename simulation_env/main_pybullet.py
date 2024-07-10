@@ -30,9 +30,13 @@ def sim_loop():
         p.setRealTimeSimulation(1)
         elapsed_time = 0
         while True:
-            af.focus_camera(NeatROBOT)
+            #af.focus_camera(NeatROBOT)
             
-            af.biped_testing_walk(NeatROBOT,elapsed_time)
+            #af.biped_random_torque_twitches(NeatROBOT,elapsed_time)
+            #af.biped_testing_walk(NeatROBOT,elapsed_time)
+            #af.show_axis(NeatROBOT)
+            
+            af.identify_robot(NeatROBOT,"NeatROBOT")
             
             elapsed_time += 1/TPS
             pass
@@ -61,18 +65,28 @@ planeId = p.loadURDF("plane.urdf", useFixedBase=True)
 
 StartPos = [0,0,2] 
 StartOrientation = p.getQuaternionFromEuler([0,0,0]) 
-NeatROBOT = p.loadURDF("biped_custum2.urdf", StartPos, StartOrientation, useFixedBase=True) 
+NeatROBOT = p.loadURDF("biped_norotation_zfixed.urdf", StartPos, StartOrientation) 
 
-#disable the default velocity motors
-#relax the muscles
-jointFrictionForce = 1
+#relax the muscles/define standard friction
+jointFrictionForce = 10
 for joint in range(p.getNumJoints(NeatROBOT)):
   p.setJointMotorControl2(NeatROBOT, joint, p.POSITION_CONTROL, force=jointFrictionForce)
+
+#reference joints should be set at 0
+p.setJointMotorControl2(NeatROBOT, 0,  p.POSITION_CONTROL, force=0) #origin to z
+p.setJointMotorControl2(NeatROBOT, 1,  p.POSITION_CONTROL, force=0) #z to x
+p.setJointMotorControl2(NeatROBOT, 2,  p.POSITION_CONTROL, force=0) #x to y
+
 
 
 #object joints
 for i in range(p.getNumJoints(NeatROBOT)):
     print(p.getJointInfo(NeatROBOT,i)[0:4])
+    pass
+
+#object links
+for i in range(p.getNumJoints(NeatROBOT)):
+    print(p.getLinkState(NeatROBOT,i)[0:3])
     pass
 
 

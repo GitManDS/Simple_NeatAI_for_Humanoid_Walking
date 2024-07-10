@@ -3,7 +3,7 @@ import numpy as np
 
 
 def focus_camera(entity):
-    Pos=p.getLinkState(entity,2)[0]
+    Pos=p.getLinkState(entity,4)[0]
     p.resetDebugVisualizerCamera(3, 
                                  -45, 
                                  -45, 
@@ -39,38 +39,37 @@ def biped_testing_walk(entity,step):
     
     #define position
     pos_pos = np.sin(step/10)*0.5
-    force_val = 1000
+    force_val = 100
     
     #debug index offset
-    i=-1
+    i=0
     
     #torso to R leg
-    p.setJointMotorControl2(entity, 4+i, p.POSITION_CONTROL, targetPosition= pos_pos, force=force_val)
+    p.setJointMotorControl2(entity, 6, p.POSITION_CONTROL, targetPosition= pos_pos, force=force_val)
     #torso to L leg
-    p.setJointMotorControl2(entity, 7+i, p.POSITION_CONTROL, targetPosition= -pos_pos, force=force_val)
+    p.setJointMotorControl2(entity, 10, p.POSITION_CONTROL, targetPosition= -pos_pos, force=force_val)
     
     #right knee
-    p.setJointMotorControl2(entity, 5+i, p.POSITION_CONTROL, targetPosition= pos_pos, force=force_val)
+    p.setJointMotorControl2(entity, 7, p.POSITION_CONTROL, targetPosition= pos_pos, force=force_val)
     #Left Knee
-    p.setJointMotorControl2(entity, 8+i, p.POSITION_CONTROL, targetPosition= -pos_pos, force=force_val)
+    p.setJointMotorControl2(entity, 11, p.POSITION_CONTROL, targetPosition= -pos_pos, force=force_val)
     
     #right ankle
-    p.setJointMotorControl2(entity, 6+i, p.POSITION_CONTROL, targetPosition= pos_pos, force=force_val)   
+    p.setJointMotorControl2(entity, 8, p.POSITION_CONTROL, targetPosition= pos_pos, force=force_val)   
     #Left ankle
-    p.setJointMotorControl2(entity, 9+i, p.POSITION_CONTROL, targetPosition= -pos_pos, force=force_val)
+    p.setJointMotorControl2(entity, 12, p.POSITION_CONTROL, targetPosition= -pos_pos, force=force_val)
     
     pass
 
 def identify_robot(entity,entity_name):
     #get head position
-    #head index = 4
     head_pos = p.getLinkState(entity,3)[0]
     
     #lifetime
     Ltime = 1/24        #movie 1/fps
     
     #place debug text
-    p.addUserDebugText(entity_name,[head_pos[0] , head_pos[1] , head_pos[2]+ 0.1],textColorRGB=[0,0,0], textSize=1, lifeTime=Ltime)
+    p.addUserDebugText(entity_name,[head_pos[0] - 0.25 , head_pos[1], head_pos[2] + 0.5 ],textColorRGB=[0,0,0], textSize=1, lifeTime=Ltime)
     
     pass
 

@@ -33,10 +33,10 @@ def sim_loop():
             #af.focus_camera(NeatROBOT)
             
             #af.biped_random_torque_twitches(NeatROBOT,elapsed_time)
-            #af.biped_testing_walk(NeatROBOT,elapsed_time)
+            af.biped_testing_walk(NeatROBOT,elapsed_time)
             #af.show_axis(NeatROBOT)
             
-            af.identify_robot(NeatROBOT,"NeatROBOT")
+            #af.identify_robot(NeatROBOT,"NeatROBOT")
             
             elapsed_time += 1/TPS
             pass
@@ -63,9 +63,9 @@ sim_init()
 #create objects
 planeId = p.loadURDF("plane.urdf", useFixedBase=True) 
 
-StartPos = [0,0,2] 
+StartPos = [0,0,1.1] 
 StartOrientation = p.getQuaternionFromEuler([0,0,0]) 
-NeatROBOT = p.loadURDF("biped_norotation_zfixed.urdf", StartPos, StartOrientation) 
+NeatROBOT = p.loadURDF("biped_norotation.urdf", StartPos, StartOrientation) 
 
 #relax the muscles/define standard friction
 jointFrictionForce = 10
@@ -76,8 +76,6 @@ for joint in range(p.getNumJoints(NeatROBOT)):
 p.setJointMotorControl2(NeatROBOT, 0,  p.POSITION_CONTROL, force=0) #origin to z
 p.setJointMotorControl2(NeatROBOT, 1,  p.POSITION_CONTROL, force=0) #z to x
 p.setJointMotorControl2(NeatROBOT, 2,  p.POSITION_CONTROL, force=0) #x to y
-
-
 
 #object joints
 for i in range(p.getNumJoints(NeatROBOT)):

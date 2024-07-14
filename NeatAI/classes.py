@@ -1,10 +1,12 @@
 import support_functions as sf
+import visualizer as vz
 
 class brain_fenotype:
     def __init__(self,NOI,NOO):
         #initiliaze the brain with the minimum number of connections/nodes
         self.NOI = NOI                #number of input nodes
         self.NOO = NOO                #number of output nodes
+        self.NodeCount = NOI + NOO    #total number of nodes
         
         self.genepool = []            #list of all the connections in the brain
         self.inov_counter = 1
@@ -12,11 +14,6 @@ class brain_fenotype:
             for j in range(NOI): #for each output node, connect it to each input node
                 self.genepool.append(conn_gene(j,i+NOI,1,self.inov_counter)) #add the connection to the genepool    
                 self.inov_counter += 1 #increment the innovation number
-        pass
-    
-    def observe(self):
-        #observe the brain's state
-        sf.visualize_genepool(self)
         pass
     
     def update_weight(self, index_con, new_weight, index_in=0, index_out=0):
@@ -34,9 +31,9 @@ class brain_fenotype:
     
     def mutation_addconnection(self, in_index, out_index, weight):       
         #add a connection to the brain
-        self.genepool.append(conn_gene(in_index,out_index,1, self.inov_counter))
+        self.genepool.append(conn_gene(in_index,out_index,weight, self.inov_counter))
         
-        #update
+        #update counter
         self.inov_counter += 1
         pass
     
@@ -44,16 +41,46 @@ class brain_fenotype:
         #toggle the status of a connection
         self.genepool[index].Toggle()
         
-        #update
+        #update counter
         self.inov_counter += 1
         pass
     
-    def mutation_addnode(self,index_in,index_out):
+    def mutation_addnode(self,index_in,index_out,weight):
         #search for the connection
-        index_con = sf.search_con(self.genepool, index_in, index_out)
+        index_con = sf.search_con_index(self.genepool, index_in, index_out)
         
-        #get top most node number
-           
+        #add a new node
+        #if the connection exists, it must be disabled
+        if self.genepool[index_con].status == True and index_con != -1:
+            self.genepool[index_con].Toggle()
+            
+            #also the connection must be split into two and one of them must inherit the old weight value
+            #add connections to the new node
+            self.genepool.append(conn_gene(index_in,self.NodeCount,weight,self.inov_counter))
+            self.genepool.append(conn_gene(self.NodeCount,index_out,self.genepool[index_con].weight, self.inov_counter))
+        else: 
+            #if it doesn't exist, simply create 2 connections of the same weight
+            #add connections to the new node
+            self.genepool.append(conn_gene(index_in,self.NodeCount,weight,self.inov_counter))
+            self.genepool.append(conn_gene(self.NodeCount,index_out,weight,self.inov_counter))
+
+        
+        
+        #update node count and innovation counter
+        self.NodeCount += 1  
+        self.inov_counter += 1 
+    
+    
+    #################### INFORMATION ####################
+    def observe(self):
+        #observe the brain's state
+        vz.draw_genepool(self)
+        pass
+    
+    def print(self):
+        #print the brain's state
+        sf.print_genepool(self)
+        pass
         
 class conn_gene:
     def __init__(self, in_index, out_index, weight, inov):

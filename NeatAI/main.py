@@ -1,9 +1,10 @@
 import classes as ccls
 import support_functions as sf
+import matplotlib.pyplot as plt
+import temporary_testing_funcs as ttf
 
 
 
 #create brain
-brian_the_dog = ccls.brain_fenotype(2,3)
-brian_the_dog.mutation_addconnection(3,4,1)
-brian_the_dog.observe()
+ttf.live_stress_test_NEAT_AI_class_and_visualizer(UPS=10)
+    

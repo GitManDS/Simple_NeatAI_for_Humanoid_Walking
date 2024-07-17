@@ -83,7 +83,7 @@ def draw_genepool(fenotype):
     plt.colorbar(edges_enabled)
     plt.axis('off')
     
-    #plt.show()
+    pass
 
 #support function for visualizing the genepool
 #creates and positions the nodes in the graph

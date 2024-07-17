@@ -10,13 +10,13 @@ import visualizer as vz
 #modifies the brain according to UPS (updates per second)
 def live_stress_test_NEAT_AI_class_and_visualizer(UPS):
     
-    brian_the_dog = classes.brain_fenotype(rnd.randint(1,20),rnd.randint(1,20))
+    brian_the_dog = classes.brain_fenotype(rnd.randint(3,8),rnd.randint(3,8))
     plt.figure()
     brian_the_dog.observe()
     plt.pause(1/UPS)        
     plt.clf()
     while True:
-        brian_the_dog=sf.random_mutation(brian_the_dog)
+        brian_the_dog.mutation_random()
         
         brian_the_dog.print()
         brian_the_dog.observe()

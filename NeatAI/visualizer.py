@@ -5,6 +5,116 @@ import random as rnd
 import support_functions as sf
 
 
+#support function for visualizing the genepool
+#creates and positions the nodes in the graph
+def create_node(index, fenotype ,nodes_count_per_layer):
+                 
+    #if node doesn't exist in the graph, add it
+    #this isn't redundant since even though graph.add_edge does this automatically, it doesnt align them up
+    
+    if index < fenotype.NOO + fenotype.NOI:    
+        if index < fenotype.NOI:
+            layer_index = 0                   #if input node
+        else:
+            layer_index = 2                       #if output node
+    else:
+            layer_index = 1                       #if hidden node
+    
+    node = {index : [nodes_count_per_layer[layer_index],layer_index]}
+    nodes_count_per_layer[layer_index] += 1
+            
+    return node, nodes_count_per_layer
+
+#checks if there are hidden nodes with connections to eachother
+def reorganize_hidden_layer_positions(fenotype, node_pos_list, layer_count = 0):
+    
+    #define indexes
+    index_last = fenotype.NodeCount - 1
+    index_first = fenotype.NOO + fenotype.NOI
+    
+    #define variable to inform whether anything changed
+    change = False
+    
+    #also extra variable to count layers
+    #purelly debug, has no use for the visualizer
+    if layer_count == 0:        #first time organizing
+        layer_count = 3     #input, hidden, output
+    
+    if index_first >= index_last:                   #no hidden nodes or only 1 hidden node
+        return node_pos_list, change, layer_count
+    
+    for i in range(index_first, index_last+1):              
+        for j in range(index_first, index_last+1):
+            cursor = sf.search_con_index(fenotype.genepool, i, j)              #verify every connection between hidden nodes
+            
+            if cursor != -1 and fenotype.genepool[cursor].status == True:
+                #there's an ACTIVE connection , check for conditions
+                conn = fenotype.genepool[cursor]
+                   
+                #CASE1: nodes are in the same layer
+                if node_pos_list[conn.out_index][1] == node_pos_list[conn.in_index][1]:
+                    
+                    #if the next layer is the output layer, then a new layer must be created
+                    #fenotype.NOI index is the first output node
+                    if node_pos_list[fenotype.NOI][1] == node_pos_list[conn.out_index][1] + 1:
+                        for k in range(fenotype.NOI, fenotype.NOI + fenotype.NOO):          
+                            node_pos_list[k][1] += 1            #move output layers by 1
+                            layer_count += 1                    #update layer count
+                    
+                    #always move the one that is the output node
+                    node_pos_list[conn.out_index][1] += 1                       #create additional hidden layer, move affected node up
+                       
+                    #update change 
+                    change = True
+                    
+                    ##DEBUG
+                    print(f"[SAME LINE]moved gene {conn.out_index} up from layer {node_pos_list[conn.in_index][1]} to {node_pos_list[conn.out_index][1]} due to gene {conn.in_index}")
+                    
+                    
+                #CASE2: the output node is under the input node
+                elif node_pos_list[conn.out_index][1] < node_pos_list[conn.in_index][1]:
+                    
+                    #get the jump difference (+1 because we are moving the output node up)
+                    diff = (node_pos_list[conn.in_index][1] - node_pos_list[conn.out_index][1])+1
+                    
+                    #if the next layer is the output layer, then a new layer must be created
+                    #fenotype.NOI index is the first output node
+                    #2 is used since we jump over the hidden layer
+                    if node_pos_list[fenotype.NOI][1] == node_pos_list[conn.out_index][1] + diff:
+                        for k in range(fenotype.NOI, fenotype.NOI + fenotype.NOO):          
+                            node_pos_list[k][1] += 1            #move output layers by 1
+                            layer_count += 1                    #update layer count
+                        
+                    #always move the one that is the output node
+                    node_pos_list[conn.out_index][1] += diff                       #create additional hidden layer, move affected node up
+
+                    #update change 
+                    change = True
+                    
+                    ##DEBUG
+                    print(f"[UNDER INPUT] moved gene {conn.out_index} up from layer {node_pos_list[conn.in_index][1]-1} to {node_pos_list[conn.out_index][1]} due to gene {conn.in_index}")
+                    
+    layer_count=0             
+    return node_pos_list, change, layer_count
+
+#counts how many nodes are in each layer   
+#reorganizes each layer 
+def reorganize_node_spacing(node_pos_list): 
+    layers = {} #will keep a record of the current number of nodes in each layer    
+    
+    for node in node_pos_list:
+        if node_pos_list[node][1] not in layers:
+            node_pos_list[node][0] = 0                      #position node
+            layers.update({node_pos_list[node][1]:1})       #update layer count with a new layer
+        else:
+            node_pos_list[node][0] = layers[node_pos_list[node][1]]     #position node
+            layers[node_pos_list[node][1]] += 1                         #update layer count
+    
+    #center everything
+    for node in node_pos_list:
+        node_pos_list[node][0] -= (layers[node_pos_list[node][1]]-1)/2
+    
+    return node_pos_list  
 
 #plot the fenotype of a brain
 def draw_genepool(fenotype):
@@ -41,8 +151,9 @@ def draw_genepool(fenotype):
     
     #reorganize layers if hidden nodes are connected to eachother
     changed = True
+    count_trash = 0
     while changed:
-        node_pos_list, changed = reorganize_hidden_layer_positions(fenotype, node_pos_list)
+        node_pos_list, changed, count_trash = reorganize_hidden_layer_positions(fenotype, node_pos_list,count_trash)
     node_pos_list = reorganize_node_spacing(node_pos_list)
 
     #intermediate steps to order the colors
@@ -82,97 +193,8 @@ def draw_genepool(fenotype):
 
     plt.colorbar(edges_enabled)
     plt.axis('off')
+        
+    #plt.pause(0.2)
+    #plt.clf()
     
     pass
-
-#support function for visualizing the genepool
-#creates and positions the nodes in the graph
-def create_node(index, fenotype ,nodes_count_per_layer):
-                 
-    #if node doesn't exist in the graph, add it
-    #this isn't redundant since even though graph.add_edge does this automatically, it doesnt align them up
-    
-    if index < fenotype.NOO + fenotype.NOI:    
-        if index < fenotype.NOI:
-            layer_index = 0                   #if input node
-        else:
-            layer_index = 2                       #if output node
-    else:
-            layer_index = 1                       #if hidden node
-    
-    node = {index : [nodes_count_per_layer[layer_index],layer_index]}
-    nodes_count_per_layer[layer_index] += 1
-            
-    return node, nodes_count_per_layer
-
-
-#checks if there are hidden nodes with connections to eachother
-def reorganize_hidden_layer_positions(fenotype, node_pos_list):
-    
-    #define indexes
-    index_last = fenotype.NodeCount - 1
-    index_first = fenotype.NOO + fenotype.NOI
-    
-    #define variable to inform whether anything changed
-    change = False
-    
-    if index_first == index_last:
-        return node_pos_list, change
-    
-    for i in range(index_first, index_last+1):              
-        for j in range(index_first, index_last+1):
-            cursor = sf.search_con_index(fenotype.genepool, i, j)              #verify every connection between hidden nodes
-            
-            if cursor != -1 :
-                #there's a connection, check for conditions
-                conn = fenotype.genepool[cursor]
-                   
-                #CASE1: nodes are in the same layer
-                if node_pos_list[conn.out_index][1] == node_pos_list[conn.in_index][1]:
-                    
-                    #if the next layer is the output layer, then a new layer must be created
-                    #fenotype.NOI index is the first output node
-                    if node_pos_list[fenotype.NOI][1] == node_pos_list[conn.out_index][1] + 1:
-                        for k in range(fenotype.NOI, fenotype.NOI + fenotype.NOO):          
-                            node_pos_list[k][1] += 1            #move output layers by 1
-                    
-                    #always move the one that is the output node
-                    node_pos_list[conn.out_index][1] += 1                       #create additional hidden layer, move affected node up
-                    change = True
-                    
-                #CASE2: the output node is under the input node
-                elif node_pos_list[conn.out_index][1] == node_pos_list[conn.in_index][1]:
-                    
-                    #if the next layer is the output layer, then a new layer must be created
-                    #fenotype.NOI index is the first output node
-                    #2 is used since we jump over the hidden layer
-                    if node_pos_list[fenotype.NOI][1] == node_pos_list[conn.out_index][1] + 2:
-                        for k in range(fenotype.NOI, fenotype.NOI + fenotype.NOO):          
-                            node_pos_list[k][1] += 1            #move output layers by 1
-                        
-                    #always move the one that is the output node
-                    node_pos_list[conn.out_index][1] += 2                       #create additional hidden layer, move affected node up
-
-                    change = True
-    
-    return node_pos_list, change
-
-#counts how many nodes are in each layer   
-#reorganizes each layer 
-def reorganize_node_spacing(node_pos_list): 
-    layers = {} #will keep a record of the current number of nodes in each layer    
-    
-    for node in node_pos_list:
-        if node_pos_list[node][1] not in layers:
-            node_pos_list[node][0] = 0                      #position node
-            layers.update({node_pos_list[node][1]:1})       #update layer count with a new layer
-        else:
-            node_pos_list[node][0] = layers[node_pos_list[node][1]]     #position node
-            layers[node_pos_list[node][1]] += 1                         #update layer count
-    
-    #center everything
-    for node in node_pos_list:
-        node_pos_list[node][0] -= (layers[node_pos_list[node][1]]-1)/2
-    
-    return node_pos_list  
-

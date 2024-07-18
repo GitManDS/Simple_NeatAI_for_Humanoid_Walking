@@ -4,27 +4,38 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import random as rnd
 import numpy as np
-
+import visualizer as vz
+    
 
 #search for connection with given in, out indexes
-def search_con_index(genepool, in_index, out_index):
+#for out_index = 0, it will return all the connections with the given in_index in a list
+#otherwise it will return the index of the single connection
+def search_con_index(genepool, in_index, out_index=0):
     counter=0
-    for con in genepool:
-        if con.in_index == in_index and con.out_index == out_index:
-            return counter
-        counter += 1
+    if out_index != 0:          #find specific connection
+        for con in genepool:
+            if con.in_index == in_index and con.out_index == out_index:
+                return counter
+            counter += 1
+    else:                      #find any connection with in_index
+        indexes=[]
+        for con in genepool:
+            if con.in_index == in_index:
+                indexes.append(counter)
+            counter += 1
+        return indexes
     return -1
 
-#print the fenotype of a brain, connection by connection
-def print_genepool(fenotype):
-    for con in fenotype.genepool:
-        print(f"[{con.status}] <> Connection: {con.in_index} -> {con.out_index}: Weight = {con.weight}: Inovation = {con.inov}")
-    pass
-
+#combine and merge 2 fenotypes according to innavtion numbers
+#only invoke after confirming that speciation is the same!!!
+#use compare_fenotypes to check distance before this
 def combine_fenotypes(dominant_fenotype, recessive_fenotype):
     
     pass
 
+#compares 2 fenotypes for disjoint and excess genes
+#also measure the average connection weight difference
+#returns the compatibility distance
 def compare_fenotypes(fenotype1,fenotype2):
     #Weights
     #delta = c1 *  excess/gene_larger_genome + c2 * disjoint/gene_bigger_genome + c3 * AWD
@@ -69,10 +80,8 @@ def compare_fenotypes(fenotype1,fenotype2):
     
     return d
 
-def layer_sort(fenotype,node_pos_list=[]):
-    
-    #extra parameters
-    layer_count = 3
+#sorts the nodes per layer according to the connections
+def layer_sort(fenotype,node_pos_list=[], layer_count = 0):
 
     if node_pos_list == []:
         #initialize the node position list
@@ -84,61 +93,22 @@ def layer_sort(fenotype,node_pos_list=[]):
             node_pos_list.append([i,2])         #output nodes
         for i in range(fenotype.NOI + fenotype.NOO, fenotype.NodeCount):
             node_pos_list.append([i,1])         #hidden nodes
-
-    #define indexes
-    index_last = fenotype.NodeCount - 1
-    index_first = fenotype.NOO + fenotype.NOI
-    
-    #define variable to inform whether anything changed
-    change = False
-    
-    if index_first == index_last:
-        return node_pos_list, change
-    
-    for i in range(index_first, index_last+1):              
-        for j in range(index_first, index_last+1):
-            cursor = search_con_index(fenotype.genepool, i, j)              #verify every connection between hidden nodes
             
-            if cursor != -1 :
-                #there's a connection, check for conditions
-                conn = fenotype.genepool[cursor]
-                   
-                #CASE1: nodes are in the same layer
-                if node_pos_list[conn.out_index][1] == node_pos_list[conn.in_index][1]:
-                    
-                    #if the next layer is the output layer, then a new layer must be created
-                    #fenotype.NOI index is the first output node
-                    if node_pos_list[fenotype.NOI][1] == node_pos_list[conn.out_index][1] + 1:
-                        for k in range(fenotype.NOI, fenotype.NOI + fenotype.NOO):          
-                            node_pos_list[k][1] += 1            #move output layers by 1
-                    
-                    #always move the one that is the output node
-                    node_pos_list[conn.out_index][1] += 1                       #create additional hidden layer, move affected node up
-                    layer_count += 1
-                    change = True
-                    
-                #CASE2: the output node is under the input node
-                elif node_pos_list[conn.out_index][1] == node_pos_list[conn.in_index][1]:
-                    
-                    #if the next layer is the output layer, then a new layer must be created
-                    #fenotype.NOI index is the first output node
-                    #2 is used since we jump over the hidden layer
-                    if node_pos_list[fenotype.NOI][1] == node_pos_list[conn.out_index][1] + 2:
-                        for k in range(fenotype.NOI, fenotype.NOI + fenotype.NOO):          
-                            node_pos_list[k][1] += 1            #move output layers by 1
-                        
-                    #always move the one that is the output node
-                    node_pos_list[conn.out_index][1] += 2                       #create additional hidden layer, move affected node up
-                    layer_count += 1
-                    change = True
+    if layer_count == 0:   #first time initializing
+        layer_count = 3     #input, hidden, output
+
+    #call existing function from visualizer
+    node_pos_list, change, layer_count = vz.reorganize_hidden_layer_positions(fenotype, node_pos_list,layer_count)
     
     return node_pos_list, change, layer_count
 
+#from a given fenotype, compute the output of the brain
+#given the input
 def compute_output(fenotype,input):
     #sort the genepool by layers
-    node_pos_list, change, Number_of_layers = layer_sort(fenotype,[])
+    node_pos_list, change, Number_of_layers = layer_sort(fenotype,[],0)
     while change:
-        node_pos_list, change, Number_of_layers = layer_sort(fenotype,node_pos_list)
+        node_pos_list, change, Number_of_layers = layer_sort(fenotype,node_pos_list,Number_of_layers)
         
     #create a mupet fenotype that can be reduced over time
     mupet_fenotype = fenotype
@@ -150,27 +120,45 @@ def compute_output(fenotype,input):
     #for every node, from layer 2 to output layer from left to right, compute the value of the node
     for layer in range(1,Number_of_layers):
         #search for a node in said layer
-        for node_index, node in enumerate(node_pos_list):
-            if node[1] == layer:
+        node_index = 0
+        len_node_list = len(node_pos_list)
+        while node_index < len_node_list:
+            #found a node in the currently sought layer
+            if node_pos_list[node_index][1] == layer:
                 #compute the value of the node
                 #search all connections that lead to the node
-                for con_index, con in enumerate(mupet_fenotype.genepool):
-                    if con.out_index == node[0]:
+                con_index = 0
+                len_con_list = len(mupet_fenotype.genepool)
+                while con_index < len_con_list:
+                    #found a connection that leads to the node
+                    #adding up value
+                    con = mupet_fenotype.genepool[con_index]    #this helps with readability
+                    
+                    if con.out_index == node_pos_list[node_index][0]:
                         if con.status == True:
                             values[con.out_index] = con.weight * values[con.in_index] 
                         
                         #REMOVE STUFF TO MAKE ITERATIONS FASTER AS IT GOES
-                        #remove connection
+                        #remove connection and update pool size
                         mupet_fenotype.genepool.pop(con_index)
+                        len_con_list -= 1
+                    else:
+                        #search next connection
+                        con_index += 1
                         
                 #apply activation function
                 values[con.out_index] = convert_according_to_AF(values[con.out_index])
                 
-            #remove node
-            node_pos_list.pop(node_index)
+                #remove node and update gene layer list size
+                node_pos_list.pop(node_index)
+                len_node_list -= 1
+            else:
+                #search next node
+                node_index += 1
                       
     return values
 
+#activation function
 def convert_according_to_AF(input):
     #if method == "sigmoid":
     #    for i in range(0,len(input)):
@@ -181,6 +169,37 @@ def convert_according_to_AF(input):
     #output = max(0,input)
     
     return input
+
+#this function will detect if there is a loop in the hidden layer
+#if there is, it will return true
+#INSTRUCTIONS: at the first call of the function:
+#   -- critical index: in_index of the new connection to be added
+#   -- current_node_index: out_index of the new connection to be added
+def detect_loops(fenotype, critical_index, current_node_index, order = 2):
+    #this function detects for any series of connections that start at in_index
+    #and end up in the in_index of the new connectionn
+    #critical_index = new_conn.in_index
+    #^^^^this is defined outside the recursive function to avoid unnecessary redefinition
+    
+    #get list of outgoing connections from the out index
+    indexes = search_con_index(fenotype.genepool, current_node_index)
+    nodes = [fenotype.genepool[i].out_index for i in indexes]
+    
+    #look for the critical index in the outgoing connections
+    if critical_index in nodes:
+        return True
+    #if the critical index is not found, but the order is not 0, then the function is going to be called again
+    #for every outgoing node, the same is going to be checked in a recursive manner
+    #order is going to drop by 1
+    elif order > 0:
+        for index in nodes:
+            if detect_loops(fenotype,critical_index, index, order=order-1) == True:
+                return True
+    
+    #if it wasn't found and order is 0, then there is no loop
+    return False
+        
+
 ''' OLD FUNCTIONS, DEPRECATED
 #create visualization of the genepool
 def visualize_genepool(fenotype):

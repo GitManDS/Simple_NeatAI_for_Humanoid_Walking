@@ -14,11 +14,11 @@ class population:
         self.innovation = 1                          #innovation counter     
         pass
     
-    def iterate_innovation(self):
-        self.innovation += 1
+    def update_innovation(self,new_inov):
+        self.innovation = new_inov
         for specie in self.species:
             for brain in specie.brains:
-                brain.inov_counter = self.innovation
+                brain.inov_counter = new_inov
         pass
 
 class species:
@@ -45,7 +45,10 @@ class brain_fenotype:
                 self.inov_counter += 1 #increment the innovation number
         pass
     
-    def update_weight(self, index_con, new_weight, index_in=0, index_out=0):
+    #################### MUTATIONS ####################
+    #necesssary because they need to update the innovation counter and other information
+    
+    def mutation_update_weight(self, index_con, new_weight, index_in=0, index_out=0):
         
         #search for a connection by the node indexes
         if index_con == -1:
@@ -53,10 +56,11 @@ class brain_fenotype:
             if index_con == -1:
                 exit("Connection not found")
         
-        self.genepool[index_con].weight = new_weight                 
-        pass
-    
-    #################### MUTATIONS ####################
+        self.genepool[index_con].weight = new_weight   
+        
+        #update weight isn't a topological innovation
+        #self.inov_counter += 1             
+        pass 
     
     def mutation_addconnection(self, in_index, out_index, weight):       
         #add a connection to the brain
@@ -70,8 +74,8 @@ class brain_fenotype:
         #toggle the status of a connection
         self.genepool[index].Toggle()
         
-        #update counter
-        self.inov_counter += 1
+        #toggle connection isn't a topological innovation
+        #self.inov_counter += 1
         pass
     
     def mutation_addnode(self,index_in,index_out,weight):
@@ -86,6 +90,7 @@ class brain_fenotype:
             #also the connection must be split into two and one of them must inherit the old weight value
             #add connections to the new node
             self.genepool.append(conn_gene(index_in,self.NodeCount,weight,self.inov_counter))
+            self.inov_counter += 1 
             self.genepool.append(conn_gene(self.NodeCount,index_out,self.genepool[index_con].weight, self.inov_counter))
         else: 
             #if it doesn't exist, the same loop precaution as for add_connection must be taken
@@ -97,6 +102,7 @@ class brain_fenotype:
             #simply create 2 connections of the same weight
             #add connections to the new node    
                 self.genepool.append(conn_gene(index_in,self.NodeCount,weight,self.inov_counter))
+                self.inov_counter += 1
                 self.genepool.append(conn_gene(self.NodeCount,index_out,weight,self.inov_counter))
 
         
@@ -104,6 +110,8 @@ class brain_fenotype:
         #update node count and innovation counter
         self.NodeCount += 1  
         self.inov_counter += 1 
+        
+        pass
     
     def mutation_random(self):
         #show debug messages
@@ -209,7 +217,7 @@ class brain_fenotype:
             new_weight = old_weight + amplitude * old_weight
             
             #update weight
-            self.update_weight(index, new_weight)
+            self.mutation_update_weight(index, new_weight)
             
             #DEBUG
             if debug:               
@@ -225,7 +233,10 @@ class brain_fenotype:
         pass
     
     #saves a diagram of the brain to a path
-    def save_mental_picture(self, path):
+    def save_mental_picture(self, filename, overwrite = False):
+        #standard path
+        path = "NeatAI/brain_saves/" + filename
+        
         #save the brain's state
         vz.draw_genepool(self)
         plt.savefig(path)
@@ -255,11 +266,14 @@ class brain_fenotype:
     
     #prints to file all the connections in the brain
     #includes details
-    def save_mental_connections(self,path):
+    def save_mental_connections(self,filename, overwrite = False):
+        #standard path
+        path = "NeatAI/brain_saves/" + filename
+        
         #check if file exists
         #if it does, change the path name
         i=1
-        while os.path.isfile(path):
+        while os.path.isfile(path) and not overwrite:
             extension_index = path.find(".txt")
             path = path[:extension_index-2] + "_" + str(i) + ".txt"
             i+=1
@@ -269,8 +283,8 @@ class brain_fenotype:
         
         #write to file
         file.write(f"<NOI> = {self.NOI}, <NOO> = {self.NOO}, <NodeCount> = {self.NodeCount}\n")  
-        for con in self.genepool:
-            file.write(f"[{con.status}] <> Connection: {con.in_index} -> {con.out_index}: Weight = {con.weight}: Inovation = {con.inov}\n")
+        for i,con in enumerate(self.genepool):
+            file.write(f"[{con.status}] <{i}> Connection: {con.in_index} -> {con.out_index}: Weight = {con.weight}: Inovation = {con.inov}\n")
         
         #close file
         file.close()      
@@ -278,7 +292,10 @@ class brain_fenotype:
       
     #loads connections from a file
     #wipes all previous connections, copies brain from file
-    def load_mental_connections(self,path):
+    def load_mental_connections(self,filename):
+        #standard path
+        path = "NeatAI/brain_saves/" + filename
+        
         #check if file exists
         if not os.path.isfile(path):
             exit(f"FAIL, could not load brain from file ({path})")
@@ -341,6 +358,17 @@ class brain_fenotype:
         self.genepool[-1].status = False
         pass
 
+    #updates the weight without changing inov counter
+    def update_weight_without_changing_inov(self, index_con, new_weight, index_in=0, index_out=0):
+        #search for a connection by the node indexes
+        if index_con == -1:
+            index_con = sf.search_con(self.genepool, index_in, index_out)
+            if index_con == -1:
+                exit("Connection not found")
+        
+        self.genepool[index_con].weight = new_weight                 
+        pass
+        
     #observe function but doesn't draw
     #usefull for custum drawing (i.e. real time drawing)
     def draw(self):

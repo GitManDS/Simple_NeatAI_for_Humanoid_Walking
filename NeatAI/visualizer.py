@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import random as rnd
 import support_functions as sf
+from matplotlib.widgets import Slider
 
 
 #support function for visualizing the genepool
@@ -27,6 +28,8 @@ def create_node(index, fenotype ,nodes_count_per_layer):
 
 #checks if there are hidden nodes with connections to eachother
 def reorganize_hidden_layer_positions(fenotype, node_pos_list, layer_count = 0):
+    #debug
+    debug = False
     
     #define indexes
     index_last = fenotype.NodeCount - 1
@@ -68,7 +71,8 @@ def reorganize_hidden_layer_positions(fenotype, node_pos_list, layer_count = 0):
                     change = True
                     
                     ##DEBUG
-                    print(f"[SAME LINE]moved gene {conn.out_index} up from layer {node_pos_list[conn.in_index][1]} to {node_pos_list[conn.out_index][1]} due to gene {conn.in_index}")
+                    if debug:
+                        print(f"[SAME LINE]moved gene {conn.out_index} up from layer {node_pos_list[conn.in_index][1]} to {node_pos_list[conn.out_index][1]} due to gene {conn.in_index}")
                     
                     
                 #CASE2: the output node is under the input node
@@ -92,9 +96,9 @@ def reorganize_hidden_layer_positions(fenotype, node_pos_list, layer_count = 0):
                     change = True
                     
                     ##DEBUG
-                    print(f"[UNDER INPUT] moved gene {conn.out_index} up from layer {node_pos_list[conn.in_index][1]-1} to {node_pos_list[conn.out_index][1]} due to gene {conn.in_index}")
-                    
-    layer_count=0             
+                    if debug:
+                        print(f"[UNDER INPUT] moved gene {conn.out_index} up from layer {node_pos_list[conn.in_index][1]-1} to {node_pos_list[conn.out_index][1]} due to gene {conn.in_index}")
+                                
     return node_pos_list, change, layer_count
 
 #counts how many nodes are in each layer   
@@ -198,3 +202,118 @@ def draw_genepool(fenotype):
     #plt.clf()
     
     pass
+
+#will draw all the connections in a sequenced manner
+#if more than one fenotype is given, it will draw them all aligned by inovation number
+def draw_fenotype_list(fenotype_list, align_by_inov=False):
+    #scalings and other parameters
+    scale_x = 1
+    scale_y =1
+    
+    # Setting Plot and Axis variables as subplots()
+    # function returns tuple(fig, ax)
+    Plot, Axis = plt.subplots(figsize=(10, 6))
+    
+    # Adjust the bottom size according to the
+    # requirement of the user
+    plt.subplots_adjust(bottom=0.25)
+    
+    #first determine if there are any inov numbers that none of the fenotype have
+    #if there are, remove the space that would normally be reserved for that inov number
+    #as none of the fenotypes will have a connection to fit there
+    existant_inov = []
+    non_existant_inov = []
+    for brain in fenotype_list:
+        for con in brain.genepool:
+            #note down all the inovation numbers that appear if they haven't been noted down already
+            if con.inov not in existant_inov:   #inov starts at 1, index at 0  
+                existant_inov.append(con.inov)
+    
+    #go through all the inov numbers and check if there's one that doesn't exist
+    for i in range(max(existant_inov)+1):
+        if i+1 not in existant_inov:
+            non_existant_inov.append(i+1)
+    
+    #before going fenotype by fenotype, create some necessary storage var
+    inov_max = max(existant_inov)
+    
+    for j, fenotype in enumerate(fenotype_list):
+        #init connections, gene positions and atributes
+        #also resets these quantities
+        Conns = nx.DiGraph()
+        gene_pos = {}
+        colors = []
+        labels = {}
+        
+        #go through all the connections
+        for i, con in enumerate(fenotype.genepool):
+            
+            #no need for connections whent the nodes represent connections
+            #if i+1 < len(fenotype.genepool)-1:  #if next node exists in the genepool
+            #    Conns.add_edge(i,i+1)           #create a connection anticipating next node
+            Conns.add_node(i)
+            
+            #check how much spacing needs to be corrected for non_existant_inov_spaces
+            non_existant_inov_space_correction = 0
+            for k in non_existant_inov:
+                if con.inov > k:
+                    non_existant_inov_space_correction += 1
+                
+
+            gene_pos.update({i : (con.inov*scale_x - non_existant_inov_space_correction,-j*scale_y)})
+            
+            if con.status == True:
+                colors.append("green")
+            else:
+                colors.append("gray")
+            
+            labels.update({i : f"<{i}>\n{i}->{i+1}\nW={round(con.weight,4)}\nInov={con.inov}"})
+            
+            
+                
+        #draw graph
+        nodes_enabled = nx.draw_networkx_nodes(
+            Conns, 
+            gene_pos, 
+            node_color=colors,
+            node_shape = "s",
+            node_size = 5000
+        )
+        
+        labels = nx.draw_networkx_labels(
+            Conns, 
+            gene_pos,
+            labels=labels
+        )
+    
+        
+    plt.axis('off')
+        
+    # Choose the Slider color
+    slider_color = 'White'
+    
+    # Set the axis and slider position in the plot
+    axis_position = plt.axes([0.2, 0.1, 0.65, 0.03],
+                            facecolor = slider_color)
+    slider_position = Slider(axis_position,
+                            'Pos', 0.1, scale_x*inov_max)
+    
+    # update() function to change the graph when the
+    # slider is in use
+    def update(val):
+        pos = slider_position.val
+        Axis.axis([pos-1.5, pos+1.5, -1-j, 1])
+        Plot.canvas.draw_idle()
+    
+    # update function called using on_changed() function
+    slider_position.on_changed(update)
+    
+    # Display the plot
+    Axis.axis([-1.5, 1.5, -1-j, 1])
+    Axis.set_aspect(aspect='equal', adjustable='datalim')
+    plt.show()
+    
+    print("hello")
+    pass
+
+    

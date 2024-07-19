@@ -1,0 +1,22 @@
+<NOI> = 3, <NOO> = 3, <NodeCount> = 9
+[True] <0> Connection: 0 -> 3: Weight = 1: Inovation = 1
+[False] <1> Connection: 1 -> 3: Weight = 1: Inovation = 2
+[False] <2> Connection: 2 -> 3: Weight = 1.0585297453607678: Inovation = 3
+[True] <3> Connection: 0 -> 4: Weight = 1.1162390819759793: Inovation = 4
+[False] <4> Connection: 1 -> 4: Weight = 1: Inovation = 5
+[True] <5> Connection: 2 -> 4: Weight = 1.0051890280330285: Inovation = 6
+[True] <6> Connection: 0 -> 5: Weight = 1.0528774981089835: Inovation = 7
+[True] <7> Connection: 1 -> 5: Weight = 1: Inovation = 8
+[True] <8> Connection: 2 -> 5: Weight = 1: Inovation = 9
+[False] <9> Connection: 1 -> 5: Weight = 0.08724037495874448: Inovation = 10
+[False] <10> Connection: 1 -> 3: Weight = 0.5031699680417434: Inovation = 13
+[True] <11> Connection: 2 -> 3: Weight = 0.2563608382162691: Inovation = 17
+[False] <12> Connection: 1 -> 6: Weight = 0.7225515196214819: Inovation = 19
+[True] <13> Connection: 6 -> 4: Weight = 0.7225515196214819: Inovation = 20
+[False] <14> Connection: 1 -> 7: Weight = 0.6364935534074386: Inovation = 25
+[True] <15> Connection: 7 -> 3: Weight = 1: Inovation = 26
+[True] <16> Connection: 1 -> 8: Weight = 0.12148810527028342: Inovation = 27
+[True] <17> Connection: 8 -> 7: Weight = 0.6364935534074386: Inovation = 28
+[True] <18> Connection: 8 -> 4: Weight = 0.811805196991523: Inovation = 29
+[True] <19> Connection: 7 -> 6: Weight = 0.689050152505205: Inovation = 32
+[True] <20> Connection: 6 -> 3: Weight = 0.72945407553751: Inovation = 34

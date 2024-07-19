@@ -3785,3 +3785,311 @@ Connection 4 toggled from False to True
 Added connection: 6 -> 3
 Connection 13 weight updated to 1.1648580893435054 (16.485808934350548%)
 Connection 12 toggled from True to False
+Added connection: 2 -> 4
+Connection 1 weight updated to 1.0010361687732656 (0.10361687732655335%)
+Added connection: 0 -> 3
+Added connection: 1 -> 3
+Connection 3 toggled from True to False
+Connection 7 weight updated to 1.1039056744269322 (10.390567442693222%)
+Added connection: 2 -> 3
+Added node between 0 and 5
+Added node between 1 and 4
+Connection 11 weight updated to 0.9477495672457639 (-5.225043275423609%)
+Connection 12 weight updated to 0.21168418724074417 (6.179943080319248%)
+Connection 9 weight updated to 0.11805192861858686 (5.787570118725709%)
+Connection 11 weight updated to 0.6322558304273209 (5.846491238293883%)
+Added node between 2 and 6
+Added node between 0 and 6
+Connection 0 weight updated to 0.8561986114857711 (-14.380138851422892%)
+Added connection: 6 -> 3
+[LOOP] NOT ADDING NODE DUE TO LOOP
+Added node between 6 and 7
+Added connection: 1 -> 7
+Added connection: 7 -> 4
+Added node between 1 and 6
+Added connection: 6 -> 3
+Added node between 1 and 6
+Connection 14 weight updated to 0.7412264994306619 (2.2792820133603753%)
+Added connection: 9 -> 5
+Added connection: 8 -> 4
+Added connection: 8 -> 4
+Connection 8 toggled from True to False
+Added connection: 8 -> 5
+Connection 1 weight updated to 0.9489755301842656 (-5.200675081780357%)
+Added connection: 7 -> 3
+Connection 6 weight updated to 0.9705599397428607 (-2.9440060257139278%)
+Connection 18 weight updated to 0.3398194188588553 (-8.094645735931106%)
+Connection 14 weight updated to 0.7528315476954553 (1.5656547996742411%)
+Connection 22 weight updated to 0.7066293448980114 (19.611938703440497%)
+Connection 7 weight updated to 1.1425340245409716 (3.4992437314983826%)
+Connection 18 weight updated to 0.3520581971978115 (3.6015535486627392%)
+Connection 16 toggled from True to False
+Connection 7 toggled from True to False
+Added node between 7 and 6
+[LOOP] NOT ADDING NODE DUE TO LOOP
+[LOOP] Loop detected, connection -1 from 6 to 7 not added
+[DUPLICATE] Connection with inov 13 from 6 to 4 already exists
+[DUPLICATE] Connection with inov 10 from 1 to 6 already exists
+[DUPLICATE] Connection with inov 11 from 6 to 3 already exists
+[LOOP] Loop detected, connection with inov 13 from 6 to 7 not added
+[DUPLICATE] Connection with inov 14 from 7 to 5 already exists
+[DUPLICATE] Connection with inov 15 from 6 to 8 already exists
+[DUPLICATE] Connection with inov 16 from 8 to 4 already exists
+[LOOP] Loop detected, connection with inov 17 from 8 to 7 not added
+[DUPLICATE] Connection with inov 19 from 9 to 5 already exists
+[DUPLICATE] Connection with inov 24 from 7 to 3 already exists
+[DUPLICATE] Connection with inov 14 from 0 to 6 already exists
+[DUPLICATE] Connection with inov 15 from 6 to 5 already exists
+[DUPLICATE] Connection with inov 19 from 6 to 4 already exists
+[DUPLICATE] Connection with inov 25 from 8 to 7 already exists
+[DUPLICATE] Connection with inov 29 from 9 to 3 already exists
+[DUPLICATE] Connection with inov 34 from 1 to 8 already exists
+[DUPLICATE] Connection with inov 38 from 10 to 4 already exists
+[LOOP] Loop detected, connection with inov 39 from 9 to 8 not added
+[DUPLICATE] Connection with inov 11 from 2 to 5 already exists
+[DUPLICATE] Connection with inov 17 from 1 to 6 already exists
+[DUPLICATE] Connection with inov 18 from 6 to 5 already exists
+[DUPLICATE] Connection with inov 22 from 6 to 4 already exists
+[DUPLICATE] Connection with inov 24 from 8 to 5 already exists
+[DUPLICATE] Connection with inov 27 from 2 to 9 already exists
+[LOOP] Loop detected, connection with inov 28 from 9 to 6 not added
+[DUPLICATE] Connection with inov 33 from 1 to 10 already exists
+[DUPLICATE] Connection with inov 35 from 1 to 11 already exists
+[LOOP] Loop detected, connection with inov 36 from 11 to 7 not added
+[DUPLICATE] Connection with inov 37 from 1 to 7 already exists
+[DUPLICATE] Connection with inov 38 from 1 to 9 already exists
+[DUPLICATE] Connection with inov 41 from 2 to 11 already exists
+[LOOP] Loop detected, connection with inov 42 from 6 to 12 not added
+[DUPLICATE] Connection with inov 44 from 2 to 13 already exists
+[DUPLICATE] Connection with inov 51 from 2 to 10 already exists
+[DUPLICATE] Connection with inov 64 from 2 to 16 already exists
+[DUPLICATE] Connection with inov 65 from 16 to 7 already exists
+[LOOP] Loop detected, connection with inov 68 from 7 to 17 not added
+[LOOP] Loop detected, connection with inov 72 from 14 to 18 not added
+[DUPLICATE] Connection with inov 73 from 18 to 13 already exists
+[LOOP] Loop detected, connection with inov 84 from 20 to 11 not added
+[DUPLICATE] Connection with inov 85 from 2 to 21 already exists
+[LOOP] Loop detected, connection with inov 88 from 6 to 18 not added
+[DUPLICATE] Connection with inov 89 from 2 to 22 already exists
+[DUPLICATE] Connection with inov 90 from 22 to 12 already exists
+[DUPLICATE] Connection with inov 97 from 24 to 23 already exists
+[DUPLICATE] Connection with inov 109 from 2 to 12 already exists
+[LOOP] Loop detected, connection with inov 112 from 27 to 13 not added
+[DUPLICATE] Connection with inov 116 from 2 to 29 already exists
+[LOOP] Loop detected, connection with inov 120 from 21 to 30 not added
+[DUPLICATE] Connection with inov 128 from 1 to 14 already exists
+[LOOP] Loop detected, connection with inov 140 from 28 to 32 not added
+[LOOP] Loop detected, connection with inov 151 from 34 to 18 not added
+[LOOP] Loop detected, connection with inov 153 from 35 to 32 not added
+[LOOP] Loop detected, connection with inov 157 from 25 to 36 not added
+[DUPLICATE] Connection with inov 158 from 36 to 14 already exists
+[LOOP] Loop detected, connection with inov 165 from 11 to 38 not added
+[DUPLICATE] Connection with inov 169 from 1 to 22 already exists
+[DUPLICATE] Connection with inov 170 from 1 to 27 already exists
+[LOOP] Loop detected, connection with inov 172 from 6 to 39 not added
+[DUPLICATE] Connection with inov 175 from 1 to 16 already exists
+[LOOP] Loop detected, connection with inov 196 from 10 to 33 not added
+[DUPLICATE] Connection with inov 199 from 1 to 42 already exists
+[LOOP] Loop detected, connection with inov 209 from 13 to 44 not added
+[DUPLICATE] Connection with inov 220 from 46 to 34 already exists
+[LOOP] Loop detected, connection with inov 222 from 24 to 17 not added
+[LOOP] Loop detected, connection with inov 243 from 51 to 18 not added
+[LOOP] Loop detected, connection with inov 251 from 53 to 32 not added
+[LOOP] Loop detected, connection with inov 260 from 28 to 23 not added
+[LOOP] Loop detected, connection with inov 269 from 31 to 18 not added
+[DUPLICATE] Connection with inov 274 from 2 to 20 already exists
+[DUPLICATE] Connection with inov 280 from 2 to 52 already exists
+[LOOP] Loop detected, connection with inov 314 from 14 to 23 not added
+[LOOP] Loop detected, connection with inov 316 from 27 to 50 not added
+[DUPLICATE] Connection with inov 317 from 2 to 62 already exists
+[LOOP] Loop detected, connection with inov 338 from 8 to 59 not added
+[DUPLICATE] Connection with inov 339 from 1 to 57 already exists
+[DUPLICATE] Connection with inov 341 from 0 to 66 already exists
+[DUPLICATE] Connection with inov 345 from 35 to 53 already exists
+[DUPLICATE] Connection with inov 349 from 67 to 26 already exists
+[DUPLICATE] Connection with inov 355 from 2 to 68 already exists
+[LOOP] Loop detected, connection with inov 365 from 11 to 68 not added
+[LOOP] Loop detected, connection with inov 373 from 71 to 44 not added
+[DUPLICATE] Connection with inov 376 from 1 to 50 already exists
+[DUPLICATE] Connection with inov 384 from 1 to 39 already exists
+[DUPLICATE] Connection with inov 387 from 1 to 31 already exists
+[LOOP] Loop detected, connection with inov 396 from 75 to 73 not added
+[LOOP] Loop detected, connection with inov 399 from 54 to 32 not added
+[DUPLICATE] Connection with inov 425 from 1 to 81 already exists
+[LOOP] Loop detected, connection with inov 426 from 81 to 43 not added
+[LOOP] Loop detected, connection with inov 431 from 37 to 19 not added
+[DUPLICATE] Connection with inov 436 from 2 to 44 already exists
+[DUPLICATE] Connection with inov 450 from 2 to 30 already exists
+[DUPLICATE] Connection with inov 464 from 1 to 47 already exists
+[LOOP] Loop detected, connection with inov 465 from 61 to 34 not added
+[LOOP] Loop detected, connection with inov 467 from 86 to 83 not added
+[LOOP] Loop detected, connection with inov 468 from 46 to 87 not added
+[DUPLICATE] Connection with inov 486 from 6 to 56 already exists
+[DUPLICATE] Connection with inov 496 from 1 to 59 already exists
+[DUPLICATE] Connection with inov 504 from 1 to 87 already exists
+[LOOP] Loop detected, connection with inov 522 from 67 to 52 not added
+[LOOP] Loop detected, connection with inov 524 from 95 to 6 not added
+[DUPLICATE] Connection with inov 527 from 1 to 64 already exists
+[DUPLICATE] Connection with inov 541 from 1 to 28 already exists
+[LOOP] Loop detected, connection with inov 542 from 54 to 15 not added
+[DUPLICATE] Connection with inov 560 from 2 to 102 already exists
+[LOOP] Loop detected, connection with inov 566 from 57 to 64 not added
+[DUPLICATE] Connection with inov 570 from 2 to 103 already exists
+[DUPLICATE] Connection with inov 583 from 1 to 106 already exists
+[DUPLICATE] Connection with inov 590 from 1 to 108 already exists
+[LOOP] Loop detected, connection with inov 626 from 67 to 112 not added
+[DUPLICATE] Connection with inov 638 from 41 to 115 already exists
+[LOOP] Loop detected, connection with inov 658 from 78 to 22 not added
+[DUPLICATE] Connection with inov 662 from 1 to 120 already exists
+[LOOP] Loop detected, connection with inov 663 from 120 to 118 not added
+[LOOP] Loop detected, connection with inov 669 from 91 to 117 not added
+[LOOP] Loop detected, connection with inov 675 from 122 to 100 not added
+[LOOP] Loop detected, connection with inov 705 from 95 to 126 not added
+[LOOP] Loop detected, connection with inov 712 from 127 to 32 not added
+[LOOP] Loop detected, connection with inov 723 from 130 to 9 not added
+[DUPLICATE] Connection with inov 724 from 1 to 100 already exists
+[LOOP] Loop detected, connection with inov 736 from 81 to 77 not added
+[DUPLICATE] Connection with inov 737 from 1 to 133 already exists
+[LOOP] Loop detected, connection with inov 742 from 134 to 41 not added
+[LOOP] Loop detected, connection with inov 754 from 136 to 24 not added
+[DUPLICATE] Connection with inov 766 from 2 to 45 already exists
+[DUPLICATE] Connection with inov 769 from 1 to 139 already exists
+[LOOP] Loop detected, connection with inov 774 from 26 to 141 not added
+[DUPLICATE] Connection with inov 805 from 2 to 145 already exists
+[LOOP] Loop detected, connection with inov 806 from 145 to 42 not added
+[DUPLICATE] Connection with inov 831 from 1 to 95 already exists
+[LOOP] Loop detected, connection with inov 847 from 34 to 114 not added
+[DUPLICATE] Connection with inov 857 from 1 to 154 already exists
+[LOOP] Loop detected, connection with inov 862 from 71 to 156 not added
+[LOOP] Loop detected, connection with inov 864 from 122 to 144 not added
+[DUPLICATE] Connection with inov 866 from 2 to 53 already exists
+[DUPLICATE] Connection with inov 867 from 1 to 157 already exists
+[DUPLICATE] Connection with inov 889 from 2 to 161 already exists
+[DUPLICATE] Connection with inov 895 from 1 to 162 already exists
+[LOOP] Loop detected, connection with inov 896 from 162 to 58 not added
+[DUPLICATE] Connection with inov 923 from 2 to 49 already exists
+[DUPLICATE] Connection with inov 924 from 1 to 56 already exists
+[LOOP] Loop detected, connection with inov 945 from 103 to 49 not added
+[LOOP] Loop detected, connection with inov 946 from 8 to 22 not added
+[DUPLICATE] Connection with inov 950 from 1 to 65 already exists
+[DUPLICATE] Connection with inov 953 from 45 to 149 already exists
+[DUPLICATE] Connection with inov 968 from 1 to 172 already exists
+[DUPLICATE] Connection with inov 970 from 2 to 173 already exists
+[DUPLICATE] Connection with inov 972 from 1 to 24 already exists
+[LOOP] Loop detected, connection with inov 973 from 141 to 174 not added
+[DUPLICATE] Connection with inov 984 from 1 to 176 already exists
+[DUPLICATE] Connection with inov 994 from 1 to 179 already exists
+[DUPLICATE] Connection with inov 1004 from 2 to 123 already exists
+[DUPLICATE] Connection with inov 1028 from 2 to 89 already exists
+[LOOP] Loop detected, connection with inov 1031 from 157 to 92 not added
+[LOOP] Loop detected, connection with inov 1042 from 181 to 170 not added
+[LOOP] Loop detected, connection with inov 1052 from 145 to 29 not added
+[DUPLICATE] Connection with inov 1055 from 2 to 186 already exists
+[DUPLICATE] Connection with inov 1057 from 1 to 187 already exists
+[DUPLICATE] Connection with inov 1069 from 1 to 112 already exists
+[LOOP] Loop detected, connection with inov 1079 from 188 to 66 not added
+[DUPLICATE] Connection with inov 1084 from 2 to 190 already exists
+[LOOP] Loop detected, connection with inov 1090 from 191 to 157 not added
+[LOOP] Loop detected, connection with inov 1092 from 34 to 192 not added
+[LOOP] Loop detected, connection with inov 1094 from 51 to 93 not added
+[LOOP] Loop detected, connection with inov 1097 from 69 to 33 not added
+[LOOP] Loop detected, connection with inov 1107 from 195 to 119 not added
+[DUPLICATE] Connection with inov 1147 from 0 to 204 already exists
+[LOOP] Loop detected, connection with inov 1157 from 6 to 107 not added
+[DUPLICATE] Connection with inov 1164 from 1 to 82 already exists
+[LOOP] Loop detected, connection with inov 1167 from 207 to 199 not added
+[LOOP] Loop detected, connection with inov 1170 from 121 to 208 not added
+[LOOP] Loop detected, connection with inov 1188 from 212 to 126 not added
+[LOOP] Loop detected, connection with inov 1189 from 110 to 157 not added
+[LOOP] Loop detected, connection with inov 1194 from 213 to 189 not added
+[DUPLICATE] Connection with inov 1202 from 2 to 142 already exists
+[DUPLICATE] Connection with inov 1206 from 1 to 45 already exists
+[LOOP] Loop detected, connection with inov 1235 from 14 to 221 not added
+[DUPLICATE] Connection with inov 1240 from 1 to 182 already exists
+[LOOP] Loop detected, connection with inov 1273 from 21 to 176 not added
+[DUPLICATE] Connection with inov 1294 from 1 to 165 already exists
+[DUPLICATE] Connection with inov 1295 from 1 to 20 already exists
+[DUPLICATE] Connection with inov 1300 from 2 to 27 already exists
+[LOOP] Loop detected, connection with inov 1303 from 62 to 99 not added
+[DUPLICATE] Connection with inov 1308 from 1 to 171 already exists
+[DUPLICATE] Connection with inov 1334 from 1 to 234 already exists
+[LOOP] Loop detected, connection with inov 1342 from 111 to 218 not added
+[DUPLICATE] Connection with inov 1347 from 2 to 237 already exists
+[DUPLICATE] Connection with inov 1360 from 2 to 160 already exists
+[LOOP] Loop detected, connection with inov 1365 from 121 to 22 not added
+[DUPLICATE] Connection with inov 1366 from 1 to 12 already exists
+[DUPLICATE] Connection with inov 1380 from 1 to 71 already exists
+[DUPLICATE] Connection with inov 1415 from 1 to 198 already exists
+[DUPLICATE] Connection with inov 1420 from 1 to 178 already exists
+[LOOP] Loop detected, connection with inov 1426 from 8 to 86 not added
+[DUPLICATE] Connection with inov 1442 from 1 to 97 already exists
+[DUPLICATE] Connection with inov 1452 from 2 to 251 already exists
+[LOOP] Loop detected, connection with inov 1459 from 40 to 239 not added
+[LOOP] Loop detected, connection with inov 1474 from 58 to 99 not added
+[DUPLICATE] Connection with inov 1499 from 2 to 257 already exists
+[DUPLICATE] Connection with inov 1514 from 2 to 183 already exists
+[LOOP] Loop detected, connection with inov 1518 from 260 to 163 not added
+[DUPLICATE] Connection with inov 1524 from 2 to 262 already exists
+[LOOP] Loop detected, connection with inov 1591 from 271 to 144 not added
+[DUPLICATE] Connection with inov 1593 from 2 to 129 already exists
+[LOOP] Loop detected, connection with inov 1615 from 275 to 93 not added
+[DUPLICATE] Connection with inov 1633 from 1 to 33 already exists
+[DUPLICATE] Connection with inov 1641 from 2 to 279 already exists
+[DUPLICATE] Connection with inov 1645 from 0 to 280 already exists
+[LOOP] Loop detected, connection with inov 1648 from 226 to 157 not added
+[LOOP] Loop detected, connection with inov 1651 from 281 to 7 not added
+[LOOP] Loop detected, connection with inov 1690 from 34 to 171 not added
+[LOOP] Loop detected, connection with inov 1785 from 71 to 17 not added
+[DUPLICATE] Connection with inov 1796 from 2 to 310 already exists
+[DUPLICATE] Connection with inov 1802 from 2 to 312 already exists
+[DUPLICATE] Connection with inov 1820 from 2 to 18 already exists
+[LOOP] Loop detected, connection with inov 1828 from 286 to 22 not added
+[DUPLICATE] Connection with inov 1829 from 1 to 40 already exists
+[DUPLICATE] Connection with inov 1831 from 1 to 317 already exists
+[DUPLICATE] Connection with inov 1851 from 0 to 320 already exists
+[LOOP] Loop detected, connection with inov 1891 from 330 to 69 not added
+[LOOP] Loop detected, connection with inov 1903 from 74 to 41 not added
+[DUPLICATE] Connection with inov 1910 from 2 to 334 already exists
+[DUPLICATE] Connection with inov 1915 from 2 to 336 already exists
+[LOOP] Loop detected, connection with inov 1955 from 346 to 327 not added
+[DUPLICATE] Connection with inov 1957 from 2 to 347 already exists
+[LOOP] Loop detected, connection with inov 1986 from 124 to 185 not added
+[DUPLICATE] Connection with inov 1994 from 1 to 353 already exists
+[LOOP] Loop detected, connection with inov 2012 from 355 to 127 not added
+[DUPLICATE] Connection with inov 2026 from 0 to 358 already exists
+[LOOP] Loop detected, connection with inov 2032 from 70 to 344 not added
+[LOOP] Loop detected, connection with inov 2055 from 363 to 181 not added
+[LOOP] Loop detected, connection with inov 2087 from 49 to 281 not added
+[DUPLICATE] Connection with inov 2093 from 2 to 114 already exists
+[DUPLICATE] Connection with inov 2100 from 2 to 375 already exists
+[DUPLICATE] Connection with inov 2130 from 2 to 19 already exists
+[DUPLICATE] Connection with inov 2168 from 2 to 48 already exists
+[LOOP] Loop detected, connection with inov 2175 from 81 to 133 not added
+[LOOP] Loop detected, connection with inov 2179 from 359 to 23 not added
+[DUPLICATE] Connection with inov 2206 from 1 to 396 already exists
+[DUPLICATE] Connection with inov 2219 from 2 to 401 already exists
+[LOOP] Loop detected, connection with inov 2268 from 307 to 411 not added
+[DUPLICATE] Connection with inov 2285 from 1 to 196 already exists
+[DUPLICATE] Connection with inov 2301 from 2 to 205 already exists
+[LOOP] Loop detected, connection with inov 2320 from 31 to 179 not added
+[DUPLICATE] Connection with inov 2337 from 2 to 388 already exists
+[DUPLICATE] Connection with inov 2397 from 1 to 77 already exists
+[LOOP] Loop detected, connection with inov 2423 from 117 to 250 not added
+[DUPLICATE] Connection with inov 2425 from 1 to 434 already exists
+[DUPLICATE] Connection with inov 2449 from 2 to 440 already exists
+[DUPLICATE] Connection with inov 2487 from 2 to 451 already exists
+[LOOP] Loop detected, connection with inov 2513 from 457 to 257 not added
+[LOOP] Loop detected, connection with inov 2535 from 116 to 87 not added
+[LOOP] Loop detected, connection with inov 2539 from 463 to 34 not added
+[DUPLICATE] Connection with inov 2637 from 0 to 483 already exists
+[DUPLICATE] Connection with inov 2654 from 0 to 488 already exists
+[DUPLICATE] Connection with inov 2668 from 1 to 490 already exists
+[DUPLICATE] Connection with inov 2671 from 1 to 183 already exists
+[DUPLICATE] Connection with inov 2691 from 1 to 245 already exists
+[LOOP] Loop detected, connection with inov 2724 from 166 to 287 not added
+[LOOP] Loop detected, connection with inov 2745 from 505 to 459 not added
+[DUPLICATE] Connection with inov 2768 from 2 to 511 already exists
+[DUPLICATE] Connection with inov 2770 from 1 to 512 already exists
+[DUPLICATE] Connection with inov 2807 from 2 to 105 already exists
+[DUPLICATE] Connection with inov 2819 from 2 to 26 already exists
+[DUPLICATE] Connection with inov 2850 from 1 to 521 already exists

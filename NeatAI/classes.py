@@ -7,11 +7,14 @@ import temporary_testing_funcs as ttf
 import os
 
 class population:
-    def __init__(self) -> None:
-        self.species = []                              #list of all the brains in the species
-        self.species.append(species())     #create first species and append to species list     
+    def __init__(self, NOI, NOO, Starting_brain_count=2, MaxSpecialDist=2) -> None:
+        self.species = []                       #list of all the brains in the species
+        self.add_new_species()                  #create first species and append to species list  
+        for i in range(Starting_brain_count):
+            self.species[0].add_brain(brain_fenotype(NOI,NOO))
         
-        self.innovation = 1                          #innovation counter     
+        self.innovation = 1                          #innovation counter  
+        self.MaxSpecialDist = MaxSpecialDist   
         pass
     
     def update_innovation(self,new_inov):
@@ -20,15 +23,128 @@ class population:
             for brain in specie.brains:
                 brain.inov_counter = new_inov
         pass
+    
+    #################### SPECIES-BRAINS MANAGEMENT ####################
+    
+    def add_new_species(self):
+        self.species.append(species())
+        pass
+    
+    #migrate a brain from one species to another
+    def migrate(self, brain, destination_species, source_species=-1):
+            #remove brain from source species
+            if source_species != -1:
+                source_species.brains.remove(brain)
+            
+            #if its not specified, its likelly its a new brain and its just being placed into a species
+            #nevertheless, to make it more robust, check if the brain is in any species
+            #only works if population is also supplied
+            else:
+                for specie in self.species:
+                    if brain in specie.brains:
+                        specie.brains.remove(brain)
+        
+            #add brain to destination species
+            destination_species.brains.append(brain)
+            pass
+    
+    #################### MUTATIONS AND GENERATIONAL TRANSMISION ####################
+    def mutate_all(self):
+        #start mutation for all brains  in population
+        #go one by one and mutate them
+        for specie in self.species:
+            for brain in specie.brains:
+                brain.mutation_random()                         #update each of the brains
+                if brain.inov_counter != self.innovation:       #helps save time for mutations such as toggle and update weight
+                    self.update_innovation(brain.inov_counter)  #update the innovation counter
+        
+        #check if all the brains belong in their respective species
+        #if not, move them
+        for specie in self.species:
+            for brain in specie.brains:
+                compat = False
+                #for every brain, check if its still compatible with its species
+                for brain_compare_object in specie.brains:
+                    if brain == brain_compare_object:       #eliminate obvious self check
+                        SpecialDist = self.MaxSpecialDist
+                    else: 
+                        SpecialDist, debug_info = sf.compare_fenotypes(brain, brain_compare_object)
+                    
+                    if SpecialDist < self.MaxSpecialDist:
+                        #if the brain is compatible with one brain, its compatible w the species, move on to the next brain
+                        compat = True
+                        break
+                #if its not compatible with any brain in the species, move it to a new species
+                if not compat:
+                    for specie_compare_object in self.species:
+                        if compat: break
+                        for brain_compare_object in specie_compare_object.brains:
+                            if brain == brain_compare_object: #eliminate obvious self check
+                                SpecialDist = self.MaxSpecialDist
+                            else: 
+                                SpecialDist, debug_info  = sf.compare_fenotypes(brain, brain_compare_object)
+                            
+                            if SpecialDist < self.MaxSpecialDist:
+                                #found a compatible species, move it here
+                                self.migrate(brain, specie_compare_object, specie)
+                                compat = True
+                                break
 
+                #if its still not compatible, create a new species
+                if not compat:
+                    self.add_new_species()
+                    self.migrate(brain, self.species[-1], specie)
+        
+        pass
+    
+    def create_new_generation(self):
+        #for each species, choose 2 of the best brains and combine them
+        for specie in self.species:
+            #get index of the 2 biggest scores in the species
+            previous_result=0
+            dominant_index = 0
+            recessive_index = 0
+            #go through score list to get the indexes of the 2 biggest scores/brains
+            for index, result in enumerate(specie.results):
+                if result > previous_result:
+                    recessive_index = dominant_index        #recessive gets the previous biggest score
+                    dominant_index = index                  #dominant gets the new biggest score
+        
+        #combine the 2 brains
+        child_brain = sf.combine_fenotypes(specie.brains[dominant_index],specie.brains[recessive_index])
+
+        #place child in parent species 
+        #REVIEW THIS
+        self.migrate(child_brain, specie)
+        
+    #################### INFORMATION ####################   
+    
+    def print(self):
+        print("------------ Population Print ------------")
+        for i,specie in enumerate(self.species):
+            print(f"<SPECIE> = {i}:")
+            for j,brain in enumerate(specie.brains):
+                print(f"-->     <BRAIN> = {j}: (Conn Count = {len(brain.genepool)}, Node_Count = {brain.NodeCount})")
+        pass
+        print("------------ Population Print END------------")
+    pass
+           
 class species:
     def __init__(self) -> None:
-        self.brains = [] #list of all the brains in the species              
+        self.brains = [] #list of all the brains in the species
+        self.results = [] #list of all the results of the species, ordered in the same way as the brains              
         pass
 
     def add_brain(self,brain):
         self.brains.append(brain)
         pass 
+    
+    def update_results(self,results, index = -1):
+        if index == -1:                             #all brain results
+            self.results = results
+        else:                                       #individual brian results
+            self.results[results] = results
+        pass
 
 class brain_fenotype:
     def __init__(self,NOI,NOO):
@@ -95,8 +211,9 @@ class brain_fenotype:
         else: 
             #if it doesn't exist, the same loop precaution as for add_connection must be taken
             if sf.detect_loops(self, critical_index=index_in, current_node_index=index_out, order=5):
-                print("[LOOP] NOT ADDING NODE DUE TO LOOP")
-                ttf.record_to_text_file("[LOOP] NOT ADDING NODE DUE TO LOOP")
+                #print("[LOOP] NOT ADDING NODE DUE TO LOOP")
+                #ttf.record_to_text_file("[LOOP] NOT ADDING NODE DUE TO LOOP")
+                pass
             else:
             #if loop is not a problem
             #simply create 2 connections of the same weight
@@ -115,7 +232,7 @@ class brain_fenotype:
     
     def mutation_random(self):
         #show debug messages
-        debug = True
+        debug = False
         
         #0 - add connection
         #1 - add node
@@ -123,110 +240,114 @@ class brain_fenotype:
         #3 - update weight
         rnd.seed = time.time()
         mutation = rnd.randint(0,3) 
+        mutation_count = rnd.randint(1,3) #Up to 3 simultaneous mutations
         
-        if mutation == 0:                       #ADD CONNECTION
-                  
-            #stop it from adding a connection that already exists
-            #second condition is to emulate a do-while loop
-            checks = 0
-            in_index = 0
-            out_index = 0
-            
-            #connection must not exist from A to B or from B to A
-            #this means that the connection between 2 nodes must be unidirectional
-            #by splitting into 2 while loops, we avoid searching the genepool twice every time
-            while (sf.search_con_index(self.genepool, out_index, in_index) != -1 or in_index == out_index) and checks < 31:
-                #start out with invalid indexes
+        for current_mutation_count in range(mutation_count):
+        
+            if mutation == 0:                       #ADD CONNECTION
+                    
+                #stop it from adding a connection that already exists
+                #second condition is to emulate a do-while loop
+                checks = 0
                 in_index = 0
                 out_index = 0
-                while (sf.search_con_index(self.genepool, in_index, out_index) != -1 or in_index == out_index) and checks < 31:
-                    #if its here, then the connection already exists
-                    #get new combination of input/output nodes such that a new connection that doesn't exist is created
-                    
-                    #input node index
-                    if rnd.randint(0,1) < 0.5 or self.NOO+self.NOI == self.NodeCount: #if there are no hidden nodes
-                        in_index = rnd.randint(0, self.NOI-1)                                   #input nodes for input
-                    else:
-                        in_index = rnd.randint(self.NOO+self.NOI, self.NodeCount-1)     #hidden nodes for input  
                 
-                    out_index = in_index
-                    #output node index
-                    while out_index == in_index:
-                        out_index = rnd.randint(self.NOI, self.NodeCount-1)
+                #connection must not exist from A to B or from B to A
+                #this means that the connection between 2 nodes must be unidirectional
+                #by splitting into 2 while loops, we avoid searching the genepool twice every time
+                while (sf.search_con_index(self.genepool, out_index, in_index) != -1 or in_index == out_index) and checks < 31:
+                    #start out with invalid indexes
+                    in_index = 0
+                    out_index = 0
+                    while (sf.search_con_index(self.genepool, in_index, out_index) != -1 or in_index == out_index) and checks < 31:
+                        #if its here, then the connection already exists
+                        #get new combination of input/output nodes such that a new connection that doesn't exist is created
+                        
+                        #input node index
+                        if rnd.randint(0,1) < 0.5 or self.NOO+self.NOI == self.NodeCount: #if there are no hidden nodes
+                            in_index = rnd.randint(0, self.NOI-1)                                   #input nodes for input
+                        else:
+                            in_index = rnd.randint(self.NOO+self.NOI, self.NodeCount-1)     #hidden nodes for input  
                     
-                    if checks > 30:
-                        if debug:
-                            print("No available nodes without a connection")
-                    checks += 1
+                        out_index = in_index
+                        #output node index
+                        while out_index == in_index:
+                            out_index = rnd.randint(self.NOI, self.NodeCount-1)
+                        
+                        if checks > 30:
+                            if debug:
+                                print("No available nodes without a connection")
+                        checks += 1
 
-                #before leaving this loop nest, loop again to check if the same connection exists in the opposite direction
-            
-            #CHECK FOR LOOPS
-            if sf.detect_loops(self, critical_index=in_index, current_node_index=out_index, order=5):
+                    #before leaving this loop nest, loop again to check if the same connection exists in the opposite direction
+                
+                #CHECK FOR LOOPS
+                if sf.detect_loops(self, critical_index=in_index, current_node_index=out_index, order=10):
+                    if debug:
+                        print("[LOOP] NOT ADDING CONNECTION DUE TO LOOP")
+                        ttf.record_to_text_file("[LOOP] NOT ADDING CONNECTION DUE TO LOOP")
+                else:
+                    #add connection
+                    self.mutation_addconnection(in_index, out_index, rnd.uniform(0,1))
+                    
+                #DEBUG
                 if debug:
-                    print("[LOOP] NOT ADDING CONNECTION DUE TO LOOP")
-                    ttf.record_to_text_file("[LOOP] NOT ADDING CONNECTION DUE TO LOOP")
-            else:
-                #add connection
-                self.mutation_addconnection(in_index, out_index, rnd.uniform(0,1))
+                    print(f"Added connection: {in_index} -> {out_index}")
+                    ttf.record_to_text_file(f"Added connection: {in_index} -> {out_index}")
+                    
+            
+            if mutation == 1:                       #ADD NODE
                 
-            #DEBUG
-            if debug:
-                print(f"Added connection: {in_index} -> {out_index}")
-                ttf.record_to_text_file(f"Added connection: {in_index} -> {out_index}")
+                #input node index
+                if rnd.randint(0,1) < 0.5 or self.NOO+self.NOI == self.NodeCount:   #if there are no hidden nodes
+                    in_index = rnd.randint(0, self.NOI-1)                           #input nodes for input
+                else:
+                    in_index = rnd.randint(self.NOO+self.NOI, self.NodeCount-1)     #hidden nodes for input  
                 
-        
-        if mutation == 1:                       #ADD NODE
-            
-            #input node index
-            if rnd.randint(0,1) < 0.5 or self.NOO+self.NOI == self.NodeCount:   #if there are no hidden nodes
-                in_index = rnd.randint(0, self.NOI-1)                           #input nodes for input
-            else:
-                in_index = rnd.randint(self.NOO+self.NOI, self.NodeCount-1)     #hidden nodes for input  
-            
-            out_index = in_index
-            #output node index
-            while out_index == in_index:
-                out_index = rnd.randint(self.NOI, self.NodeCount-1)
+                out_index = in_index
+                #output node index
+                while out_index == in_index:
+                    out_index = rnd.randint(self.NOI, self.NodeCount-1)
+                    
+                #add node
+                self.mutation_addnode(in_index, out_index, rnd.uniform(0,1))
                 
-            #add node
-            self.mutation_addnode(in_index, out_index, rnd.uniform(0,1))
+                #DEBUG
+                if debug:
+                    print(f"Added node between {in_index} and {out_index}")
+                    ttf.record_to_text_file(f"Added node between {in_index} and {out_index}")
             
-            #DEBUG
-            if debug:
-                print(f"Added node between {in_index} and {out_index}")
-                ttf.record_to_text_file(f"Added node between {in_index} and {out_index}")
-        
-        if mutation == 2:                       #TOGGLE CONNECTION
-            index = rnd.randint(0, len(self.genepool)-1)
-            previous_status = self.genepool[index].status
-            #toggle connection
-            self.mutation_toggleconnection(index)
+            if mutation == 2:                       #TOGGLE CONNECTION
+                index = rnd.randint(0, len(self.genepool)-1)
+                previous_status = self.genepool[index].status
+                #toggle connection
+                self.mutation_toggleconnection(index)
+                
+                #DEBUG
+                if debug:
+                    print(f"Connection {index} toggled from {previous_status} to {not previous_status}")
+                    ttf.record_to_text_file(f"Connection {index} toggled from {previous_status} to {not previous_status}")
             
-            #DEBUG
-            if debug:
-                print(f"Connection {index} toggled from {previous_status} to {not previous_status}")
-                ttf.record_to_text_file(f"Connection {index} toggled from {previous_status} to {not previous_status}")
-        
-        if mutation == 3:                       #UPDATE WEIGHT
-            index = rnd.randint(0, len(self.genepool)-1)
-            old_weight = self.genepool[index].weight
-            
-            #update weight by +/- 20% max
-            amplitude = rnd.uniform(-1,1) * 0.2 
-            new_weight = old_weight + amplitude * old_weight
-            
-            #update weight
-            self.mutation_update_weight(index, new_weight)
-            
-            #DEBUG
-            if debug:               
-                print(f"Connection {index} weight updated to {new_weight} ({amplitude*100}%)")
-                ttf.record_to_text_file(f"Connection {index} weight updated to {new_weight} ({amplitude*100}%)")
+            if mutation == 3:                       #UPDATE WEIGHT
+                index = rnd.randint(0, len(self.genepool)-1)
+                old_weight = self.genepool[index].weight
+                
+                #update weight by +/- 20% max
+                amplitude = rnd.uniform(-1,1) * 0.2 
+                new_weight = old_weight + amplitude * old_weight
+                
+                #update weight
+                self.mutation_update_weight(index, new_weight)
+                
+                #DEBUG
+                if debug:               
+                    print(f"Connection {index} weight updated to {new_weight} ({amplitude*100}%)")
+                    ttf.record_to_text_file(f"Connection {index} weight updated to {new_weight} ({amplitude*100}%)")
+        pass
     
     #################### INFORMATION ####################
     #creates a diagram of the brain
-    def observe(self):
+    def observe_mental_map(self):
         #observe the brain's state
         vz.draw_genepool(self)
         plt.show()
@@ -371,7 +492,7 @@ class brain_fenotype:
         
     #observe function but doesn't draw
     #usefull for custum drawing (i.e. real time drawing)
-    def draw(self):
+    def draw_mental_map(self):
         #observe the brain's state
         vz.draw_genepool(self)
         pass

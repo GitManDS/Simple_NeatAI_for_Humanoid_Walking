@@ -163,14 +163,14 @@ def draw_genepool(fenotype):
     #intermediate steps to order the colors
     edges = genepool_active_conns.edges()
     edges_enabled_colors = [genepool_active_conns[u][v]['color'] for u,v in edges]
-    
+
     #draw graphs
-    
+
     nodes_enabled = nx.draw_networkx_nodes(
         genepool_active_conns, 
         node_pos_list, 
         node_color="black")
-    
+
     edges_enabled = nx.draw_networkx_edges(
         genepool_active_conns,
         node_pos_list,
@@ -178,7 +178,7 @@ def draw_genepool(fenotype):
         edge_cmap=cmap,
         width=2
     )
-    
+
     edges_disabled = nx.draw_networkx_edges(
         genepool_disabled_conns,
         node_pos_list,
@@ -186,7 +186,7 @@ def draw_genepool(fenotype):
         edge_color='black',
         width=2
     )
-    
+
     labels = nx.draw_networkx_labels(
         genepool_active_conns, 
         node_pos_list,
@@ -197,7 +197,7 @@ def draw_genepool(fenotype):
 
     plt.colorbar(edges_enabled)
     plt.axis('off')
-        
+            
     #plt.pause(0.2)
     #plt.clf()
     
@@ -207,8 +207,8 @@ def draw_genepool(fenotype):
 #if more than one fenotype is given, it will draw them all aligned by inovation number
 def draw_fenotype_list(fenotype_list, align_by_inov=False):
     #scalings and other parameters
-    scale_x = 1
-    scale_y =1
+    scale_x = 1.1
+    scale_y = 1.2
     
     # Setting Plot and Axis variables as subplots()
     # function returns tuple(fig, ax)
@@ -226,7 +226,7 @@ def draw_fenotype_list(fenotype_list, align_by_inov=False):
     for brain in fenotype_list:
         for con in brain.genepool:
             #note down all the inovation numbers that appear if they haven't been noted down already
-            if con.inov not in existant_inov:   #inov starts at 1, index at 0  
+            if con.inov not in existant_inov:    
                 existant_inov.append(con.inov)
     
     #go through all the inov numbers and check if there's one that doesn't exist
@@ -236,14 +236,19 @@ def draw_fenotype_list(fenotype_list, align_by_inov=False):
     
     #before going fenotype by fenotype, create some necessary storage var
     inov_max = max(existant_inov)
+    gene_pos_assis = {}       #assistant nodes
+    label_assis = {}          #assistant nodes
+    Conns_assis = nx.Graph()  #assistant nodes
     
     for j, fenotype in enumerate(fenotype_list):
         #init connections, gene positions and atributes
         #also resets these quantities
-        Conns = nx.DiGraph()
-        gene_pos = {}
+        #these have to be specified here since they are reset for each fenotype
+        Conns = nx.Graph()
+        gene_pos = {} 
         colors = []
         labels = {}
+
         
         #go through all the connections
         for i, con in enumerate(fenotype.genepool):
@@ -267,24 +272,42 @@ def draw_fenotype_list(fenotype_list, align_by_inov=False):
             else:
                 colors.append("gray")
             
-            labels.update({i : f"<{i}>\n{i}->{i+1}\nW={round(con.weight,4)}\nInov={con.inov}"})
+            labels.update({i : f"<{i}>\n{con.in_index}->{con.out_index}\nW={round(con.weight,4)}\nInov={con.inov}"})
             
             
                 
         #draw graph
-        nodes_enabled = nx.draw_networkx_nodes(
+        nodes = nx.draw_networkx_nodes(
             Conns, 
             gene_pos, 
             node_color=colors,
             node_shape = "s",
             node_size = 5000
-        )
+        )    
         
         labels = nx.draw_networkx_labels(
             Conns, 
             gene_pos,
             labels=labels
         )
+        
+        Conns_assis.add_node(j)
+        gene_pos_assis.update({j : (-0.5,-j*scale_y)})    
+        label_assis.update({j : f"Brain {j}"})
+    
+    #draw assisting nodes
+    nodes_assis = nx.draw_networkx_nodes(
+        Conns_assis,
+        gene_pos_assis,
+        node_color = "orange",
+        node_shape = "s",
+        node_size = 5000,
+    )
+    labels_assis = nx.draw_networkx_labels(
+        Conns_assis, 
+        gene_pos_assis,
+        labels=label_assis
+    )
     
         
     plt.axis('off')
@@ -313,7 +336,6 @@ def draw_fenotype_list(fenotype_list, align_by_inov=False):
     Axis.set_aspect(aspect='equal', adjustable='datalim')
     plt.show()
     
-    print("hello")
     pass
 
     

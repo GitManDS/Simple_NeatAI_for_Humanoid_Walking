@@ -205,10 +205,10 @@ def draw_genepool(fenotype):
 
 #will draw all the connections in a sequenced manner
 #if more than one fenotype is given, it will draw them all aligned by inovation number
-def draw_fenotype_list(fenotype_list, align_by_inov=False):
+def draw_fenotype_list(fenotype_list, save=False):
     #scalings and other parameters
-    scale_x = 1.1
-    scale_y = 1.2
+    scale_x = 1.1       #corrects for scaling
+    scale_y = 1.2 
     
     # Setting Plot and Axis variables as subplots()
     # function returns tuple(fig, ax)
@@ -301,7 +301,7 @@ def draw_fenotype_list(fenotype_list, align_by_inov=False):
         gene_pos_assis,
         node_color = "orange",
         node_shape = "s",
-        node_size = 5000,
+        node_size = 5000
     )
     labels_assis = nx.draw_networkx_labels(
         Conns_assis, 
@@ -318,22 +318,39 @@ def draw_fenotype_list(fenotype_list, align_by_inov=False):
     # Set the axis and slider position in the plot
     axis_position = plt.axes([0.2, 0.1, 0.65, 0.03],
                             facecolor = slider_color)
-    slider_position = Slider(axis_position,
-                            'Pos', 0.1, scale_x*inov_max)
+    slider_position_x = Slider(axis_position,
+                            'Posx', 0.1, scale_x*inov_max)
+    
+    ax_y = Plot.add_axes([0.1, 0.25, 0.0225, 0.63])
+    
+    slider_position_y = Slider(ax_y,
+                            'Posy', -scale_y*len(fenotype_list) ,1,orientation="vertical")
+    
+    ax_zoom = Plot.add_axes([0.2, 0.05, 0.65, 0.03])
+    slider_position_zoom = Slider(ax_zoom,
+                            'zoom', 0 ,10, valinit=1)
+ 
     
     # update() function to change the graph when the
     # slider is in use
     def update(val):
-        pos = slider_position.val
-        Axis.axis([pos-1.5, pos+1.5, -1-j, 1])
+        pos_x = slider_position_x.val
+        pos_y = slider_position_y.val
+        zoom = slider_position_zoom.val
+        Axis.axis([(pos_x-1.5)*zoom, (pos_x+1.5)*zoom, (pos_y -1.5)*zoom , (pos_y + 1.5)*zoom])
         Plot.canvas.draw_idle()
     
     # update function called using on_changed() function
-    slider_position.on_changed(update)
+    slider_position_x.on_changed(update)
+    slider_position_y.on_changed(update)
+    slider_position_zoom.on_changed(update)
     
     # Display the plot
     Axis.axis([-1.5, 1.5, -1-j, 1])
     Axis.set_aspect(aspect='equal', adjustable='datalim')
+    if save:
+        plt.savefig("NeatAI/brain_saves/fenotype.png")
+    
     plt.show()
     
     pass

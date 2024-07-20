@@ -31,7 +31,7 @@ def live_stress_test_NEAT_AI_population(UPS):
         #create world with random characteristics
         world = classes.population(rnd.randint(3,10),rnd.randint(3,10),rnd.randint(3,10))
         gen=0
-        while gen<300:
+        while gen<50:
             clock_in = time.time()
             #view current world
             world.print()
@@ -63,7 +63,6 @@ def live_stress_test_NEAT_AI_population(UPS):
             del species
         del world
             
-        
 def create_random_brain():
     rnd.seed = 2002
     

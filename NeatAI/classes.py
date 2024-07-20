@@ -7,7 +7,7 @@ import temporary_testing_funcs as ttf
 import os
 
 class population:
-    def __init__(self, NOI, NOO, Starting_brain_count=2, MaxSpecialDist=2, max_offspring = 5) -> None:
+    def __init__(self, NOI, NOO, Starting_brain_count=2, MaxSpecialDist=2.5, max_offspring = 3) -> None:
         self.species = []                       #list of all the brains in the species
         self.add_new_species()                  #create first species and append to species list  
         for i in range(Starting_brain_count):
@@ -41,12 +41,12 @@ class population:
                 source_species.remove_brain(brain=brain)
             
             #if its not specified, its likelly its a new brain and its just being placed into a species
-            #nevertheless, to make it more robust, check if the brain is in any species
+            #-THIS IS BUGGY, DONT DO THIS-nevertheless, to make it more robust, check if the brain is in any species
             #only works if population is also supplied
-            else:
-                for specie in self.species:
-                    if brain in specie.brains:
-                        specie.remove_brain(brain=brain)
+            #elif source_species == -1:
+            #    for specie in self.species:
+            #        if brain in specie.brains:
+            #            specie.remove_brain(brain=brain)
         
             #add brain to destination species
             destination_species.add_brain(brain)
@@ -159,25 +159,33 @@ class population:
                 
                 #remove the last brains
                 #the remaining will crossover with the first (dominant) brain
-                for i in range(self.max_offspring,len(specie.brains)):
-                    specie.remove_brain(brain_index=i)
-                    specie.results.pop(i)
+                #while the number of brains is higher than the number of offspring + the dominant brain
+                while len(specie.brains) > specie.max_offspring+1:
+                    specie.remove_brain(brain_index=specie.max_offspring) #remove the first brain after the last max offspring brain parent
+                    specie.results.pop(specie.max_offspring)              #same for results
         
                 #crossover every recessive brain with the dominant brain in the species
                 dominant_index = 0
-                for specie_index in range(1,len(self.species)):
+                for brain_index in range(1,len(specie.brains)):
                     #combine the 2 brains
-                    child_brain = sf.combine_fenotypes(specie.brains[dominant_index],specie.brains[specie_index])
+                    child_brain = sf.combine_fenotypes(specie.brains[dominant_index],specie.brains[brain_index])
 
                     #place child in parent species 
                     self.migrate(child_brain, specie)
                     
             elif len(specie.brains)==2:                 #breaking up if statements to avoid errors with empty species
                 #if there only 2 species, crossover the dominant brain of the first species with the dominant brain of the second species
+                if specie.results[0] > self.species[1].results[0]:
+                    dominant_index = 0
+                    recessive_index = 1
+                else:
+                    dominant_index = 1
+                    recessive_index = 0
+                
                 #only if they aren't the same  
                 if specie.brains[0] != specie.brains[1]:
                     #combine the 2 brains
-                    child_brain = sf.combine_fenotypes(specie.brains[0],specie.brains[1])
+                    child_brain = sf.combine_fenotypes(specie.brains[dominant_index],specie.brains[recessive_index])
 
                     #place child in parent species 
                     self.migrate(child_brain, specie)
@@ -363,6 +371,23 @@ class population:
                 results.append(specie.results)
                 
         return results
+    
+    #goes species by species and gets the max difference between the results of the brains
+    #appends the max difference of each species to a list
+    def get_max_speciation_difference_per_species(self):
+        max_diff = []
+        
+        for specie_index in range(len(self.species)):
+            max_diff.append(0)
+            for index_row in range(len(self.species[specie_index].brains)):
+                #index_row+1 to avoid checking a pair of the same brain
+                #doing it this way avoids checking the same brains more than once
+                for index_col in range(index_row+1,len(self.species[specie_index].brains)):
+                    diff = sf.compare_fenotypes(self.species[specie_index].brains[index_row],self.species[specie_index].brains[index_col])
+                    if diff[0] > max_diff[specie_index]:
+                        max_diff[specie_index] = diff[0]
+                               
+        return max_diff
     #################### DEBUG AND MISCELANEOUS ####################
     
     #calculate the adjusted fitness of every brain in the population
@@ -379,13 +404,13 @@ class population:
         #calculate the number of offspring for each species by linear interpolation
         if len(self.species) != 1:
             offspring_slope = (self.max_offspring - self.min_offspring)/(max(summed_adjusted_fitness)-min(summed_adjusted_fitness))
-        #if there's only one species, the slope is adimentionalized by the only adjusted fitness value
-        else:
-            offspring_slope = (self.max_offspring - self.min_offspring)/(summed_adjusted_fitness[0])
             
-        for index, specie in enumerate(self.species):
-            specie.max_offspring = round(self.min_offspring + offspring_slope*summed_adjusted_fitness[index])
-        
+            for index, specie in enumerate(self.species):
+                specie.max_offspring = round(self.min_offspring + offspring_slope*(summed_adjusted_fitness[index]-min(summed_adjusted_fitness)))
+        #if there's only one species, set max crossover
+        else:
+            self.species[0].max_offspring = self.max_offspring
+                    
         pass
     
     #check for all species if there are species with only one brain
@@ -396,6 +421,15 @@ class population:
                 specie.add_brain(specie.brains[0].copy())
         pass
 
+    #used for checking and comparing all the brains
+    #will not care about order
+    def get_all_brains(self):
+        all_brains = []
+        for specie in self.species:
+            for brain in specie.brains:
+                all_brains.append(brain)
+        return all_brains
+        
     pass
            
 class species:

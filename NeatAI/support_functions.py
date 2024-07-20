@@ -44,11 +44,14 @@ def combine_fenotypes(dominant_fenotype, recessive_fenotype):
         if con.inov not in existant_inov:   
             existant_inov.append(con.inov)
     
-    #excess and disjoint genes need to be added to the child from the recessive
+    #disjoint genes need to be added to the child from the recessive
+    #excess genes do NOT need to be added to the child
     #do so by checking if there are genes in the recessive with a inovation number that doesn't exist in the dominant
     speed_cursor = 0   #disjoint and recessive genes will be inserted from left to right always, this helps speed it up
     for con in recessive_fenotype.genepool:
-        if con.inov not in existant_inov:
+        #check if theres a connection that doesn't exist in child
+        #AND it cannot be an excess connection from the recessive
+        if con.inov not in existant_inov and con.inov < child_fenotype.genepool[-1].inov:  
             #this connection is disjoint or excess
             #need to check if it exists in the child already
             if search_con_index(child_fenotype.genepool,con.in_index,con.out_index) == -1:
@@ -80,8 +83,8 @@ def combine_fenotypes(dominant_fenotype, recessive_fenotype):
 def compare_fenotypes(fenotype1,fenotype2):
     #Weights
     #delta = c1 *  excess/gene_larger_genome + c2 * disjoint/gene_bigger_genome + c3 * AWD
-    c1 = 1.5
-    c2 = 1.5
+    c1 = 1.5       #excess genes get a bigger value since they are discarded in the child if given by a recessive        
+    c2 = 1.2
     c3 = 1
     
     #get data for the final calculation

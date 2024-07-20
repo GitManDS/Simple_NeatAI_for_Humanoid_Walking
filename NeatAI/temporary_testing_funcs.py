@@ -3,6 +3,7 @@ import support_functions as sf
 import random as rnd
 import matplotlib.pyplot as plt
 import visualizer as vz
+import time
 
 
 #function to test the visualizer and the neat class
@@ -24,6 +25,45 @@ def live_stress_test_NEAT_AI_class_and_visualizer(UPS):
         plt.pause(1/UPS)
         plt.clf()
 
+def live_stress_test_NEAT_AI_population(UPS):    
+    while True:
+        #reset every 300 generations
+        #create world with random characteristics
+        world = classes.population(rnd.randint(3,10),rnd.randint(3,10),rnd.randint(3,10))
+        gen=0
+        while gen<300:
+            clock_in = time.time()
+            #view current world
+            world.print()
+            
+            #mutate
+            world.mutate_all()
+            
+            ##Random results
+            world.update_species_brain_count()
+            results = [rnd.uniform(0,1000) for i in range(world.brain_count)]
+            world.update_results(results)
+            
+            #crossover
+            world.create_new_generation()
+            #clock in
+            
+            clock_out = clock_in
+            clock_in = time.time()
+            print(f"gen: {gen} time elapsed per gen: {clock_in-clock_out}s")
+            gen+=1
+
+            #wait 1/ups to observe change
+            time.sleep(1/UPS)
+        
+        #delete everything to avoid memory leaks
+        for species in world.species:
+            for brain in species.brains:
+                del brain
+            del species
+        del world
+            
+        
 def create_random_brain():
     rnd.seed = 2002
     

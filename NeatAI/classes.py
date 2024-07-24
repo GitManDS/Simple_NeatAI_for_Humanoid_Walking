@@ -58,17 +58,17 @@ class population:
     #if booth indexes are specified, its assumed that there's only one result for one brain  
     def update_results(self, results, specie_index = -1, brain_index = -1):
         if specie_index != -1:
-            if brain_index != -1:
-                self.species[specie_index].results[brain_index] = results
-            else:
-                self.species[specie_index].results = results
+            #specific species was identified
+            specie = self.species[specie_index]
+            specie.update_results(results, brain_index)
                 
         elif brain_index == -1:     #supplying a brain index but not a specie index is not allowed
             #results for all species in all brains
             cursor = 0
             for specie in self.species:
-                specie.results = results[cursor:cursor+len(specie.brains)]
-                cursor = len(specie.brains)
+                specie.update_results(results[cursor:cursor+len(specie.brains)], brain_index)
+                cursor += len(specie.brains)
+        pass
      
     #################### MUTATIONS AND GENERATIONAL TRANSMISION ####################
     #mutate a brain and see if it fits in any of the existing species
@@ -151,10 +151,10 @@ class population:
         for specie in self.species:
             if len(specie.brains) > 2:
                 #sort the species by results
-                specie.results, specie.brains = zip(*sorted(zip(specie.results, specie.brains), reverse=True))
+                specie.adjus_results, specie.brains = zip(*sorted(zip(specie.adjus_results, specie.brains), reverse=True))
                 
                 #convert back to list
-                specie.results = list(specie.results)
+                specie.adjus_results = list(specie.adjus_results)
                 specie.brains = list(specie.brains)
                 
                 #remove the last brains
@@ -162,7 +162,7 @@ class population:
                 #while the number of brains is higher than the number of offspring + the dominant brain
                 while len(specie.brains) > specie.max_offspring+1:
                     specie.remove_brain(brain_index=specie.max_offspring) #remove the first brain after the last max offspring brain parent
-                    specie.results.pop(specie.max_offspring)              #same for results
+                    specie.adjus_results.pop(specie.max_offspring)              #same for results
         
                 #crossover every recessive brain with the dominant brain in the species
                 dominant_index = 0
@@ -175,7 +175,7 @@ class population:
                     
             elif len(specie.brains)==2:                 #breaking up if statements to avoid errors with empty species
                 #if there only 2 species, crossover the dominant brain of the first species with the dominant brain of the second species
-                if specie.results[0] > self.species[1].results[0]:
+                if specie.adjus_results[0] > self.species[1].adjus_results[0]:
                     dominant_index = 0
                     recessive_index = 1
                 else:
@@ -360,15 +360,15 @@ class population:
         results = []
         if specie_index != -1:
             if brain_index != -1:
-                results= self.species[specie_index].results[brain_index] 
+                results= self.species[specie_index].adjus_results[brain_index] 
             else:
-                results= self.species[specie_index].results 
+                results= self.species[specie_index].adjus_results 
                 
         elif brain_index == -1:     #supplying a brain index but not a specie index is not allowed
             #results for all species in all brains
             cursor = 0
             for specie in self.species:
-                results.append(specie.results)
+                results.append(specie.adjus_results)
                 
         return results
     
@@ -399,7 +399,7 @@ class population:
         
         #calculate the adjusted fitness of every brain in the population
         for specie in self.species:
-            summed_adjusted_fitness.append(sum(specie.results)/len(specie.brains))
+            summed_adjusted_fitness.append(sum(specie.adjus_results)/len(specie.brains))
             
         #calculate the number of offspring for each species by linear interpolation
         if len(self.species) != 1:
@@ -435,7 +435,7 @@ class population:
 class species:
     def __init__(self) -> None:
         self.brains = [] #list of all the brains in the species
-        self.results = [] #list of all the results of the species, ordered in the same way as the brains              
+        self.adjus_results = [] #list of all the adjus_results of the species, ordered in the same way as the brains              
         
         self.max_offspring = 1 #max number of offspring per species
         self.brain_count=0     
@@ -458,9 +458,13 @@ class species:
     
     def update_results(self,results, index = -1):
         if index == -1:                             #all brain results
-            self.results = results
+            self.adjus_results = results
         else:                                       #individual brian results
-            self.results[results] = results
+            self.adjus_results[index] = results
+            
+        #to adjust the results, divide it by the number of brains of specie
+        #this way, the results are normalized
+        self.adjus_results = [i/len(self.brains) for i in self.adjus_results]
         pass
     
     #################### INFORMATION ####################

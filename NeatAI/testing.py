@@ -19,6 +19,8 @@ for i in range(50):
     #mutate
     world.mutate_all()
     
+    print("AHHHHHHHHHHHHHHHHHHH")
+    world.print()
     ##Random results
     world.update_species_brain_count()
     rnd.seed = rnd.uniform(0,1000)

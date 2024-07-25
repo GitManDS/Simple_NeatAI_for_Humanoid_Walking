@@ -4093,3 +4093,1911 @@ Added node between 7 and 6
 [DUPLICATE] Connection with inov 2807 from 2 to 105 already exists
 [DUPLICATE] Connection with inov 2819 from 2 to 26 already exists
 [DUPLICATE] Connection with inov 2850 from 1 to 521 already exists
+Connection 7 weight updated to 1.1743850925016033 (17.438509250160326%)
+Connection 6 weight updated to 1.0012275071144103 (0.122750711441042%)
+Connection 8 weight updated to 0.0 (4.386527035554395%)
+Added connection: 1 -> 5
+Added connection: 2 -> 5
+Added node between 0 and 4
+Connection 1 weight updated to 0.8535057027096615 (-14.649429729033844%)
+Connection 3 weight updated to -0.8777900716005625 (-12.220992839943747%)
+Connection 3 weight updated to -1.0281173772541279 (17.12565572534427%)
+Connection 8 weight updated to -1.1273634637498602 (12.73634637498601%)
+Added node between 2 and 5
+Added node between 6 and 3
+Connection 4 toggled from True to False
+Added node between 0 and 4
+Connection 1 toggled from True to False
+Connection 5 weight updated to 1.152549056263271 (15.254905626327089%)
+Connection 1 weight updated to 0.9307544895235595 (-6.924551047644041%)
+Connection 1 weight updated to 1.048110508048102 (12.608697550802603%)
+Added node between 6 and 3
+Added node between 2 and 3
+Added connection: 8 -> 4
+Added node between 7 and 6
+Added node between 1 and 8
+Added node between 11 and 4
+Added node between 9 and 4
+Added node between 7 and 5
+Connection 9 weight updated to 0.5986090130300077 (13.432458435045112%)
+Added connection: 1 -> 9
+Added connection: 13 -> 5
+Added node between 12 and 4
+Added node between 1 and 3
+Added node between 1 and 11
+Connection 7 toggled from True to False
+Added connection: 2 -> 7
+Added connection: 7 -> 9
+Added connection: 10 -> 5
+Added node between 0 and 5
+Added node between 2 and 6
+Connection 13 weight updated to 1.024291974402625 (16.911594914318417%)
+Connection 22 weight updated to 0.4242985686601072 (-13.366342148287453%)
+Connection 29 weight updated to 0.8897737346206802 (-1.719566292035286%)
+Added node between 0 and 6
+Added node between 1 and 9
+Connection 19 toggled from True to False
+Connection 17 toggled from True to False
+Connection 40 toggled from True to False
+Connection 8 toggled from False to True
+Connection 9 toggled from True to False
+Added connection: 2 -> 19
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 9 -> 6
+Connection 33 toggled from True to False
+Added node between 18 and 17
+Connection 20 weight updated to 0.7739877678115695 (-14.508767178198331%)
+Connection 20 weight updated to 0.7738434725692797 (-0.018643090794294714%)
+Added connection: 2 -> 16
+Added connection: 7 -> 19
+Connection 31 toggled from True to False
+Connection 25 toggled from True to False
+Added node between 7 and 6
+Added node between 0 and 8
+Connection 6 weight updated to 0.8944590789389395 (-10.554092106106056%)
+Connection 12 toggled from True to False
+Connection 37 weight updated to 0.3714873111844275 (-13.298815817109944%)
+Connection 21 toggled from False to True
+Connection 7 toggled from False to True
+Added node between 11 and 12
+Connection 34 toggled from True to False
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 12 -> 20
+Added node between 0 and 18
+Added connection: 2 -> 17
+Added connection: 8 -> 16
+Added connection: 19 -> 5
+Connection 35 toggled from True to False
+Connection 5 toggled from True to False
+Connection 10 toggled from True to False
+Connection 14 toggled from False to True
+Connection 13 toggled from True to False
+Connection 13 toggled from False to True
+Connection 8 toggled from True to False
+Added node between 0 and 3
+Added node between 1 and 4
+Added node between 6 and 3
+Added node between 2 and 9
+Connection 6 toggled from True to False
+Connection 0 toggled from True to False
+Connection 4 toggled from True to False
+Added connection: 18 -> 19
+Added connection: 1 -> 6
+Added connection: 2 -> 8
+Added connection: 2 -> 16
+Added node between 2 and 15
+Added node between 0 and 7
+Added node between 1 and 21
+Added node between 23 and 17
+Added node between 19 and 11
+Added node between 1 and 21
+Connection 44 toggled from True to False
+Connection 15 toggled from True to False
+Connection 4 toggled from False to True
+Connection 18 weight updated to 0.13513945243688083 (-11.854130870267268%)
+Connection 44 weight updated to 0.7033200888593774 (11.275730066190537%)
+Connection 42 weight updated to 0.6397232013974207 (19.01021072255135%)
+Added connection: 9 -> 12
+Added connection: 11 -> 10
+Connection 28 weight updated to 0.4225445812529498 (12.742470757800053%)
+Connection 9 weight updated to 0.39139413385839184 (13.876709085032415%)
+Connection 29 weight updated to 0.8508021899593862 (-4.379938758015603%)
+Added connection: 2 -> 13
+Connection 3 weight updated to -1.1696803885138576 (16.968038851385764%)
+Added connection: 10 -> 9
+Added connection: 10 -> 5
+Connection 12 weight updated to 0.9215396421649036 (-7.846035783509637%)
+Connection 23 weight updated to 0.5774711965097469 (-8.861556304594806%)
+Connection 15 weight updated to 0.19125366658419538 (-2.998823382122442%)
+Added connection: 2 -> 14
+Added connection: 21 -> 7
+Connection 61 toggled from True to False
+Connection 39 toggled from True to False
+Connection 31 toggled from False to True
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 14 -> 19
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 13 -> 19
+Added connection: 21 -> 16
+Connection 21 toggled from True to False
+Connection 38 toggled from True to False
+Connection 64 toggled from True to False
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 14 -> 21
+Added connection: 2 -> 13
+Added connection: 1 -> 18
+Added connection: 12 -> 7
+Connection 50 toggled from True to False
+Connection 13 toggled from True to False
+Added node between 15 and 6
+Connection 44 weight updated to 0.3687350365578654 (-0.7408798480322121%)
+Connection 11 toggled from True to False
+Connection 47 toggled from True to False
+Connection 21 toggled from True to False
+Connection 16 toggled from True to False
+Connection 13 toggled from True to False
+Connection 14 toggled from True to False
+Connection 12 toggled from False to True
+Connection 3 toggled from True to False
+Connection 11 toggled from True to False
+Added node between 1 and 8
+Added node between 7 and 3
+Added node between 9 and 10
+Connection 9 toggled from True to False
+Connection 2 toggled from True to False
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 17 -> 23
+Added connection: 26 -> 4
+Added node between 27 and 13
+Added node between 16 and 12
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 13 -> 26
+Added connection: 27 -> 19
+Added connection: 1 -> 22
+Connection 29 weight updated to 0.976269799185693 (14.746977700221493%)
+Added node between 15 and 14
+Added node between 17 and 21
+Added connection: 15 -> 5
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 14 -> 20
+Added connection: 2 -> 18
+Connection 5 toggled from False to True
+Added connection: 11 -> 6
+Added connection: 1 -> 20
+Added connection: 23 -> 11
+Connection 43 weight updated to 0.22532037669548402 (13.178922081385904%)
+Connection 59 weight updated to 0.8744369649394934 (9.917931798681009%)
+Connection 37 weight updated to 0.3253870601557012 (-12.409643516959733%)
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 6 -> 9
+Added connection: 10 -> 7
+Added connection: 2 -> 9
+Connection 26 weight updated to 0.6614618617272443 (16.23513929937467%)
+Connection 15 toggled from True to False
+Added connection: 23 -> 20
+Added connection: 1 -> 8
+Added connection: 20 -> 10
+Added connection: 1 -> 29
+Added connection: 27 -> 26
+Connection 8 weight updated to 0.0 (-6.1250122487990755%)
+Connection 56 weight updated to 0.5155514161233871 (2.9861656331753883%)
+Connection 43 weight updated to 0.6004944334467606 (11.712329498303227%)
+Connection 12 weight updated to 0.27486479930060503 (3.6593947510263902%)
+Connection 51 weight updated to 0.8842248765434143 (7.0674087326103905%)
+Connection 46 weight updated to 0.6217393147225816 (7.961762874123601%)
+Connection 55 weight updated to 0.07657621037716571 (-1.0034950189792502%)
+Connection 0 weight updated to -1.1364674073752588 (13.646740737525874%)
+Added node between 20 and 28
+Added node between 0 and 5
+Added node between 2 and 8
+Connection 47 toggled from False to True
+Connection 30 toggled from True to False
+Connection 20 weight updated to 0.6400519940814735 (-17.289217164757854%)
+Connection 3 weight updated to 0.8521840286259545 (-14.781597137404543%)
+Added node between 0 and 6
+Added connection: 13 -> 8
+Added node between 9 and 3
+Added node between 1 and 10
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 16 -> 23
+Added connection: 2 -> 12
+Added connection: 1 -> 26
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 13 -> 20
+Added connection: 1 -> 31
+Added connection: 15 -> 8
+Added connection: 19 -> 13
+Connection 80 toggled from True to False
+Connection 72 weight updated to 0.8009733626644668 (-13.169647805757926%)
+Connection 39 weight updated to 0.2109931215572139 (-19.007101279046836%)
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 9 -> 25
+Connection 18 weight updated to 0.14244276913859835 (5.4042817031012245%)
+Connection 41 weight updated to 0.09423130581616815 (-9.967354390600464%)
+Connection 23 toggled from True to False
+Connection 10 toggled from False to True
+Connection 3 toggled from True to False
+Connection 9 toggled from False to True
+Connection 17 toggled from False to True
+Connection 54 toggled from True to False
+Added node between 23 and 21
+Added node between 20 and 21
+Connection 25 weight updated to 0.033348050504061796 (-15.001741567191221%)
+Connection 21 weight updated to 0.5468178971278818 (19.400971631669826%)
+Connection 29 weight updated to 0.6917506365840815 (9.905678201995256%)
+Connection 3 toggled from False to True
+Connection 24 toggled from True to False
+Connection 36 toggled from True to False
+Connection 16 toggled from False to True
+Added node between 2 and 3
+Added node between 2 and 5
+Added node between 16 and 5
+Connection 5 weight updated to 0.0 (10.623205850542252%)
+Connection 8 weight updated to 0.0 (-0.5775375089772572%)
+Added connection: 0 -> 5
+Added connection: 1 -> 4
+Added node between 0 and 5
+Connection 2 toggled from True to False
+Connection 5 toggled from True to False
+Added node between 2 and 5
+Added node between 6 and 3
+Added node between 6 and 7
+Connection 6 weight updated to -0.8630567447960498 (-13.69432552039503%)
+Added node between 1 and 5
+Added node between 2 and 5
+Added node between 1 and 5
+Added node between 1 and 5
+Added node between 0 and 5
+Added node between 8 and 5
+Connection 6 toggled from True to False
+Connection 3 toggled from True to False
+Connection 4 toggled from True to False
+Connection 0 weight updated to -0.9360889328499781 (-6.391106715002196%)
+Added connection: 0 -> 4
+Added connection: 2 -> 5
+Added connection: 2 -> 5
+Added node between 0 and 4
+Added node between 6 and 4
+Added node between 6 and 7
+Added node between 6 and 5
+Connection 5 toggled from True to False
+Connection 5 toggled from False to True
+Connection 8 toggled from True to False
+Connection 11 toggled from True to False
+Added node between 8 and 7
+Added node between 1 and 10
+Added connection: 11 -> 6
+Added connection: 8 -> 9
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 7 -> 11
+Added connection: 2 -> 6
+Added connection: 6 -> 3
+Added connection: 11 -> 5
+Added connection: 9 -> 4
+Connection 13 weight updated to 0.0 (1.3316835011435346%)
+Added connection: 2 -> 10
+Connection 10 weight updated to 0.9665425066649593 (15.684875906584168%)
+Connection 2 toggled from True to False
+Connection 6 toggled from True to False
+Connection 16 toggled from True to False
+Connection 27 toggled from True to False
+Connection 20 toggled from True to False
+Connection 5 weight updated to 0.0 (-19.23822096230214%)
+Connection 4 weight updated to 1.014196719162466 (1.4196719162465943%)
+Connection 28 weight updated to 0.21409154772599884 (18.681157069539108%)
+Connection 6 weight updated to -0.7060382269014437 (-18.193301754650136%)
+Added connection: 1 -> 7
+Added connection: 1 -> 10
+Added node between 0 and 5
+Added node between 0 and 7
+Connection 35 weight updated to 0.3700148694964125 (-8.394032815416317%)
+Added connection: 7 -> 12
+Added connection: 2 -> 9
+Added connection: 13 -> 5
+Connection 26 weight updated to 0.8372443253940745 (-10.241184232238286%)
+Added node between 2 and 4
+Added node between 6 and 13
+Connection 34 toggled from True to False
+Connection 41 toggled from True to False
+Connection 21 toggled from True to False
+Connection 16 weight updated to 0.4051526124665689 (-5.089229699379869%)
+Connection 9 weight updated to 1.092943758591655 (13.410724049782036%)
+Connection 9 weight updated to 1.153105742549678 (5.504581867556153%)
+Connection 40 toggled from True to False
+Connection 20 toggled from False to True
+Connection 19 toggled from True to False
+Added node between 2 and 11
+Added node between 2 and 16
+Added node between 9 and 13
+Added node between 2 and 4
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 13 -> 9
+Added connection: 14 -> 10
+Connection 34 weight updated to 0.5486435902722206 (1.8126582843231276%)
+Connection 41 weight updated to 0.0 (16.90396780363615%)
+Connection 38 weight updated to 0.5830358080737306 (-19.025431312347134%)
+Connection 1 toggled from True to False
+Connection 5 toggled from False to True
+Connection 0 toggled from True to False
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 6 -> 16
+Added connection: 1 -> 8
+Connection 31 toggled from True to False
+Connection 19 toggled from False to True
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 8 -> 17
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 18 -> 16
+Connection 34 weight updated to 0.4820734297480186 (-12.133589402032738%)
+Connection 2 weight updated to 0.8518201515879854 (-14.817984841201461%)
+Connection 21 weight updated to 0.5404211133160262 (-7.1770033734775796%)
+Connection 43 weight updated to 1.0002405441934927 (3.4800650783701226%)
+Connection 5 toggled from True to False
+Connection 48 toggled from True to False
+Added connection: 2 -> 13
+Added connection: 10 -> 3
+Connection 32 toggled from True to False
+Connection 22 toggled from True to False
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 6 -> 16
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 7 -> 11
+Added connection: 2 -> 7
+Added connection: 8 -> 19
+Added connection: 8 -> 12
+Added connection: 2 -> 15
+Added node between 2 and 4
+Added connection: 1 -> 16
+Added connection: 14 -> 12
+Added connection: 11 -> 8
+Connection 10 toggled from True to False
+Connection 17 toggled from False to True
+Connection 42 toggled from True to False
+Connection 18 toggled from True to False
+Connection 27 toggled from False to True
+Connection 26 toggled from True to False
+Connection 4 toggled from True to False
+Connection 44 toggled from False to True
+Added node between 15 and 3
+Added node between 7 and 6
+Added connection: 2 -> 8
+Added connection: 13 -> 19
+Added connection: 14 -> 11
+Connection 56 toggled from True to False
+Connection 54 toggled from True to False
+Added connection: 2 -> 11
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 7 -> 14
+Connection 57 weight updated to 0.9323770896885801 (14.943674506440194%)
+Connection 55 weight updated to 0.23437969442801843 (11.625014041998014%)
+Connection 2 weight updated to 0.811423023654535 (-4.742448022407193%)
+Added node between 0 and 15
+Added node between 0 and 3
+Added connection: 1 -> 21
+Added connection: 2 -> 24
+Added connection: 24 -> 4
+Added connection: 11 -> 15
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 18 -> 8
+Connection 74 toggled from True to False
+Connection 9 toggled from True to False
+Connection 44 weight updated to 0.2347925940756382 (-0.478995611654649%)
+Connection 33 weight updated to 0.5470771399543635 (1.521969622760122%)
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 9 -> 16
+Added connection: 22 -> 20
+Added connection: 20 -> 6
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 7 -> 9
+Added connection: 17 -> 10
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 18 -> 20
+Added node between 17 and 18
+Added node between 25 and 9
+Added node between 0 and 4
+Connection 4 weight updated to -1.1166968008077747 (11.669680080777473%)
+Connection 7 weight updated to -1.0729888943067678 (7.298889430676776%)
+Connection 2 weight updated to -0.9138053089514967 (-8.619469104850328%)
+Added node between 1 and 3
+Added node between 6 and 4
+Connection 3 toggled from True to False
+Connection 7 toggled from True to False
+Connection 3 toggled from True to False
+Connection 7 toggled from False to True
+Added connection: 0 -> 3
+Connection 7 weight updated to -1.133610555943542 (5.649793950191868%)
+Connection 4 weight updated to -1.0104834352096772 (-9.511388008031076%)
+Connection 2 weight updated to -0.7915171764129685 (-13.382296134703134%)
+Connection 7 toggled from True to False
+Connection 0 toggled from True to False
+Added node between 1 and 4
+Added node between 6 and 4
+Added node between 6 and 7
+Added connection: 2 -> 7
+Connection 4 weight updated to -0.8477901148668214 (-16.100543034542326%)
+Added node between 0 and 5
+Added node between 6 and 5
+Connection 12 weight updated to 0.4453819223895319 (1.0203668312984426%)
+Connection 13 weight updated to 0.6347348829633133 (-18.490668712230907%)
+Added connection: 7 -> 5
+Added connection: 6 -> 5
+Added connection: 6 -> 4
+Added node between 7 and 4
+Added node between 8 and 6
+Connection 8 weight updated to 0.0 (-18.06074822969888%)
+Connection 9 weight updated to 0.15755761032075655 (-14.725211629490062%)
+Connection 5 weight updated to -0.9037412874577144 (-9.625871254228556%)
+Connection 0 toggled from True to False
+Connection 15 toggled from True to False
+Added node between 2 and 6
+Added connection: 10 -> 5
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 8 -> 10
+Added connection: 1 -> 9
+Added node between 10 and 3
+Added node between 0 and 3
+Added node between 9 and 10
+Added node between 1 and 5
+Added node between 8 and 3
+Added node between 2 and 3
+Connection 23 toggled from True to False
+Added connection: 12 -> 9
+Added connection: 7 -> 11
+Added connection: 1 -> 11
+Connection 18 toggled from True to False
+Connection 22 toggled from True to False
+Added connection: 1 -> 7
+Added connection: 2 -> 12
+Added node between 0 and 6
+Added node between 1 and 6
+Added node between 8 and 9
+Added node between 0 and 6
+Added connection: 17 -> 5
+Added connection: 2 -> 8
+Connection 30 weight updated to 0.12515375899009962 (16.65448386042868%)
+Connection 19 weight updated to 0.01001716379506221 (-17.969395143155282%)
+Connection 31 weight updated to 0.6390709150115551 (-14.817955898354661%)
+Added connection: 14 -> 17
+Connection 19 toggled from True to False
+Connection 36 toggled from True to False
+Connection 24 toggled from True to False
+Connection 15 toggled from False to True
+Connection 40 toggled from True to False
+Connection 9 weight updated to 0.13737237799476812 (-12.811334396920113%)
+Added node between 2 and 4
+Added node between 7 and 3
+Added node between 11 and 9
+Added node between 18 and 7
+Added connection: 2 -> 9
+Added connection: 11 -> 5
+Added connection: 17 -> 3
+Connection 23 toggled from False to True
+Connection 16 toggled from True to False
+Connection 1 toggled from True to False
+Connection 46 toggled from True to False
+Connection 0 toggled from False to True
+Connection 32 toggled from True to False
+Connection 3 toggled from True to False
+Connection 30 weight updated to 0.13797101425961167 (10.241206794696414%)
+Connection 15 weight updated to 0.3701070931632485 (19.34381836590817%)
+Connection 19 weight updated to 0.011716568697865222 (16.964930768534558%)
+Added connection: 9 -> 10
+Added connection: 20 -> 13
+Added node between 11 and 15
+Added node between 8 and 17
+Added node between 1 and 20
+Added node between 1 and 11
+Added node between 24 and 11
+Added node between 1 and 23
+Added connection: 10 -> 18
+Added connection: 1 -> 10
+Added connection: 2 -> 19
+Connection 44 toggled from True to False
+Connection 31 toggled from True to False
+Connection 27 toggled from True to False
+Added node between 1 and 22
+Added node between 1 and 27
+Connection 34 weight updated to 0.7280998521232225 (8.554417433281646%)
+Connection 58 weight updated to 0.36856205749455107 (-18.864289629924446%)
+Connection 67 toggled from True to False
+Connection 64 toggled from True to False
+Added node between 0 and 13
+Added node between 13 and 21
+Connection 29 weight updated to 0.2586990799917641 (18.43860482133532%)
+Connection 26 toggled from True to False
+Connection 2 toggled from True to False
+Connection 57 toggled from True to False
+Connection 35 toggled from True to False
+Added connection: 17 -> 15
+Added connection: 28 -> 13
+Added connection: 11 -> 29
+Added node between 17 and 28
+Connection 2 weight updated to -0.6877946263525369 (-13.10427027376537%)
+Connection 53 weight updated to 0.40006461181158354 (-10.913286217923392%)
+Added node between 25 and 13
+Added node between 10 and 27
+Added node between 18 and 31
+Connection 38 toggled from True to False
+Connection 15 toggled from True to False
+Connection 35 toggled from False to True
+Connection 50 weight updated to 0.740269543746369 (4.390454169152661%)
+Connection 0 weight updated to 0.0 (19.591815586945472%)
+Connection 16 weight updated to -0.9016935404956377 (-9.830645950436235%)
+Added node between 0 and 31
+Added node between 0 and 28
+Added connection: 1 -> 14
+Added connection: 20 -> 31
+Added connection: 2 -> 16
+Added connection: 2 -> 17
+Added connection: 22 -> 20
+Added connection: 12 -> 30
+Added connection: 15 -> 7
+Added connection: 2 -> 21
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 7 -> 30
+Connection 43 weight updated to 0.2467628367449327 (1.0972410615368355%)
+Connection 56 weight updated to 0.4427333431758517 (15.85134220633412%)
+Connection 83 weight updated to 0.5104533899779036 (-12.2976027853211%)
+Connection 3 toggled from False to True
+Connection 78 toggled from True to False
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 8 -> 36
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 19 -> 31
+Added connection: 15 -> 29
+Added connection: 17 -> 30
+Added node between 14 and 20
+Connection 98 weight updated to 0.23101165965749976 (3.4814791399163525%)
+Added connection: 17 -> 11
+Added connection: 14 -> 23
+Added node between 1 and 24
+Added node between 2 and 26
+Added node between 22 and 38
+Added connection: 1 -> 17
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 19 -> 10
+Added connection: 2 -> 27
+Added connection: 1 -> 20
+Added connection: 2 -> 22
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 22 -> 32
+Added connection: 26 -> 18
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 31 -> 32
+Connection 76 toggled from True to False
+Connection 101 toggled from True to False
+Added node between 0 and 3
+Added node between 1 and 27
+Added node between 2 and 22
+Added node between 41 and 7
+Added node between 8 and 4
+Connection 30 toggled from True to False
+Connection 17 toggled from True to False
+Connection 66 toggled from True to False
+Connection 96 weight updated to 0.7661640975911829 (-8.001105802372207%)
+Connection 70 weight updated to 1.0110104229980164 (19.5084940166623%)
+Connection 54 weight updated to 0.5783641650219357 (2.5140764592466525%)
+Added node between 1 and 23
+Added node between 0 and 15
+Added node between 23 and 38
+Added connection: 10 -> 36
+Connection 72 toggled from True to False
+Connection 18 weight updated to 0.6468967670922336 (-2.610073095760797%)
+Added node between 0 and 11
+Added node between 2 and 4
+Added connection: 2 -> 34
+Added connection: 2 -> 43
+Added connection: 28 -> 5
+Added node between 0 and 36
+Added node between 1 and 39
+Added connection: 15 -> 18
+Added connection: 1 -> 23
+Connection 51 weight updated to 0.48306566416419616 (-19.988534881681105%)
+Connection 5 weight updated to -0.9225367908344497 (2.0797437980960565%)
+Connection 5 weight updated to -0.7662154906054042 (-16.944722615089464%)
+Connection 93 toggled from True to False
+Connection 68 weight updated to 0.4201358448413158 (-0.24967990903797424%)
+Connection 98 weight updated to 0.2048247150540565 (-11.33576748561882%)
+Connection 25 weight updated to 0.6376328574705178 (-0.13940472976051055%)
+Connection 122 weight updated to 0.23070245727917904 (-18.6280027794057%)
+Connection 87 weight updated to 0.6759567906168249 (-1.5542572249392483%)
+Connection 62 weight updated to 0.9762595858720118 (19.02523716870766%)
+Added connection: 1 -> 32
+Added connection: 24 -> 11
+Connection 110 weight updated to 0.43440782076176687 (-17.548926817115113%)
+Connection 107 weight updated to 0.12248717538801027 (19.797241372020437%)
+Connection 34 weight updated to 0.6442426451650904 (-11.517267406880368%)
+Connection 63 weight updated to 1.01728347845869 (11.241905846402451%)
+Connection 15 toggled from False to True
+Added connection: 26 -> 23
+Added connection: 27 -> 8
+Added node between 1 and 34
+Added node between 2 and 43
+Connection 77 weight updated to 0.35558623593161737 (-2.233520766246393%)
+Connection 98 weight updated to 0.22591919434190044 (10.298795866639804%)
+Added connection: 24 -> 19
+Connection 12 toggled from True to False
+Added connection: 53 -> 37
+Added connection: 44 -> 3
+Added connection: 1 -> 19
+Connection 75 toggled from True to False
+Connection 153 toggled from True to False
+Connection 68 toggled from True to False
+Connection 72 toggled from False to True
+Connection 128 toggled from True to False
+Connection 57 weight updated to 0.37384759358227093 (-17.70072513259372%)
+Connection 11 weight updated to 0.013039965027925149 (6.784339403542621%)
+Connection 15 weight updated to 0.3976498773006925 (7.441841738843764%)
+Added node between 7 and 43
+Connection 24 weight updated to 0.7331897175546854 (14.82589202112278%)
+Connection 72 weight updated to 0.6134384692919892 (5.86722675160658%)
+Added connection: 12 -> 29
+Connection 27 weight updated to 0.4061687937214889 (14.352828315275486%)
+Connection 47 weight updated to 0.36291403610689926 (-13.317591261702443%)
+Added node between 43 and 16
+Added node between 0 and 26
+Added node between 41 and 15
+Added node between 30 and 16
+Connection 76 toggled from False to True
+Connection 108 toggled from True to False
+Connection 151 toggled from True to False
+Added node between 0 and 32
+Added connection: 35 -> 55
+Connection 57 weight updated to 0.3560834006644797 (-4.7517205467532175%)
+Added node between 16 and 19
+Added node between 39 and 61
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 23 -> 45
+Connection 32 toggled from False to True
+Connection 0 toggled from False to True
+Connection 111 toggled from True to False
+Connection 23 toggled from True to False
+Connection 18 weight updated to 0.7440459186150861 (15.017720981901435%)
+Connection 10 weight updated to 1.010506977195213 (1.0506977195213096%)
+Added node between 22 and 15
+Added connection: 2 -> 32
+Connection 7 toggled from True to False
+Added node between 41 and 31
+Added node between 2 and 11
+Added node between 2 and 11
+Connection 54 toggled from True to False
+Connection 95 toggled from True to False
+Connection 45 weight updated to -0.9078513095569968 (0.4547786137827226%)
+Connection 25 weight updated to 0.658670590259343 (3.299348918793448%)
+Connection 68 weight updated to 0.4739554909876482 (12.810058176935597%)
+Added connection: 47 -> 10
+Added connection: 1 -> 61
+Added connection: 63 -> 48
+Connection 176 toggled from True to False
+Connection 30 toggled from False to True
+Connection 125 toggled from True to False
+Connection 62 weight updated to 0.8719487136195223 (-10.684747557107697%)
+Connection 182 toggled from True to False
+Connection 44 toggled from False to True
+Added node between 1 and 51
+Added connection: 1 -> 36
+Connection 149 toggled from True to False
+Added connection: 13 -> 46
+Added connection: 47 -> 11
+Added connection: 33 -> 50
+Added node between 55 and 32
+Added connection: 41 -> 49
+Added connection: 1 -> 49
+Connection 4 weight updated to -0.9804855178726045 (15.651916751427098%)
+Connection 187 weight updated to 0.8610370727545598 (-7.83464974170573%)
+Connection 66 weight updated to 0.748417636653183 (-19.11561757686479%)
+Connection 27 toggled from False to True
+Connection 15 toggled from True to False
+Connection 14 weight updated to -0.9215829419547229 (-7.841705804527713%)
+Connection 159 weight updated to 0.13008055195650745 (-8.616206021754818%)
+Added connection: 2 -> 30
+Added connection: 47 -> 25
+Connection 180 toggled from True to False
+Connection 52 toggled from True to False
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 62 -> 6
+Added connection: 67 -> 25
+Added node between 36 and 12
+Added node between 39 and 53
+Added node between 0 and 37
+Connection 5 toggled from False to True
+Connection 138 toggled from True to False
+Connection 117 toggled from True to False
+Connection 101 toggled from False to True
+Connection 128 toggled from False to True
+Connection 156 toggled from True to False
+Connection 169 weight updated to 0.9627139270831528 (-3.4106337901450567%)
+Added connection: 44 -> 43
+Connection 155 weight updated to 0.7546361044447093 (-5.256582709022366%)
+Connection 104 weight updated to 0.3772879173253956 (-1.2739557702154736%)
+Connection 70 weight updated to 0.9956355015192702 (-1.5207480683684649%)
+Connection 157 weight updated to 0.37169377913326307 (3.8066236812657195%)
+Connection 118 toggled from True to False
+Connection 44 toggled from True to False
+Connection 151 toggled from False to True
+Connection 104 toggled from True to False
+Connection 174 weight updated to 0.6948244182844552 (-17.65725532092259%)
+Connection 74 weight updated to 0.12503515561371617 (-9.150792584641373%)
+Connection 93 weight updated to 0.7409869689429008 (-7.44695010783628%)
+Added connection: 38 -> 54
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 62 -> 63
+Added connection: 48 -> 41
+Connection 57 weight updated to 0.31593377774960407 (-11.27534247312659%)
+Connection 5 weight updated to -0.6890722607350269 (-10.068085390628765%)
+Connection 141 weight updated to 0.019246759367823753 (-3.211918121676032%)
+Added node between 15 and 47
+Added node between 38 and 19
+Added node between 0 and 71
+Added node between 41 and 70
+Connection 176 toggled from False to True
+Added node between 0 and 60
+Added node between 2 and 57
+Added node between 2 and 26
+Added connection: 16 -> 34
+Added connection: 32 -> 75
+Added connection: 7 -> 49
+Connection 77 weight updated to 0.3809782245706036 (7.140880628424928%)
+Added node between 2 and 8
+Connection 149 toggled from False to True
+Added node between 2 and 80
+Added node between 2 and 28
+Added node between 41 and 66
+Added node between 1 and 73
+Added node between 1 and 39
+Added node between 38 and 53
+Connection 215 weight updated to 0.34114492553954234 (-1.1851306176440923%)
+Connection 92 weight updated to 0.46539467286284825 (-15.869697734623589%)
+Added connection: 2 -> 58
+Added connection: 65 -> 68
+Added connection: 29 -> 55
+Added connection: 39 -> 84
+Connection 21 weight updated to 0.745906724153946 (19.018582481948286%)
+Connection 215 weight updated to 0.2752669450015687 (-19.31084873497194%)
+Connection 164 weight updated to 0.7316083228767203 (-15.921684937252568%)
+Connection 57 weight updated to 0.31624009745865983 (0.09695693548112061%)
+Connection 137 weight updated to 0.6488066547238212 (7.534311457182463%)
+Added node between 29 and 73
+Added node between 10 and 36
+Added node between 13 and 62
+Added node between 1 and 30
+Added connection: 37 -> 49
+Added connection: 85 -> 43
+Added connection: 38 -> 3
+Added connection: 74 -> 23
+Added connection: 1 -> 81
+Connection 234 weight updated to 0.22012123513254175 (-12.059752691342569%)
+Connection 144 weight updated to 0.10942271241978999 (2.7371002102831365%)
+Added node between 29 and 9
+Added node between 1 and 67
+Added node between 1 and 78
+Added node between 7 and 63
+Added node between 62 and 5
+Added node between 72 and 62
+Added node between 2 and 20
+Connection 100 toggled from True to False
+Added connection: 2 -> 42
+Added connection: 49 -> 69
+Added connection: 70 -> 57
+Added node between 40 and 92
+Added node between 2 and 74
+Added node between 0 and 20
+Added node between 21 and 71
+Connection 3 toggled from True to False
+Added node between 1 and 79
+Added node between 40 and 35
+Added node between 1 and 82
+Connection 78 weight updated to 0.30555567380074483 (-15.989148570022286%)
+Connection 119 toggled from True to False
+Connection 1 toggled from False to True
+Added connection: 78 -> 22
+Added node between 66 and 81
+Added node between 52 and 7
+Added node between 1 and 98
+Connection 254 toggled from True to False
+Connection 44 toggled from False to True
+Added connection: 8 -> 95
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 16 -> 12
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 80 -> 17
+Added node between 0 and 7
+Added node between 26 and 30
+Added node between 0 and 91
+Connection 104 weight updated to 0.38637037021145826 (2.4073002258986698%)
+Connection 34 weight updated to 0.7073562753621956 (9.796562005132694%)
+Connection 27 toggled from True to False
+Connection 237 toggled from True to False
+Connection 188 toggled from True to False
+Connection 255 toggled from True to False
+Connection 0 toggled from True to False
+Added node between 0 and 16
+Added node between 1 and 5
+Added node between 2 and 23
+Added connection: 26 -> 83
+Added connection: 62 -> 8
+Added connection: 94 -> 68
+Connection 145 toggled from True to False
+Connection 266 weight updated to 0.1455514129362313 (-19.22830487382815%)
+Connection 57 weight updated to 0.3107328405768184 (-1.7414796308559177%)
+Connection 134 weight updated to 1.0063868584056062 (16.69278292565699%)
+Added node between 1 and 89
+Added node between 43 and 65
+Added node between 92 and 12
+Added connection: 115 -> 74
+Added connection: 1 -> 80
+Added connection: 52 -> 61
+Added connection: 1 -> 72
+Added connection: 20 -> 69
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 29 -> 59
+Connection 224 weight updated to 0.8763387157097292 (-10.962506857074805%)
+Connection 53 weight updated to 0.4772181177501062 (19.285261345449683%)
+Connection 285 weight updated to 0.11581275218661222 (1.3788184237818824%)
+Added connection: 83 -> 25
+Added connection: 2 -> 107
+Connection 237 toggled from False to True
+Connection 293 toggled from True to False
+Connection 209 toggled from True to False
+Connection 44 weight updated to 0.7103478456323087 (-15.188782464447758%)
+Connection 112 weight updated to 0.3931379389067679 (3.205000013766331%)
+Added node between 0 and 89
+Added node between 0 and 92
+Added node between 54 and 86
+Connection 295 weight updated to 0.8269329394252968 (9.307536511690117%)
+Added node between 32 and 58
+Added node between 28 and 26
+Added node between 2 and 22
+Connection 60 weight updated to 0.8523274668017392 (17.42796979922307%)
+Connection 301 toggled from True to False
+Connection 205 toggled from True to False
+Added node between 77 and 65
+Added node between 2 and 120
+Added node between 2 and 115
+Added node between 123 and 125
+Added node between 89 and 120
+Added node between 44 and 79
+Connection 154 weight updated to 0.8713246701687154 (9.393489571325567%)
+Connection 296 toggled from True to False
+Connection 91 toggled from True to False
+Connection 280 toggled from True to False
+Added connection: 2 -> 73
+Connection 127 toggled from True to False
+Connection 8 toggled from True to False
+Connection 314 toggled from True to False
+Connection 214 toggled from True to False
+Connection 110 weight updated to 0.4352475559595372 (0.19330572739177931%)
+Connection 81 weight updated to 0.4226559802286273 (-18.133690765385353%)
+Added connection: 1 -> 42
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 81 -> 122
+Added connection: 2 -> 33
+Connection 252 weight updated to 0.6608107112898807 (12.963812909806224%)
+Connection 297 weight updated to 0.36793794985864553 (13.23649749881083%)
+Connection 51 weight updated to 0.568771957782301 (17.742162189563725%)
+Connection 152 weight updated to 0.921653821887592 (14.248448724980003%)
+Connection 33 weight updated to 0.7645948919445359 (10.777129062146546%)
+Added connection: 1 -> 98
+Added connection: 2 -> 20
+Added connection: 2 -> 121
+Added connection: 106 -> 26
+Connection 49 weight updated to 0.6527507376694259 (-18.961974781486536%)
+Connection 123 weight updated to 0.2822083617325913 (-0.46114680632237004%)
+Added node between 8 and 47
+Added node between 0 and 106
+Added node between 1 and 130
+Connection 236 weight updated to 0.7488894127844361 (8.108368385082185%)
+Connection 277 weight updated to 0.34164587130215235 (-2.2183737986787655%)
+Added connection: 120 -> 131
+Added node between 97 and 19
+Added node between 38 and 106
+Added node between 24 and 62
+Added node between 127 and 19
+Added node between 8 and 69
+Added node between 44 and 135
+Added node between 23 and 81
+Connection 185 toggled from True to False
+Connection 174 toggled from True to False
+Connection 213 toggled from True to False
+Added connection: 115 -> 135
+Added connection: 84 -> 77
+Added connection: 42 -> 41
+Added connection: 2 -> 117
+Added node between 40 and 39
+Added node between 0 and 31
+Added connection: 1 -> 108
+Added connection: 1 -> 95
+Added connection: 1 -> 113
+Added connection: 123 -> 66
+Connection 32 weight updated to 0.4428281280111398 (-13.825872073212093%)
+Added node between 91 and 87
+Added node between 2 and 124
+Added node between 0 and 16
+Connection 91 weight updated to 0.1048054968917213 (-19.793550618051714%)
+Connection 268 weight updated to 0.6011800772753704 (14.909051807353698%)
+Connection 343 weight updated to 1.0496121256354367 (7.905190505218118%)
+Connection 254 weight updated to 0.8609181165625759 (-3.9250995546361223%)
+Added node between 1 and 110
+Added connection: 98 -> 119
+Added node between 2 and 16
+Added node between 125 and 99
+Added node between 30 and 22
+Added connection: 2 -> 25
+Added connection: 128 -> 131
+Added connection: 58 -> 118
+Added node between 11 and 32
+Added node between 62 and 6
+Added connection: 137 -> 57
+Added connection: 1 -> 120
+Connection 148 toggled from True to False
+Connection 130 toggled from True to False
+Connection 383 toggled from True to False
+Connection 329 toggled from True to False
+Connection 236 toggled from True to False
+Connection 216 toggled from True to False
+Connection 26 weight updated to 0.33678995607414564 (-5.180100931967853%)
+Connection 7 weight updated to -1.3310393537449159 (17.415927962760293%)
+Added connection: 61 -> 68
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 55 -> 25
+Added connection: 139 -> 63
+Added connection: 1 -> 129
+Connection 358 toggled from True to False
+Connection 347 toggled from True to False
+Added connection: 2 -> 126
+Added connection: 105 -> 62
+Added connection: 2 -> 147
+Connection 38 toggled from False to True
+Connection 377 toggled from True to False
+Connection 2 toggled from False to True
+Added node between 0 and 104
+Added node between 47 and 12
+Added node between 109 and 112
+Added connection: 103 -> 89
+Added connection: 2 -> 103
+Added node between 67 and 93
+Added node between 1 and 59
+Connection 346 weight updated to 0.23753121728111057 (-0.6245996180818247%)
+Connection 207 weight updated to 0.5802610654068472 (2.639734123513051%)
+Connection 193 weight updated to 0.12016074789890496 (14.363640853326274%)
+Connection 290 weight updated to 0.4352236418727269 (-17.99638191682326%)
+Added node between 22 and 16
+Added node between 41 and 39
+Added connection: 155 -> 99
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 62 -> 137
+Connection 355 weight updated to 0.6342564639610978 (2.6797883927421218%)
+Connection 299 weight updated to 1.0886195212520262 (9.955684217764423%)
+Added connection: 2 -> 155
+Connection 47 weight updated to 0.397372588603819 (9.494962737338081%)
+Connection 192 weight updated to 0.5196932673283934 (-8.16631314950017%)
+Connection 28 weight updated to 0.196249568775869 (-10.15226987532159%)
+Added connection: 121 -> 110
+Added connection: 44 -> 11
+Added connection: 58 -> 78
+Added connection: 132 -> 24
+Added connection: 1 -> 21
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 81 -> 123
+Added connection: 123 -> 20
+Added connection: 108 -> 118
+Added connection: 42 -> 93
+Added connection: 1 -> 141
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 10 -> 59
+Added connection: 1 -> 82
+Connection 137 weight updated to 0.5725658806569955 (-11.75092356277991%)
+Connection 319 weight updated to 0.6287690772065945 (15.95840061548277%)
+Connection 90 weight updated to 0.050885462613816795 (-0.8868864497900386%)
+Connection 371 weight updated to 0.5178687714428987 (3.0899351646649453%)
+Connection 312 weight updated to 0.962692952183654 (17.020823069015886%)
+Connection 198 weight updated to 0.6036077305846913 (-6.178026852242549%)
+Connection 25 weight updated to 0.5813715836512064 (-11.73560923339557%)
+Added connection: 2 -> 133
+Added connection: 40 -> 138
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 8 -> 70
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 64 -> 61
+Added node between 45 and 34
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 18 -> 52
+Connection 215 weight updated to 0.24674254045923902 (-10.362451816423906%)
+Added node between 0 and 72
+Added node between 16 and 34
+Added node between 14 and 149
+Connection 67 toggled from False to True
+Connection 40 toggled from False to True
+Connection 89 toggled from True to False
+Connection 79 toggled from True to False
+Connection 123 toggled from True to False
+Added node between 2 and 38
+Added node between 77 and 103
+Connection 205 toggled from False to True
+Added node between 121 and 145
+Connection 373 weight updated to 0.03444536303135908 (16.204927255861985%)
+Connection 278 weight updated to 0.5097467367597363 (19.390817178951036%)
+Connection 101 weight updated to 0.4281801533695031 (-9.787836152414542%)
+Added node between 1 and 54
+Added node between 1 and 127
+Added node between 107 and 14
+Added connection: 1 -> 62
+Added connection: 94 -> 157
+Connection 174 weight updated to 0.5705516127783596 (-17.885497722277695%)
+Connection 429 weight updated to 0.5147077865297592 (-13.848891813670363%)
+Added node between 1 and 77
+Added node between 106 and 52
+Connection 256 weight updated to 0.7316006227091632 (10.66818021655799%)
+Connection 175 weight updated to 0.2779618129486206 (16.42112126545966%)
+Added node between 1 and 141
+Added node between 0 and 129
+Added node between 157 and 68
+Added node between 144 and 63
+Connection 95 weight updated to 0.3568419379621808 (-14.930452857587214%)
+Connection 50 weight updated to 0.8047919362771743 (8.716067421100316%)
+Added node between 157 and 119
+Connection 151 weight updated to 0.36279829695836174 (-16.87301239801412%)
+Added connection: 124 -> 61
+Added connection: 137 -> 136
+Added connection: 43 -> 96
+Added connection: 1 -> 132
+Connection 47 weight updated to 0.3786227715998914 (-4.718447507868047%)
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 35 -> 142
+Added connection: 115 -> 55
+Added node between 105 and 4
+Added node between 94 and 32
+Added node between 0 and 52
+Added node between 145 and 57
+Added node between 55 and 29
+Connection 418 toggled from True to False
+Connection 72 toggled from True to False
+Added node between 0 and 9
+Added node between 41 and 105
+Added node between 2 and 19
+Added node between 10 and 140
+Added node between 0 and 15
+Added connection: 2 -> 112
+Connection 330 toggled from True to False
+Connection 340 toggled from True to False
+Connection 91 toggled from False to True
+Connection 61 toggled from False to True
+Connection 125 toggled from False to True
+Connection 52 weight updated to 0.0048134009763161805 (16.837339906322516%)
+Connection 238 weight updated to 0.8825795964195031 (-10.455192950940498%)
+Connection 464 weight updated to 0.1753101124227065 (-17.449313394078718%)
+Connection 431 weight updated to 1.0997791190342967 (12.049914938280635%)
+Connection 433 weight updated to 0.5923744134608787 (12.440826824570715%)
+Connection 457 weight updated to 0.6308801291076591 (19.32144469360253%)
+Connection 373 weight updated to 0.03358082418358787 (-2.509884558290576%)
+Connection 366 weight updated to 0.06962106626383066 (9.575391206045811%)
+Connection 341 weight updated to 0.9365839792919942 (2.4799059402959367%)
+Added connection: 1 -> 156
+Added connection: 163 -> 24
+Connection 167 toggled from True to False
+Added connection: 74 -> 143
+Added connection: 61 -> 103
+Connection 17 weight updated to 1.0790434093151613 (13.494805735735433%)
+Connection 206 weight updated to 0.6335794871658732 (12.070986639817388%)
+Connection 82 weight updated to 0.45638564122627834 (-11.600427338901396%)
+Connection 281 weight updated to 0.07288304487262746 (-10.341336437512068%)
+Connection 49 toggled from True to False
+Connection 3 toggled from False to True
+Connection 198 toggled from True to False
+Added node between 13 and 71
+Added node between 13 and 14
+Added node between 90 and 182
+Added node between 181 and 67
+Connection 21 toggled from True to False
+Connection 28 toggled from True to False
+Connection 346 toggled from True to False
+Connection 3 weight updated to -0.8749727620326904 (-12.50272379673096%)
+Added node between 0 and 5
+Added node between 6 and 4
+Added connection: 2 -> 3
+Added connection: 2 -> 5
+Connection 8 weight updated to -1.177071590920466 (17.70715909204661%)
+Connection 7 weight updated to 0.0 (-18.88672081325721%)
+Added node between 1 and 3
+Added connection: 2 -> 3
+Added connection: 2 -> 4
+Added connection: 1 -> 4
+Added node between 2 and 3
+Connection 3 toggled from True to False
+Added node between 6 and 5
+Added node between 6 and 3
+Added node between 7 and 5
+Connection 0 weight updated to 1.1202805781217873 (12.028057812178723%)
+Connection 1 weight updated to -0.9279951971753814 (-7.200480282461862%)
+Added node between 9 and 3
+Connection 0 weight updated to 0.9428242441505543 (-15.84034726985523%)
+Connection 15 weight updated to 0.7214785609817339 (6.443612054605192%)
+Added node between 8 and 5
+Added node between 9 and 4
+Connection 12 weight updated to 0.743318160403255 (1.8147578963653246%)
+Connection 18 weight updated to -1.019741019123969 (1.9741019123969128%)
+Connection 17 weight updated to 0.22068966057162753 (-14.130972729752727%)
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 9 -> 6
+Added connection: 7 -> 8
+Added connection: 2 -> 7
+Added node between 0 and 8
+Added node between 10 and 5
+Connection 26 weight updated to 0.03597397152961412 (-5.468920751527362%)
+Connection 5 weight updated to -0.8022649191797326 (-19.77350808202674%)
+Connection 20 weight updated to 0.6001449223346063 (-11.457392160619834%)
+Added node between 1 and 11
+Added node between 10 and 11
+Added node between 1 and 14
+Added node between 0 and 7
+Added node between 9 and 12
+Connection 36 weight updated to 0.3694904251302427 (-12.38574619807402%)
+Connection 4 weight updated to 1.0924063777272717 (9.240637772727167%)
+Connection 15 toggled from True to False
+Connection 6 toggled from True to False
+Connection 36 toggled from True to False
+Added node between 8 and 5
+Connection 15 toggled from False to True
+Connection 27 toggled from True to False
+Connection 35 toggled from True to False
+Connection 6 toggled from False to True
+Connection 28 toggled from True to False
+Connection 3 weight updated to -0.9795880361493546 (11.956403519765308%)
+Connection 7 weight updated to 0.8981834838313314 (-10.18165161686686%)
+Connection 8 weight updated to 1.0901260704410658 (9.01260704410658%)
+Connection 37 toggled from True to False
+Connection 40 toggled from True to False
+Connection 31 toggled from True to False
+Connection 40 toggled from False to True
+Connection 25 weight updated to 0.040542453699229423 (6.535968663188073%)
+Connection 2 toggled from True to False
+Connection 26 toggled from True to False
+Connection 24 toggled from True to False
+Connection 1 weight updated to -0.8569592876447185 (-7.654771247403108%)
+Added node between 16 and 3
+Added node between 2 and 9
+Added node between 1 and 15
+Added node between 2 and 20
+Added node between 6 and 14
+Added connection: 2 -> 6
+Added connection: 1 -> 8
+Added connection: 1 -> 22
+Connection 17 weight updated to 0.20962532371797057 (-5.013527514156416%)
+Connection 47 weight updated to 0.4302392816529663 (-8.334525840703106%)
+Connection 53 weight updated to 0.7220472044924469 (-14.108762670042779%)
+Connection 19 weight updated to 0.46041710738003416 (18.37380060252508%)
+Connection 52 weight updated to 0.15555888140472712 (10.109396320819508%)
+Connection 23 weight updated to 0.5895629696667757 (1.5578019647385766%)
+Connection 5 toggled from True to False
+Added node between 0 and 8
+Added node between 0 and 11
+Added node between 2 and 12
+Connection 25 toggled from False to True
+Connection 55 toggled from True to False
+Connection 13 toggled from False to True
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 12 -> 20
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 12 -> 20
+Added connection: 14 -> 5
+Added node between 22 and 10
+Added node between 2 and 23
+Added node between 0 and 8
+Connection 21 toggled from True to False
+Connection 9 toggled from True to False
+Added node between 25 and 10
+Added connection: 1 -> 7
+Connection 63 toggled from True to False
+Connection 0 toggled from True to False
+Connection 4 toggled from True to False
+Added node between 14 and 27
+Added connection: 9 -> 21
+Connection 47 weight updated to 0.41430154829553956 (-3.704388240932923%)
+Connection 20 weight updated to 0.6406440182201757 (6.748219368086139%)
+Added node between 1 and 3
+Added node between 11 and 23
+Added node between 1 and 31
+Added node between 2 and 13
+Added node between 2 and 30
+Added node between 24 and 18
+Added node between 9 and 37
+Added node between 29 and 23
+Added node between 0 and 16
+Added connection: 15 -> 39
+Added connection: 7 -> 26
+Added connection: 24 -> 27
+Added connection: 27 -> 33
+Added connection: 39 -> 24
+Connection 83 weight updated to 0.6956335165201788 (1.4559280655240947%)
+Connection 33 weight updated to 0.6038342033557699 (18.504772664389943%)
+Connection 9 weight updated to 0.7361022674438609 (1.0850531618226003%)
+Connection 89 weight updated to 0.5355359350706582 (13.705721062733641%)
+Added connection: 20 -> 13
+Added connection: 31 -> 9
+Added connection: 8 -> 38
+Added connection: 25 -> 22
+Added connection: 15 -> 33
+Added connection: 2 -> 38
+Connection 35 weight updated to 0.38246930568463666 (-9.308170007685002%)
+Connection 92 weight updated to 0.5479823338501657 (3.661976884578451%)
+Connection 92 weight updated to 0.4539365246170539 (-17.162197286970688%)
+Connection 27 weight updated to 0.3445616072365178 (-16.995127507986325%)
+Connection 68 toggled from True to False
+Connection 39 toggled from True to False
+Added connection: 40 -> 34
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 24 -> 6
+Added connection: 23 -> 37
+Added connection: 17 -> 21
+Connection 91 weight updated to 0.21512771841644687 (-6.462377632921519%)
+Connection 14 weight updated to 0.06599529417082198 (-18.356932572359064%)
+Connection 43 weight updated to 0.6698200208608893 (4.780989506759812%)
+Connection 85 toggled from True to False
+Connection 0 toggled from False to True
+[LOOP] NOT ADDING CONNECTION DUE TO LOOP
+Added connection: 18 -> 25
+Added connection: 1 -> 27
+Added connection: 31 -> 36
+Connection 84 weight updated to 0.6240126309015308 (-8.98974950283657%)
+Connection 8 weight updated to 1.205686785711414 (10.600674399392371%)
+Connection 47 weight updated to 0.3963974981171061 (-4.321502116536062%)
+Connection 12 toggled from True to False
+Connection 95 toggled from True to False
+Connection 2 toggled from False to True
+Added node between 34 and 17
+Added node between 1 and 33
+Added node between 34 and 27
+Connection 96 toggled from True to False
+Connection 95 toggled from False to True
+Connection 73 toggled from True to False
+Connection 1 toggled from True to False
+Connection 3 toggled from True to False
+Connection 1 toggled from True to False
+Connection 8 toggled from True to False
+Added node between 1 and 3
+Added node between 6 and 3
+Added node between 7 and 6
+Added node between 2 and 4
+Added node between 0 and 5
+Connection 1 weight updated to 0.0 (0.05853605268764106%)
+Connection 5 weight updated to 0.8189010982239463 (-18.109890177605372%)
+Connection 4 weight updated to 0.0 (-5.281903972428799%)
+Connection 2 weight updated to -0.9017401468800772 (-9.825985311992277%)
+Connection 8 weight updated to 0.0 (8.678593376635686%)
+Connection 7 weight updated to 0.9735468283325062 (-2.6453171667493796%)
+Connection 10 weight updated to 0.0 (2.8349568819636284%)
+Added node between 7 and 4
+Added node between 6 and 7
+Added node between 2 and 9
+Added node between 0 and 5
+Connection 2 weight updated to -0.8782064975887801 (-2.6098038745109564%)
+Connection 8 weight updated to -1.1477786325482764 (14.777863254827636%)
+Connection 4 weight updated to 0.0 (2.114911086406042%)
+Added node between 2 and 3
+Added node between 6 and 4
+Added node between 1 and 4
+Connection 0 weight updated to -0.8170578260935296 (-18.294217390647038%)
+Connection 13 weight updated to 0.0 (-9.790615536773904%)
+Connection 20 weight updated to 0.2712977539078676 (7.9917120220451565%)
+Added node between 1 and 7
+Connection 6 weight updated to 0.0 (-6.179406900071186%)
+Connection 18 toggled from True to False
+Connection 0 toggled from True to False
+Connection 23 toggled from True to False
+Connection 26 toggled from True to False
+Connection 14 weight updated to 0.32317927617045056 (-2.2641545003154255%)
+Connection 23 weight updated to 0.9370213351883679 (18.270361613011378%)
+Connection 0 weight updated to -0.8655946906854965 (5.940444242977105%)
+Added node between 1 and 7
+Added node between 9 and 6
+Added node between 7 and 6
+Connection 18 weight updated to 0.7694099770726301 (1.0424379067190026%)
+Connection 8 weight updated to -0.9215959718782273 (-19.706122265744106%)
+Connection 27 weight updated to 0.6608103821635568 (18.162415909328008%)
+Connection 25 toggled from True to False
+Connection 24 toggled from True to False
+Connection 19 toggled from False to True
+Connection 3 toggled from True to False
+Connection 16 toggled from True to False
+Connection 20 toggled from True to False
+Connection 7 weight updated to 0.9757246823504436 (-2.427531764955635%)
+Connection 17 weight updated to 0.6058936852282201 (-15.98701900751428%)
+Connection 16 weight updated to 0.7031940876937111 (13.009626271198801%)
+Added node between 9 and 7
+Connection 26 toggled from False to True
+Connection 27 toggled from False to True
+Connection 23 toggled from False to True
+Connection 7 toggled from True to False
+Connection 24 toggled from False to True
+Added node between 9 and 5
+Added node between 10 and 9
+Connection 22 weight updated to 0.9267773794528337 (16.977374672702535%)
+Connection 15 weight updated to 0.27910242829784426 (-15.593870578762514%)
+Connection 7 weight updated to 0.9051720851355073 (-7.230789431807826%)
+Connection 14 weight updated to 0.36820111606363437 (13.930917980470522%)
+Connection 1 weight updated to -1.111198325349401 (11.11983253494011%)
+Connection 35 toggled from True to False
+Connection 12 weight updated to 0.1718394125312117 (-0.1856367620329502%)
+Added node between 0 and 4
+Added node between 2 and 3
+Connection 0 toggled from True to False
+Connection 9 toggled from True to False
+Connection 17 toggled from True to False
+Added node between 0 and 11
+Added node between 2 and 6
+Connection 39 toggled from True to False
+Added node between 11 and 8
+Connection 42 toggled from True to False
+Added node between 0 and 7
+Added node between 0 and 12
+Added node between 20 and 22
+Connection 30 toggled from True to False
+Connection 9 toggled from False to True
+Added node between 0 and 7
+Added node between 6 and 4
+Added node between 0 and 23
+Connection 7 toggled from False to True
+Connection 25 toggled from False to True
+Connection 45 toggled from True to False
+Added node between 25 and 24
+Added node between 25 and 15
+Added node between 17 and 20
+Added node between 1 and 4
+Added node between 23 and 10
+Added node between 1 and 8
+Connection 13 weight updated to 0.0 (-12.150275870715271%)
+Added node between 2 and 5
+Added node between 2 and 32
+Added node between 2 and 28
+Added node between 25 and 20
+Added node between 36 and 31
+Added node between 1 and 23
+Connection 75 toggled from True to False
+Added node between 30 and 32
+Connection 37 weight updated to 0.5475473632136815 (7.684673614023936%)
+Connection 46 weight updated to 0.07123409519649047 (-5.628741876269032%)
+Added node between 0 and 33
+Connection 3 weight updated to -1.0771251493318807 (7.712514933188085%)
+Connection 41 weight updated to 0.22146400336585637 (-15.515817124617742%)
+Connection 77 weight updated to 0.8261726878622724 (-7.7570937016152905%)
+Connection 52 toggled from True to False
+Connection 84 toggled from True to False
+Connection 55 toggled from True to False
+Connection 8 toggled from False to True
+Connection 44 toggled from True to False
+Connection 8 toggled from True to False
+Added node between 0 and 26
+Added node between 36 and 21
+Added node between 28 and 27
+Connection 61 weight updated to 0.0441448010265392 (-12.386395202850862%)
+Added node between 39 and 41
+Connection 73 weight updated to 0.67872185783444 (-1.2433076879114013%)
+Connection 77 weight updated to 0.8206778635172777 (-0.6650939235491604%)
+Added node between 0 and 38
+Added node between 0 and 35
+Connection 71 toggled from True to False
+Connection 61 weight updated to 0.041267635796077416 (-6.5175630279363395%)
+Connection 43 weight updated to 0.045722151907163916 (-14.86681995722224%)
+Added node between 2 and 13
+Added node between 2 and 40
+Connection 46 toggled from True to False
+Connection 72 toggled from True to False
+Connection 51 toggled from True to False
+Connection 83 weight updated to 0.418317964332498 (-15.79779008055561%)
+Connection 16 weight updated to 0.7146597218233871 (1.6305077545916635%)
+Connection 1 weight updated to -1.0987562064302914 (-1.1197028140946363%)
+Added node between 48 and 34
+Connection 35 weight updated to 0.33147816022253024 (-2.021813482220627%)
+Connection 13 weight updated to 0.0 (11.09623148888982%)
+Connection 11 weight updated to 0.0 (6.33977410066719%)
+Connection 101 weight updated to 0.8676982994757956 (-3.068738364437844%)
+Added node between 24 and 27
+Added node between 0 and 24
+Added node between 1 and 42
+Added node between 2 and 23
+Added node between 2 and 4
+Added node between 2 and 5
+Added node between 6 and 5
+Added node between 2 and 3
+Connection 7 toggled from True to False
+Connection 8 toggled from True to False
+Added node between 2 and 4
+Added node between 0 and 4
+Added node between 2 and 3
+Connection 2 weight updated to 0.0 (-3.123129687726882%)
+Connection 4 toggled from True to False
+Added node between 2 and 4
+Added node between 6 and 5
+Added node between 7 and 6
+Connection 12 weight updated to 0.9031682211477418 (-9.683177885225822%)
+Added node between 0 and 3
+Added node between 6 and 7
+Connection 12 weight updated to 1.0725026847655479 (7.250268476554793%)
+Added node between 6 and 8
+Added node between 7 and 8
+Added node between 1 and 7
+Added node between 7 and 8
+Added node between 9 and 6
+Added node between 0 and 10
+Connection 13 toggled from True to False
+Connection 21 toggled from True to False
+Added node between 6 and 4
+Added node between 2 and 4
+Added node between 7 and 8
+Added node between 0 and 8
+Connection 11 toggled from False to True
+Connection 17 toggled from True to False
+Connection 13 toggled from False to True
+Connection 22 toggled from True to False
+Connection 8 toggled from True to False
+Connection 11 toggled from True to False
+Connection 9 weight updated to 0.2997668533860515 (-18.972709768274925%)
+Connection 7 weight updated to 0.0 (-8.412049009523521%)
+Connection 24 weight updated to 0.03751089707291329 (-9.801369022760941%)
+Connection 0 weight updated to 1.036557005007644 (3.655700500764394%)
+Connection 2 weight updated to 0.0 (3.823719921588849%)
+Connection 22 weight updated to 0.2788732095734099 (9.905703096796792%)
+Connection 26 toggled from True to False
+Connection 8 toggled from False to True
+Connection 15 toggled from True to False
+Connection 16 toggled from True to False
+Connection 22 toggled from False to True
+Connection 13 toggled from True to False
+Connection 7 toggled from True to False
+Connection 2 toggled from True to False
+Connection 11 toggled from False to True
+Connection 22 toggled from True to False
+Added node between 7 and 9
+Added node between 8 and 9
+Added node between 2 and 6
+Connection 28 toggled from True to False
+Added node between 6 and 7
+Added node between 6 and 7
+Added node between 1 and 8
+Added node between 9 and 4
+Connection 10 toggled from False to True
+Connection 4 weight updated to 0.0 (17.680078829980246%)
+Added node between 2 and 8
+Connection 10 toggled from True to False
+Connection 15 toggled from False to True
+Connection 5 weight updated to -1.0820441582125073 (8.204415821250738%)
+Connection 15 weight updated to 1.1854783271559575 (18.54783271559574%)
+Connection 26 weight updated to 0.3355791783023492 (-2.4873766545882914%)
+Connection 26 toggled from False to True
+Connection 25 toggled from True to False
+Connection 1 toggled from True to False
+Connection 15 toggled from True to False
+Connection 16 toggled from True to False
+Connection 20 toggled from True to False
+Connection 3 weight updated to 0.9438787039420148 (-5.612129605798519%)
+Connection 26 weight updated to 0.35889449930814016 (6.947785355378762%)
+Connection 27 weight updated to 0.5894947273081439 (12.133748234163916%)
+Connection 27 weight updated to 0.5807065728078468 (-1.4907944198970524%)
+Connection 24 weight updated to 0.03475542119153724 (-7.345801077537506%)
+Connection 24 weight updated to 0.03418162034839499 (-1.6509678878009693%)
+Added node between 1 and 4
+Connection 16 toggled from True to False
+Connection 14 toggled from True to False
+Connection 18 toggled from True to False
+Connection 11 toggled from False to True
+Added node between 6 and 3
+Added node between 11 and 8
+Added node between 0 and 6
+Added node between 1 and 12
+Connection 0 toggled from False to True
+Connection 9 toggled from False to True
+Connection 22 toggled from False to True
+Added node between 7 and 15
+Added node between 0 and 12
+Added node between 0 and 15
+Connection 21 toggled from False to True
+Connection 34 toggled from True to False
+Connection 8 toggled from True to False
+Connection 19 weight updated to 0.2544769530098073 (0.2909834374428799%)
+Connection 15 toggled from False to True
+Connection 16 toggled from False to True
+Connection 25 weight updated to 0.34566288027040915 (0.4427462359710743%)
+Connection 6 weight updated to 0.8972145318272052 (-10.27854681727948%)
+Connection 3 toggled from True to False
+Connection 8 toggled from False to True
+Connection 27 toggled from True to False
+Added node between 6 and 11
+Connection 5 weight updated to 0.0 (-8.153285900036543%)
+Connection 4 weight updated to -0.9645670148660772 (-3.543298513392279%)
+Connection 4 weight updated to -1.109232873502163 (14.998010133714931%)
+Connection 10 weight updated to 0.0 (19.242453619160138%)
+Connection 23 toggled from True to False
+Connection 3 toggled from False to True
+Connection 32 toggled from True to False
+Added node between 1 and 12
+Added node between 0 and 10
+Added node between 1 and 6
+Added node between 2 and 14
+Added node between 0 and 5
+Connection 3 toggled from True to False
+Connection 0 toggled from True to False
+Connection 4 toggled from True to False
+Added node between 23 and 12
+Added node between 12 and 13
+Connection 40 toggled from True to False
+Connection 38 toggled from True to False
+Connection 17 toggled from False to True
+Connection 30 weight updated to 0.9302036887586451 (-1.0065566553194663%)
+Connection 26 weight updated to 0.34820704261407665 (-2.9778825573159433%)
+Added node between 11 and 12
+Added node between 19 and 6
+Added node between 1 and 12
+Connection 19 weight updated to 0.30073415139064047 (18.177362560235633%)
+Connection 2 weight updated to 0.0 (9.073144131345408%)
+Connection 12 toggled from True to False
+Connection 20 toggled from True to False
+Connection 20 weight updated to 0.23907414692379103 (-16.01705937691335%)
+Connection 23 weight updated to 0.5765725054080801 (13.591903001012081%)
+Connection 10 toggled from True to False
+Added node between 8 and 13
+Added node between 2 and 8
+Connection 3 toggled from True to False
+Connection 12 toggled from True to False
+Connection 7 toggled from True to False
+Added node between 2 and 22
+Added node between 2 and 27
+Connection 35 weight updated to 0.7287038904365157 (11.471656834940953%)
+Connection 22 weight updated to 0.24772385433501606 (-11.169719488667532%)
+Connection 58 weight updated to 0.5027920303578521 (-18.364075276285266%)
+Connection 37 weight updated to 0.7116384425979684 (19.384198660276272%)
+Connection 24 weight updated to 0.031189245404703633 (-8.754339066409607%)
+Connection 33 weight updated to 0.7929392369610773 (11.229533537189598%)
+Connection 58 toggled from True to False
+Connection 45 toggled from True to False
+Connection 17 weight updated to 0.8443955489933936 (11.44772974043145%)
+Connection 49 weight updated to 0.9105654044099499 (17.272528983736855%)
+Connection 28 weight updated to 0.24192372680744073 (-19.2960382127767%)
+Connection 48 weight updated to 0.5266708404536156 (6.113853519211543%)
+Connection 13 toggled from False to True
+Connection 3 toggled from False to True
+Connection 17 toggled from True to False
+Connection 19 toggled from True to False
+Added node between 2 and 8
+Added node between 2 and 5
+Added node between 0 and 5
+Added node between 0 and 14
+Connection 17 weight updated to 0.6030301137519664 (-15.516885024499317%)
+Added node between 20 and 15
+Added node between 10 and 13
+Added node between 19 and 4
+Added node between 16 and 6
+Added node between 25 and 27
+Added node between 15 and 5
+Added node between 2 and 31
+Connection 26 toggled from True to False
+Connection 40 toggled from False to True
+Connection 50 toggled from True to False
+Connection 57 toggled from False to True
+Added node between 2 and 3
+Connection 54 toggled from True to False
+Connection 16 toggled from False to True
+Added node between 35 and 14
+Connection 34 weight updated to 0.819341483281597 (14.933108042873355%)
+Connection 9 weight updated to 0.3126026989989553 (4.2819429392926445%)
+Connection 2 weight updated to 0.0 (14.31251369520847%)
+Added node between 36 and 31
+Added node between 21 and 9
+Connection 67 weight updated to 0.28003060251006007 (-0.9251394852621031%)
+Connection 38 weight updated to 0.6266499757695907 (5.126565288714073%)
+Connection 38 toggled from False to True
+Connection 56 weight updated to 0.20301962297797868 (-13.001064738870777%)
+Connection 36 weight updated to 0.7056470231471976 (7.078527646426802%)
+Connection 30 weight updated to 0.3250536745906282 (-6.281091474490457%)
+Connection 33 weight updated to 0.701096921993032 (2.491279493715633%)
+Connection 24 toggled from True to False
+Added node between 22 and 7
+Added node between 1 and 13
+Added node between 21 and 7
+Added node between 34 and 15
+Added node between 0 and 3
+Added node between 14 and 37
+Connection 26 weight updated to 0.40419449503284444 (16.078782324003594%)
+Connection 49 weight updated to 0.7669085684672217 (-15.776663076258481%)
+Connection 44 weight updated to 0.12722350867965326 (-2.333918596539264%)
+Connection 29 toggled from True to False
+Connection 3 weight updated to 0.8985588048791714 (-4.801453711538288%)
+Connection 15 weight updated to 1.1284337395325952 (-4.811946900810593%)
+Connection 20 weight updated to 0.2906281072573332 (14.538382932765082%)
+Added node between 21 and 7
+Connection 58 toggled from False to True
+Connection 1 toggled from False to True
+Connection 58 toggled from True to False
+Connection 33 toggled from True to False
+Added node between 33 and 38
+Added node between 0 and 39
+Added node between 2 and 21
+Added node between 2 and 12
+Added node between 1 and 6
+Added node between 22 and 43
+Added node between 32 and 42
+Connection 50 weight updated to 0.005175153928120259 (15.109698166493512%)
+Connection 25 weight updated to 0.11118416322874854 (1.7243632934094058%)
+Connection 32 weight updated to 1.0970419754059781 (18.523131268978112%)
+Added node between 13 and 19
+Added node between 0 and 23
+Connection 21 toggled from False to True
+Connection 48 toggled from True to False
+Connection 3 weight updated to -0.907316315393459 (-9.268368460654095%)
+Connection 1 toggled from True to False
+Connection 43 toggled from True to False
+Connection 33 toggled from True to False
+Connection 72 toggled from True to False
+Connection 2 toggled from False to True
+Connection 62 weight updated to 0.007055805881094449 (-12.710720677166629%)
+Connection 64 weight updated to 0.12302673886417925 (9.849922714281126%)
+Connection 12 toggled from False to True
+Connection 82 toggled from True to False
+Connection 64 toggled from True to False
+Added node between 2 and 23
+Connection 30 toggled from True to False
+Connection 67 toggled from True to False
+Connection 4 toggled from False to True
+Connection 67 weight updated to 0.3283441136206584 (17.252939742135027%)
+Connection 0 weight updated to 0.9519026379410519 (-8.166880032417307%)
+Connection 66 weight updated to 0.531875481955813 (-13.641935063229162%)
+Added node between 1 and 39
+Added node between 27 and 33
+Added node between 2 and 17
+Added node between 0 and 17
+Added node between 52 and 20
+Added node between 8 and 33
+Added node between 2 and 38
+Added node between 2 and 47
+Added node between 27 and 36
+Connection 46 weight updated to 0.40740079578803573 (-0.9334670138257907%)
+Connection 16 weight updated to 0.9086066635942047 (14.074583330987354%)
+Connection 22 toggled from True to False
+Connection 14 toggled from False to True
+Connection 19 toggled from False to True
+Added node between 11 and 14
+Added node between 2 and 8
+Added node between 19 and 10
+Added node between 1 and 5
+Added node between 6 and 5
+Connection 5 toggled from True to False
+Connection 25 toggled from False to True
+Connection 28 toggled from True to False
+Connection 4 weight updated to 0.0 (-13.91411544846485%)
+Added node between 0 and 3
+Connection 38 weight updated to 0.08372025658698241 (11.200671962683668%)
+Connection 22 weight updated to 0.14546345394977783 (-1.1801873282479747%)
+Added node between 6 and 38
+Added node between 0 and 11
+Added node between 1 and 39
+Connection 74 toggled from True to False
+Connection 22 toggled from True to False
+Added node between 0 and 4
+Added node between 7 and 5
+Connection 11 weight updated to 0.8441393497835296 (19.74728040903475%)
+Connection 19 weight updated to 0.185010620088475 (7.025784075824486%)
+Added node between 0 and 4
+Connection 6 weight updated to 0.0 (16.818095359964957%)
+Connection 4 weight updated to 0.0 (-8.256016104187799%)
+Connection 1 weight updated to -0.8585441011986643 (-14.145589880133574%)
+Connection 3 weight updated to -1.0238416134421198 (2.384161344211977%)
+Connection 8 toggled from True to False
+Connection 5 toggled from True to False
+Connection 1 toggled from True to False
+Connection 9 toggled from True to False
+Connection 8 toggled from True to False
+Connection 7 toggled from True to False
+Connection 4 weight updated to 0.0 (-19.193524701447696%)
+Connection 6 weight updated to 0.0 (-9.997686065293232%)
+Connection 2 weight updated to 0.0 (-11.27881740790064%)
+Connection 6 weight updated to 0.8381605973349416 (-16.183940266505836%)
+Connection 4 weight updated to -1.0640926344949766 (6.409263449497664%)
+Connection 7 weight updated to 0.0 (-9.773575923282657%)
+Connection 4 weight updated to 1.0106979991160046 (1.0697999116004553%)
+Connection 6 weight updated to -1.0471762199338506 (4.717621993385062%)
+Connection 5 weight updated to 0.9923029802116766 (-0.76970197883234%)
+Added node between 0 and 6
+Added node between 1 and 7
+Added node between 2 and 7
+Connection 8 toggled from False to True
+Connection 15 toggled from True to False
+Connection 12 toggled from True to False
+Connection 2 toggled from True to False
+Added node between 0 and 5
+Added node between 2 and 3
+Added node between 0 and 3
+Added node between 6 and 8
+Connection 10 weight updated to 0.0 (-1.5153964129662345%)
+Added node between 1 and 3
+Connection 1 weight updated to -1.141286506840428 (14.128650684042817%)
+Added node between 0 and 7
+Added node between 11 and 4
+Added node between 2 and 4
+Added node between 1 and 12
+Added node between 0 and 3
+Added node between 9 and 7
+Added node between 1 and 5
+Added node between 0 and 4
+Connection 32 weight updated to 0.4877328581484417 (17.2976004448887%)
+Connection 32 weight updated to 0.4902536620324236 (0.5168411030479891%)
+Added node between 2 and 5
+Connection 5 weight updated to 1.0711243894947626 (7.112438949476255%)
+Connection 30 weight updated to 0.3506523183013285 (15.416656618699099%)
+Connection 2 weight updated to -0.8410784686367072 (-15.892153136329279%)
+Added node between 1 and 4
+Added node between 2 and 19
+Connection 28 toggled from True to False
+Connection 32 toggled from True to False
+Connection 20 toggled from True to False
+Connection 8 weight updated to 0.0 (7.428390469812247%)
+Connection 25 weight updated to 0.5005317826031959 (-3.9960348486972697%)
+Added node between 13 and 18
+Connection 3 toggled from True to False
+Connection 5 toggled from True to False
+Connection 1 toggled from True to False
+Connection 8 weight updated to 1.1787661932573814 (17.87661932573814%)
+Connection 8 weight updated to 0.9962087005969608 (-15.48716731991987%)
+Connection 1 weight updated to 0.0 (18.967049087424158%)
+Connection 0 weight updated to 0.0 (1.7187905648563717%)
+Connection 6 weight updated to 0.8349412403701031 (-16.5058759629897%)
+Connection 2 toggled from True to False
+Connection 5 toggled from True to False
+Connection 5 toggled from False to True
+Connection 5 toggled from True to False
+Connection 1 toggled from False to True
+Added node between 1 and 5
+Added node between 1 and 3
+Added node between 6 and 4
+Added node between 1 and 4
+Added node between 2 and 5
+Added node between 2 and 3
+Connection 8 toggled from True to False
+Connection 8 toggled from False to True
+Connection 0 weight updated to -0.905869535782858 (-9.413046421714203%)
+Connection 6 weight updated to 0.9531843433823839 (-4.681565661761615%)
+Connection 8 weight updated to 0.0 (19.831350662409115%)
+Connection 0 weight updated to -0.9739793358589967 (7.518720675077982%)
+Connection 5 weight updated to 0.8081282796563671 (-19.187172034363282%)
+Connection 6 toggled from True to False
+Connection 14 weight updated to 0.14408332642443936 (13.731303404614406%)
+Connection 13 weight updated to 0.12451046309278793 (-1.7184180399865447%)
+Connection 2 weight updated to 1.1710109130582382 (17.10109130582382%)
+Connection 8 toggled from True to False
+Connection 6 toggled from True to False
+Connection 7 toggled from True to False
+Added node between 1 and 3
+Added node between 6 and 5
+Added node between 0 and 5
+Added node between 1 and 4
+Connection 2 toggled from True to False
+Connection 10 toggled from True to False
+Connection 20 weight updated to 0.2258222044165044 (4.897941281324894%)
+Connection 17 weight updated to 1.0236438122904776 (19.891211453243525%)
+Connection 13 weight updated to 0.15323251074367555 (6.34992580077212%)
+Connection 19 weight updated to 0.5491208777824094 (-14.198364191713306%)
+Connection 5 weight updated to 0.9612223154762142 (18.944274030967684%)
+Connection 11 weight updated to 0.0 (-12.718341323328083%)
+Added node between 7 and 5
+Added node between 9 and 8
+Connection 13 weight updated to 0.1381470780339746 (-9.84479901587959%)
+Connection 0 toggled from True to False
+Connection 3 toggled from False to True
+Connection 4 toggled from False to True
+Added node between 8 and 9
+Added node between 2 and 6
+Connection 14 weight updated to 0.05893072733860952 (12.544972563067148%)
+Connection 23 weight updated to 0.4766161363183383 (-15.786835964247192%)
+Connection 21 weight updated to -1.0952606906957896 (9.526069069578957%)
+Added node between 9 and 5
+Added node between 2 and 7
+Connection 0 toggled from True to False
+Added node between 2 and 4
+Added node between 1 and 5
+Added node between 0 and 3
+Connection 7 toggled from True to False
+Added node between 2 and 5
+Added node between 6 and 5
+Connection 2 weight updated to 0.0 (10.82124570382786%)
+Connection 8 toggled from True to False
+Connection 4 weight updated to 0.0 (-12.83413135142035%)
+Added node between 1 and 3
+Added node between 1 and 3
+Connection 2 weight updated to -1.1641225151598087 (16.412251515980874%)
+Connection 3 weight updated to 0.022916443500403224 (1.0454406109509007%)
+Connection 1 weight updated to -0.33949332691068496 (7.739211159942344%)
+Connection 8 toggled from True to False
+Connection 0 weight updated to 0.7640350486147712 (16.643490482969572%)
+Connection 5 weight updated to 0.5400166838838423 (12.57543420138408%)
+Connection 7 toggled from True to False
+Connection 5 weight updated to -0.3209477363140467 (4.192347534105121%)
+Added node between 0 and 4
+Connection 1 toggled from True to False
+Added node between 0 and 3
+Added node between 0 and 4
+Connection 5 weight updated to 0.5046783025073268 (-6.543942517175401%)
+Added node between 2 and 6
+Connection 8 weight updated to -0.07349538124044397 (-16.071600093621253%)
+Added node between 0 and 4
+Added node between 1 and 3
+Connection 1 toggled from False to True
+Added node between 6 and 4
+Connection 2 toggled from True to False
+Connection 2 weight updated to 0.28684909587733903 (17.017058014409905%)
+Added node between 2 and 5
+Added node between 2 and 3
+Connection 9 weight updated to 0.7854037724774808 (17.160956587600793%)
+Connection 1 weight updated to -0.3389105788383359 (-0.17165229068032417%)
+Added node between 6 and 3
+Connection 1 weight updated to -0.3679196074779114 (8.559493403542625%)
+Added node between 0 and 4
+Connection 3 toggled from False to True
+Added node between 6 and 4
+Connection 0 toggled from True to False
+Added node between 6 and 7
+Connection 8 toggled from False to True
+Added node between 0 and 4
+Added node between 6 and 3
+Connection 10 weight updated to 0.024624262665740755 (7.452374384827558%)
+Connection 1 toggled from True to False
+Connection 14 toggled from True to False
+Added node between 2 and 8
+Added node between 0 and 6
+Connection 7 toggled from True to False
+Connection 6 toggled from True to False
+Connection 3 toggled from False to True
+Added node between 1 and 3
+Connection 2 toggled from False to True
+Connection 9 weight updated to 0.5421414615139751 (15.801307025218236%)
+Added node between 7 and 4
+Added node between 0 and 8
+Added node between 1 and 6
+Added node between 7 and 4
+Connection 15 toggled from True to False
+Connection 7 weight updated to -0.7908691649685612 (19.09750884299986%)
+Added node between 8 and 3
+Connection 10 weight updated to 0.02384699140587559 (-3.1565260264485633%)
+Connection 11 toggled from False to True
+Added node between 2 and 8
+Added node between 10 and 5
+Connection 10 weight updated to 0.02779306605299505 (16.547473767056406%)
+Added node between 6 and 3
+Connection 10 toggled from True to False
+Added node between 2 and 7
+Added node between 0 and 3
+Connection 15 weight updated to 0.7138095187699717 (-15.30049032630076%)
+Connection 9 toggled from True to False
+Added node between 9 and 4
+Added node between 1 and 6
+Connection 17 weight updated to 1.0541893946881178 (13.695734737095796%)
+Added node between 1 and 3
+Added node between 7 and 10
+Connection 0 toggled from False to True
+Added node between 1 and 4
+Added node between 10 and 6
+Connection 15 toggled from True to False
+Connection 5 toggled from True to False
+Connection 16 weight updated to 0.9970073067973388 (18.303311746733858%)
+Connection 20 toggled from False to True
+Added node between 0 and 7
+Connection 18 weight updated to 0.3696353112493269 (-1.8246583334961919%)
+Connection 13 toggled from True to False
+Added node between 10 and 8
+Connection 12 toggled from True to False
+Connection 7 weight updated to -0.7457782715484775 (-5.70143525849514%)
+Connection 6 toggled from False to True
+Connection 22 weight updated to 1.0150963144587044 (4.582906040902062%)
+Connection 8 weight updated to 0.20946488546662695 (12.912594399490281%)
+Connection 7 weight updated to -0.830795528991065 (11.399803492003603%)
+Added node between 0 and 4
+Connection 10 toggled from False to True
+Connection 18 weight updated to 0.3490489724483022 (-7.292401224785464%)
+Connection 26 toggled from True to False
+Added node between 9 and 7
+Added node between 7 and 5
+Connection 5 toggled from False to True
+Added node between 2 and 7
+Connection 14 weight updated to 1.0496899460789129 (13.210463192804935%)
+Added node between 9 and 7
+Connection 0 toggled from True to False
+Connection 7 toggled from False to True
+Connection 0 weight updated to -0.052778883967885916 (-11.464502364876312%)
+Connection 12 weight updated to 0.5051660658576024 (8.41578832907449%)

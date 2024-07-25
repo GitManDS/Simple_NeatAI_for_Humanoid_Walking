@@ -19,7 +19,7 @@ for i in range(50):
     #mutate
     world.mutate_all()
     
-    print("AHHHHHHHHHHHHHHHHHHH")
+    print("-"*100)
     world.print()
     ##Random results
     world.update_species_brain_count()
@@ -27,6 +27,11 @@ for i in range(50):
     results = [rnd.uniform(0,1000) for i in range(world.brain_count)]
     results[0]+=results[0]*5
     world.update_results(results)
+    
+    if i == 10:
+        world.species[0].brains[0].observe_mental_map()
+        world.species[0].brains[1].observe_mental_map()
+        world.species[0].brains[2].observe_mental_map()
     
     world.update_planned_offspring_count()
     print([specie.max_offspring for specie in world.species])

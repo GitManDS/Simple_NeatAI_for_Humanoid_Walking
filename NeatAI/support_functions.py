@@ -35,7 +35,7 @@ def combine_fenotypes(dominant_fenotype, recessive_fenotype):
     debug = False
     
     #a copy of the dominant fenotype is created
-    child_fenotype = dominant_fenotype
+    child_fenotype = dominant_fenotype.copy()
     
     #get all the inovation numbers that exist in the dominant fenotype
     existant_inov = []
@@ -277,7 +277,38 @@ def detect_loops(fenotype, critical_index, current_node_index, order = 2):
     #if it wasn't found and order is 0, then there is no loop
     return False
 
+#orders brains (and also possibly species) by score
+#order is in reverse (from highest to lowest)
+#by default, it only orders brains
+#by giving a population, it sorts everything
+#FUNCTION NOT IN CLASSES ALLOWS FOR THE USE OF EITHER A POPULATION OR A SPECIE
+def order_by_score(element):
+    
+    if type(element) == classes.population:     #no species supplied, order all species and all brains
+        #EXPECT ELEMENT OF TYPE POPULATION
+        #order species and convert to list
+        element.species = sorted(element.species, key=lambda x: sum(x.adjus_results), reverse=True)
+        element.species = list(element.species)
+        
+        for specie in element.species:
+            #order brains and convert to list
+            specie.adjus_results, specie.brains = zip(*sorted(zip(specie.adjus_results, specie.brains), reverse=True))
+            specie.adjus_results = list(specie.adjus_results)
+            specie.brains = list(specie.brains)
+    
+    elif type(element) == classes.species:    #specie was defined, order brains of that species
+        #EXPECT ELEMENT OF TYPE SPECIE
+        #sort the species by results
+        element.adjus_results, element.brains = zip(*sorted(zip(element.adjus_results, element.brains), reverse=True))
+        
+        #convert back to list
+        element.adjus_results = list(element.adjus_results)
+        element.brains = list(element.brains)
 
+    else:
+        exit("ERROR: element passed to order_by_score is not of type population or species")
+    
+    return element
 
 ''' OLD FUNCTIONS, DEPRECATED
 #create visualization of the genepool

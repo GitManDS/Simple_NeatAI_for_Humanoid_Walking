@@ -7,7 +7,7 @@ import temporary_testing_funcs as ttf
 import os
 
 class population:
-    def __init__(self, NOI, NOO, Starting_brain_count=2, MaxSpecialDist=2.5, max_offspring = 3) -> None:
+    def __init__(self, NOI, NOO, Starting_brain_count=2, MaxSpecialDist=2.5*100, max_offspring = 3) -> None:
         self.species = []                       #list of all the brains in the species
         self.add_new_species()                  #create first species and append to species list  
         for i in range(Starting_brain_count):
@@ -79,6 +79,7 @@ class population:
         for specie in self.species:
             for brain in specie.brains:
                 brain.mutation_random()                         #update each of the brains
+                
                 if brain.inov_counter != self.innovation:       #helps save time for mutations such as toggle and update weight
                     self.update_innovation(brain.inov_counter)  #update the innovation counter
         
@@ -148,14 +149,11 @@ class population:
         
         #for each species, first remove all the brains that will not crossover
         #this is done by sorting the species by their results and removing the last ones (index self.max_offspring onwards)
-        for specie in self.species:
+        for specie_index, specie in enumerate(self.species):
             if len(specie.brains) > 2:
-                #sort the species by results
-                specie.adjus_results, specie.brains = zip(*sorted(zip(specie.adjus_results, specie.brains), reverse=True))
                 
-                #convert back to list
-                specie.adjus_results = list(specie.adjus_results)
-                specie.brains = list(specie.brains)
+                #order the species by score
+                specie = sf.order_by_score(specie)  
                 
                 #remove the last brains
                 #the remaining will crossover with the first (dominant) brain
@@ -194,7 +192,13 @@ class population:
     #################### INFORMATION ####################   
     
     #prints the information about the existing species and brains
-    def print(self):
+    def print(self , ordered_by_score = False):
+        
+        #optionally, we can print the species by score
+        #for this, the species are ordered by score then for every species, the brains are ordered by score
+        if ordered_by_score:
+            self.order_by_score()   
+        
         print("------------ Population Print ------------")
         for i,specie in enumerate(self.species):
             print(f"<SPECIE> = {i}:")
@@ -420,7 +424,7 @@ class population:
             if len(specie.brains) == 1:
                 specie.add_brain(specie.brains[0].copy())
         pass
-
+    
     #used for checking and comparing all the brains
     #will not care about order
     def get_all_brains(self):
@@ -472,7 +476,6 @@ class species:
         self.brain_count = len(self.brains)
         pass
     
-
 class brain_fenotype:
     def __init__(self,NOI,NOO):
         #initiliaze the brain with the minimum number of connections/nodes
@@ -484,7 +487,7 @@ class brain_fenotype:
         self.inov_counter = 1
         for i in range(NOO):
             for j in range(NOI): #for each output node, connect it to each input node
-                self.genepool.append(conn_gene(j,i+NOI,rnd.randint(-1,1),self.inov_counter)) #add the connection to the genepool    
+                self.genepool.append(conn_gene(j,i+NOI,rnd.uniform(-1,1),self.inov_counter)) #add the connection to the genepool    
                 self.inov_counter += 1 #increment the innovation number
         pass
     
@@ -573,12 +576,12 @@ class brain_fenotype:
         #1 - add node
         #2 - toggle connection
         #3 - update weight
-        rnd.seed = time.time()
-        mutation = rnd.randint(0,3) 
+        rnd.seed = rnd.uniform(0,1000)
         mutation_count = rnd.randint(1,3) #Up to 3 simultaneous mutations
         
         for current_mutation_count in range(mutation_count):
-        
+            mutation = rnd.randint(1,3) 
+            
             if mutation == 0:                       #ADD CONNECTION
                     
                 #stop it from adding a connection that already exists

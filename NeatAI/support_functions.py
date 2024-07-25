@@ -285,16 +285,20 @@ def detect_loops(fenotype, critical_index, current_node_index, order = 2):
 def order_by_score(element):
     
     if type(element) == classes.population:     #no species supplied, order all species and all brains
-        #EXPECT ELEMENT OF TYPE POPULATION
-        #order species and convert to list
-        element.species = sorted(element.species, key=lambda x: sum(x.adjus_results), reverse=True)
-        element.species = list(element.species)
+        #EXPECT ELEMENT OF TYPE POPULATION    
+        max_score = []
         
+        #order brains
         for specie in element.species:
+            max_score.append(max(specie.adjus_results))
             #order brains and convert to list
             specie.adjus_results, specie.brains = zip(*sorted(zip(specie.adjus_results, specie.brains), reverse=True))
             specie.adjus_results = list(specie.adjus_results)
             specie.brains = list(specie.brains)
+        
+        #order species
+        max_score, element.species = zip(*sorted(zip(max_score, element.species), reverse=True))
+        element.species = list(element.species)
     
     elif type(element) == classes.species:    #specie was defined, order brains of that species
         #EXPECT ELEMENT OF TYPE SPECIE

@@ -15,29 +15,28 @@ import random as rnd
 world = ccls.population(3,3,Starting_brain_count=5)
 world.print()
 
-for i in range(50):
+for i in range(500):
     #mutate
     world.mutate_all()
-    
-    print("-"*100)
-    world.print()
+
     ##Random results
     world.update_species_brain_count()
     rnd.seed = rnd.uniform(0,1000)
-    results = [rnd.uniform(0,1000) for i in range(world.brain_count)]
-    results[0]+=results[0]*5
+    results = [rnd.uniform(0,1000) for i in range(world.brain_count)] 
     world.update_results(results)
+    print("-"*100)
+    world.print(ordered_by_score=True)
     
-    if i == 10:
-        world.species[0].brains[0].observe_mental_map()
-        world.species[0].brains[1].observe_mental_map()
-        world.species[0].brains[2].observe_mental_map()
+    if i % 100 == 0 and i!=0:
+        brains = world.get_all_brains()
+        for i in range(3):
+            brains[i].observe_mental_map()
     
     world.update_planned_offspring_count()
     print([specie.max_offspring for specie in world.species])
     print(world.get_max_speciation_difference_per_species())
     #crossover
-    world.create_new_generation()
+    world.create_new_generation(prioritize_smaller_brains=True)
     world.print()
 
 world.print()

@@ -7,7 +7,7 @@ import temporary_testing_funcs as ttf
 import os
 
 class population:
-    def __init__(self, NOI, NOO, Starting_brain_count=2, MaxSpecialDist=2.5*100, max_offspring = 3) -> None:
+    def __init__(self, NOI, NOO, Starting_brain_count=2, MaxSpecialDist=2.5, max_offspring = 3) -> None:
         self.species = []                       #list of all the brains in the species
         self.add_new_species()                  #create first species and append to species list  
         for i in range(Starting_brain_count):
@@ -140,7 +140,8 @@ class population:
     
     #creates a new generation of brains
     #includes checks for speciation, species viability and offspring number
-    def create_new_generation(self):
+    def create_new_generation(self, prioritize_smaller_brains = False):
+        
         #first calculate and update the number of offspring for each species
         self.update_planned_offspring_count()
         
@@ -152,6 +153,27 @@ class population:
         for specie_index, specie in enumerate(self.species):
             if len(specie.brains) > 2:
                 
+                #get the list of results, reorder everything such that the results
+                #are in the order of the brains with the least to most connection in the genepool
+                #update results list
+                #WARNING: NUMBER OF OFFSPRING IS STILL DICTATED BY THE ORIGINAL ORDER OF THE BRAINS (POINTS BASED)
+                if prioritize_smaller_brains:              
+                    #get the list of the genepool sizes
+                    genepool_sizes=[]
+                    for i in range(len(specie.brains)):
+                        a=len(specie.brains[i].genepool)
+                        while a in genepool_sizes:             #lazy way of avoiding a list with 2 entries of the same value
+                            a+=1                            
+                        genepool_sizes.append(a)
+                    #order brains and results according to the genepool_sizes list
+                    genepool_sizes, specie.brains = zip(*sorted(zip(genepool_sizes, specie.brains), reverse=False))
+                    genepool_sizes = list(genepool_sizes)
+                    genepool_sizes, specie.adjus_results = zip(*sorted(zip(genepool_sizes, specie.adjus_results), reverse=False))
+
+                    #convert everything to list
+                    specie.brains = list(specie.brains)
+                    specie.adjus_results = list(specie.adjus_results)
+                    
                 #order the species by score
                 specie = sf.order_by_score(specie)  
                 
@@ -196,8 +218,9 @@ class population:
         
         #optionally, we can print the species by score
         #for this, the species are ordered by score then for every species, the brains are ordered by score
-        if ordered_by_score:
-            self.order_by_score()   
+        #only makes sense if scores exist in the first place
+        if ordered_by_score and len(self.species[-1].adjus_results) > 0:
+            self = sf.order_by_score(self)   
         
         print("------------ Population Print ------------")
         for i,specie in enumerate(self.species):

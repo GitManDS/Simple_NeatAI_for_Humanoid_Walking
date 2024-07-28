@@ -1,9 +1,9 @@
-import support_functions as sf
-import visualizer as vz
+from NeatAI import NeatAI_support_functions as NAIsf
+from NeatAI import visualizer as vz
+from NeatAI import temporary_testing_funcs as ttf
 import random as rnd
 import time
 import matplotlib.pyplot as plt 
-import temporary_testing_funcs as ttf
 import os
 
 class population:
@@ -102,7 +102,7 @@ class population:
                         if brain == brain_compare_object:       #eliminate obvious self check
                             SpecialDist = self.MaxSpecialDist
                         else: 
-                            SpecialDist, debug_info = sf.compare_fenotypes(brain, brain_compare_object)
+                            SpecialDist, debug_info = NAIsf.compare_fenotypes(brain, brain_compare_object)
                         
                         if SpecialDist > self.MaxSpecialDist:
                             #if the brain is incompatible with one of the species, then it's incompatible with the species
@@ -119,7 +119,7 @@ class population:
                             if brain == brain_compare_object: #eliminate obvious self check
                                 SpecialDist = self.MaxSpecialDist
                             else: 
-                                SpecialDist, debug_info  = sf.compare_fenotypes(brain, brain_compare_object)
+                                SpecialDist, debug_info  = NAIsf.compare_fenotypes(brain, brain_compare_object)
                             
                             if SpecialDist > self.MaxSpecialDist:
                                 #if the brain is incompatible with one of the species, then it's incompatible with the species
@@ -175,7 +175,7 @@ class population:
                     specie.adjus_results = list(specie.adjus_results)
                     
                 #order the species by score
-                specie = sf.order_by_score(specie)  
+                specie = NAIsf.order_by_score(specie)  
                 
                 #remove the last brains
                 #the remaining will crossover with the first (dominant) brain
@@ -188,7 +188,7 @@ class population:
                 dominant_index = 0
                 for brain_index in range(1,len(specie.brains)):
                     #combine the 2 brains
-                    child_brain = sf.combine_fenotypes(specie.brains[dominant_index],specie.brains[brain_index])
+                    child_brain = NAIsf.combine_fenotypes(specie.brains[dominant_index],specie.brains[brain_index])
 
                     #place child in parent species 
                     self.migrate(child_brain, specie)
@@ -205,7 +205,7 @@ class population:
                 #only if they aren't the same  
                 if specie.brains[0] != specie.brains[1]:
                     #combine the 2 brains
-                    child_brain = sf.combine_fenotypes(specie.brains[dominant_index],specie.brains[recessive_index])
+                    child_brain = NAIsf.combine_fenotypes(specie.brains[dominant_index],specie.brains[recessive_index])
 
                     #place child in parent species 
                     self.migrate(child_brain, specie)
@@ -220,7 +220,7 @@ class population:
         #for this, the species are ordered by score then for every species, the brains are ordered by score
         #only makes sense if scores exist in the first place
         if ordered_by_score and len(self.species[-1].adjus_results) > 0:
-            self = sf.order_by_score(self)   
+            self = NAIsf.order_by_score(self)   
         
         print("------------ Population Print ------------")
         for i,specie in enumerate(self.species):
@@ -381,6 +381,14 @@ class population:
             self.brain_count += specie.brain_count
         pass
     
+    #update nodecount info
+    #used after crossover as its easier
+    def update_all_brains_nodecounts(self):
+        for specie in self.species:
+            for brain in specie.brains:
+                brain.update_nodecount()    
+        pass
+    
     #same as update results but gets a list of the current results
     #index specification works the same way
     def get_results(self, specie_index = -1, brain_index = -1):
@@ -410,7 +418,7 @@ class population:
                 #index_row+1 to avoid checking a pair of the same brain
                 #doing it this way avoids checking the same brains more than once
                 for index_col in range(index_row+1,len(self.species[specie_index].brains)):
-                    diff = sf.compare_fenotypes(self.species[specie_index].brains[index_row],self.species[specie_index].brains[index_col])
+                    diff = NAIsf.compare_fenotypes(self.species[specie_index].brains[index_row],self.species[specie_index].brains[index_col])
                     if diff[0] > max_diff[specie_index]:
                         max_diff[specie_index] = diff[0]
                                
@@ -529,7 +537,7 @@ class brain_fenotype:
         
         #search for a connection by the node indexes
         if index_con == -1:
-            index_con = sf.search_con(self.genepool, index_in, index_out)
+            index_con = NAIsf.search_con(self.genepool, index_in, index_out)
             if index_con == -1:
                 exit("Connection not found")
         
@@ -557,7 +565,7 @@ class brain_fenotype:
     
     def mutation_addnode(self,index_in,index_out,weight):
         #search for the connection
-        index_con = sf.search_con_index(self.genepool, index_in, index_out)
+        index_con = NAIsf.search_con_index(self.genepool, index_in, index_out)
         
         #add a new node
         #if the connection exists, it must be disabled
@@ -571,7 +579,7 @@ class brain_fenotype:
             self.genepool.append(conn_gene(self.NodeCount,index_out,self.genepool[index_con].weight, self.inov_counter))
         else: 
             #if it doesn't exist, the same loop precaution as for add_connection must be taken
-            if sf.detect_loops(self, critical_index=index_in, current_node_index=index_out, order=5):
+            if NAIsf.detect_loops(self, critical_index=index_in, current_node_index=index_out, order=5):
                 #print("[LOOP] NOT ADDING NODE DUE TO LOOP")
                 #ttf.record_to_text_file("[LOOP] NOT ADDING NODE DUE TO LOOP")
                 pass
@@ -616,11 +624,11 @@ class brain_fenotype:
                 #connection must not exist from A to B or from B to A
                 #this means that the connection between 2 nodes must be unidirectional
                 #by splitting into 2 while loops, we avoid searching the genepool twice every time
-                while (sf.search_con_index(self.genepool, out_index, in_index) != -1 or in_index == out_index) and checks < 31:
+                while (NAIsf.search_con_index(self.genepool, out_index, in_index) != -1 or in_index == out_index) and checks < 31:
                     #start out with invalid indexes
                     in_index = 0
                     out_index = 0
-                    while (sf.search_con_index(self.genepool, in_index, out_index) != -1 or in_index == out_index) and checks < 31:
+                    while (NAIsf.search_con_index(self.genepool, in_index, out_index) != -1 or in_index == out_index) and checks < 31:
                         #if its here, then the connection already exists
                         #get new combination of input/output nodes such that a new connection that doesn't exist is created
                         
@@ -643,7 +651,7 @@ class brain_fenotype:
                     #before leaving this loop nest, loop again to check if the same connection exists in the opposite direction
                 
                 #CHECK FOR LOOPS
-                if sf.detect_loops(self, critical_index=in_index, current_node_index=out_index, order=10):
+                if NAIsf.detect_loops(self, critical_index=in_index, current_node_index=out_index, order=10):
                     if debug:
                         print("[LOOP] NOT ADDING CONNECTION DUE TO LOOP")
                         ttf.record_to_text_file("[LOOP] NOT ADDING CONNECTION DUE TO LOOP")
@@ -844,13 +852,22 @@ class brain_fenotype:
     def update_weight_without_changing_inov(self, index_con, new_weight, index_in=0, index_out=0):
         #search for a connection by the node indexes
         if index_con == -1:
-            index_con = sf.search_con(self.genepool, index_in, index_out)
+            index_con = NAIsf.search_con(self.genepool, index_in, index_out)
             if index_con == -1:
                 exit("Connection not found")
         
         self.genepool[index_con].weight = new_weight                 
         pass
         
+    #used for when the node count is updated
+    def update_nodecount(self):
+        self.NodeCount = 0
+        for con in self.genepool:
+            if con.in_index + 1 > self.NodeCount:
+                self.NodeCount = con.in_index + 1
+            if con.out_index + 1 > self.NodeCount:
+                self.NodeCount = con.out_index + 1
+                
     #observe function but doesn't draw
     #usefull for custum drawing (i.e. real time drawing)
     def draw_mental_map(self):

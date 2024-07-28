@@ -2,8 +2,8 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import random as rnd
-import support_functions as sf
 from matplotlib.widgets import Slider
+from NeatAI import NeatAI_support_functions as NAIsf
 
 
 #support function for visualizing the genepool
@@ -48,7 +48,7 @@ def reorganize_hidden_layer_positions(fenotype, node_pos_list, layer_count = 0):
     
     for i in range(index_first, index_last+1):              
         for j in range(index_first, index_last+1):
-            cursor = sf.search_con_index(fenotype.genepool, i, j)              #verify every connection between hidden nodes
+            cursor = NAIsf.search_con_index(fenotype.genepool, i, j)              #verify every connection between hidden nodes
             
             if cursor != -1 and fenotype.genepool[cursor].status == True:
                 #there's an ACTIVE connection , check for conditions

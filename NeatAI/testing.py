@@ -1,9 +1,9 @@
-import classes as ccls
-import support_functions as sf
 import matplotlib.pyplot as plt
-import temporary_testing_funcs as ttf
-import visualizer as vz
 import random as rnd
+from NeatAI import NeatAI_support_functions as NAIsf
+from NeatAI import classes as ccls
+from NeatAI import temporary_testing_funcs as ttf
+from NeatAI import visualizer as vz
 
 
 #create brain

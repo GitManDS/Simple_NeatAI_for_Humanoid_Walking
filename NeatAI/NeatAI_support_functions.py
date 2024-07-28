@@ -1,11 +1,11 @@
-import classes
+from NeatAI import classes
 import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import random as rnd
 import numpy as np
-import visualizer as vz
-import temporary_testing_funcs as ttf
+from NeatAI import visualizer as vz
+from NeatAI import temporary_testing_funcs as ttf
     
 
 #search for connection with given in, out indexes
@@ -75,6 +75,10 @@ def combine_fenotypes(dominant_fenotype, recessive_fenotype):
                 if debug:
                     print(f"[DUPLICATE] Connection with inov {con.inov} from {con.in_index} to {con.out_index} already exists")
                     ttf.record_to_text_file(f"[DUPLICATE] Connection with inov {con.inov} from {con.in_index} to {con.out_index} already exists")
+    
+    #update the nodecount
+    child_fenotype.update_nodecount()
+    
     return child_fenotype
 
 #compares 2 fenotypes for disjoint and excess genes
@@ -189,7 +193,8 @@ def compute_output(fenotype,input):
         node_pos_list, change, Number_of_layers = layer_sort(fenotype,node_pos_list,Number_of_layers)
         
     #create a mupet fenotype that can be reduced over time
-    mupet_fenotype = fenotype
+    #[WARNING] USE COPY TO AVOID TRANSFERING POINTER
+    mupet_fenotype = fenotype.copy()
      
     #create a list to store all gene values
     values = np.zeros(fenotype.NodeCount)
@@ -201,40 +206,45 @@ def compute_output(fenotype,input):
         node_index = 0
         len_node_list = len(node_pos_list)
         while node_index < len_node_list:
-            #found a node in the currently sought layer
             if node_pos_list[node_index][1] == layer:
+                #found a node in the currently sought layer
                 #compute the value of the node
-                #search all connections that lead to the node
+                #search all connections in the entire genepool that lead to the node
                 con_index = 0
                 len_con_list = len(mupet_fenotype.genepool)
                 while con_index < len_con_list:
-                    #found a connection that leads to the node
-                    #adding up value
                     con = mupet_fenotype.genepool[con_index]    #this helps with readability
                     
                     if con.out_index == node_pos_list[node_index][0]:
+                        #found a connection that leads to the node
+                        #adding up value
                         if con.status == True:
-                            values[con.out_index] = con.weight * values[con.in_index] 
+                            values[con.out_index] += con.weight * values[con.in_index] 
                         
                         #REMOVE STUFF TO MAKE ITERATIONS FASTER AS IT GOES
                         #remove connection and update pool size
                         mupet_fenotype.genepool.pop(con_index)
                         len_con_list -= 1
                     else:
+                        #this connection does not lead to current node
                         #search next connection
                         con_index += 1
                         
                 #apply activation function
+                #only do so once all the values have been added onto the current node
                 values[con.out_index] = convert_according_to_AF(values[con.out_index])
                 
                 #remove node and update gene layer list size
+                #by removing this list item, iterating is not necessary
                 node_pos_list.pop(node_index)
                 len_node_list -= 1
             else:
                 #search next node
                 node_index += 1
-                      
-    return values
+        
+    #output can be taken from values
+    output = values[fenotype.NOI:fenotype.NOI + fenotype.NOO]           
+    return output,values
 
 #activation function
 def convert_according_to_AF(input):
@@ -314,6 +324,25 @@ def order_by_score(element):
     
     return element
 
+#for when a single index exists, this will get the species and the brain index corresponding
+#to the given index, this assumes that the brains are ordered by index in their species
+#and the species are ordered by index in the population
+#will return None, None if the index is out of bounds
+def get_species_brain_index_from_single_index(pop, index):
+    cursor=0
+    species_index = 0
+    brain_index = 0
+    
+    for specie in pop.species:
+        for brain in specie.brains:
+            if cursor == index:
+                return species_index, brain_index
+            cursor += 1
+            brain_index += 1
+        species_index += 1
+
+    return None, None
+    
 ''' OLD FUNCTIONS, DEPRECATED
 #create visualization of the genepool
 def visualize_genepool(fenotype):

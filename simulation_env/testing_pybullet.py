@@ -1,13 +1,65 @@
 import pybullet as pb
 import time
 import pybullet_data
-import assisting_functions as af
+import simulation_env.pybullet_supporting_functions as af
+import numpy as np
 
 #Settings
 TPS = 240            #updates per second
 sim_time = 5        #seconds
 sim_type = 1        #0 for real-time limited, 1 for step-by-step limited
 assets_folder = "C:/Users/diogo serra/Desktop/trabalhos, documentose afixos de programas/TUDelft-MEaer/een/even semester/AI/Bipedal agent project/simulation_env/assets"
+
+def biped_random_torque_twitches(robot,step):  
+     
+    #define position
+    pos_pos = np.sin(step/10)*0.5
+    force_val = 250
+    
+    #debug index offset
+    i=-1
+    
+    #torso to R leg
+    pb.setJointMotorControl2(robot, 4+i, pb.TORQUE_CONTROL, targetPosition= pos_pos, force=force_val)
+    #torso to L leg
+    pb.setJointMotorControl2(robot, 7+i, pb.TORQUE_CONTROL, targetPosition= -pos_pos, force=force_val)
+    
+    #right knee
+    pb.setJointMotorControl2(robot, 5+i, pb.TORQUE_CONTROL, targetPosition= pos_pos, force=force_val)
+    #Left Knee
+    pb.setJointMotorControl2(robot, 8+i, pb.TORQUE_CONTROL, targetPosition= -pos_pos, force=force_val)
+    
+    #right ankle
+    #pb.setJointMotorControl2(robot, 6+i, pb.TORQUE_CONTROL, targetPosition= pos_pos, force=force_val)   
+    #Left ankle
+    #pb.setJointMotorControl2(robot, 9+i, pb.TORQUE_CONTROL, targetPosition= -pos_pos, force=force_val)
+      
+def biped_testing_walk(robot,step):
+    
+    #define position
+    pos_pos = np.sin(step/10)*0.5
+    force_val = 100
+    
+    #debug index offset
+    i=0
+    
+    #torso to R leg
+    pb.setJointMotorControl2(robot, 6, pb.POSITION_CONTROL, targetPosition= pos_pos, force=force_val)
+    #torso to L leg
+    pb.setJointMotorControl2(robot, 10, pb.POSITION_CONTROL, targetPosition= -pos_pos, force=force_val)
+    
+    #right knee
+    pb.setJointMotorControl2(robot, 7, pb.POSITION_CONTROL, targetPosition= pos_pos, force=force_val)
+    #Left Knee
+    pb.setJointMotorControl2(robot, 11, pb.POSITION_CONTROL, targetPosition= -pos_pos, force=force_val)
+    
+    #right ankle
+    pb.setJointMotorControl2(robot, 8, pb.POSITION_CONTROL, targetPosition= pos_pos, force=force_val)   
+    #Left ankle
+    pb.setJointMotorControl2(robot, 12, pb.POSITION_CONTROL, targetPosition= -pos_pos, force=force_val)
+    
+    pass
+
 
 def sim_init():
     if sim_type == 0:

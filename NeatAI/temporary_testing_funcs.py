@@ -1,8 +1,8 @@
-import classes
-import support_functions as sf
+from NeatAI import classes
+from NeatAI import NeatAI_support_functions as NAIsf
+from NeatAI import visualizer as vz
 import random as rnd
 import matplotlib.pyplot as plt
-import visualizer as vz
 import time
 
 

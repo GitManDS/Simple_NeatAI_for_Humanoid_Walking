@@ -166,13 +166,10 @@ class population:
                             a+=1                            
                         genepool_sizes.append(a)
                     #order brains and results according to the genepool_sizes list
-                    genepool_sizes, specie.brains = zip(*sorted(zip(genepool_sizes, specie.brains), reverse=False))
-                    genepool_sizes = list(genepool_sizes)
-                    genepool_sizes, specie.adjus_results = zip(*sorted(zip(genepool_sizes, specie.adjus_results), reverse=False))
-
-                    #convert everything to list
-                    specie.brains = list(specie.brains)
-                    specie.adjus_results = list(specie.adjus_results)
+                    genepool_sizes, ordered_lists = NAIsf.sort_lists(genepool_sizes, [specie.brains,specie.adjus_results], reverse=False)
+                    
+                    specie.brains = ordered_lists[0]
+                    specie.adjus_results = ordered_lists[1]
                     
                 #order the species by score
                 specie = NAIsf.order_by_score(specie)  

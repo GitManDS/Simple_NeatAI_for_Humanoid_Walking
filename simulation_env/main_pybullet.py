@@ -10,7 +10,7 @@ import time
 #also defines if GUI is to be used or not
 def sim_init(GUI=False, gravity = -9.81):
     if GUI == False:
-        pb.connect(pb.direct)
+        pb.connect(pb.DIRECT)
     else:
         pb.connect(pb.GUI)
     

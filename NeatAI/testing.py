@@ -12,6 +12,7 @@ from NeatAI import visualizer as vz
 
 #ttf.live_stress_test_NEAT_AI_population(UPS=1000)
 
+
 world = ccls.population(3,3,Starting_brain_count=5)
 world.print()
 

@@ -135,7 +135,7 @@
     </inertial>
 	</link>
 
-  <joint name="origin_to_z" type="prismatic">
+   <joint name="origin_to_z" type="prismatic">
     <parent link="origin"/>
     <child link="z_prismatic"/>
     <axis xyz="0 0 1"/>
@@ -159,7 +159,7 @@
     <origin rpy="0 0 0" xyz="0 0 0"/>
   </joint>
 
-  <joint name="y_to_head" type="fixed">
+  <joint name="y_to_head" type="prismatic">
     <parent link="y_prismatic"/>
     <child link="head"/>
     <axis xyz="0 0 0"/>

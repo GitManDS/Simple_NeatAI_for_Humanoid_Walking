@@ -298,26 +298,24 @@ def order_by_score(element):
         #EXPECT ELEMENT OF TYPE POPULATION    
         max_score = []
         
-        #order brains
+        #order brains for each species
         for specie in element.species:
             max_score.append(max(specie.adjus_results))
             #order brains and convert to list
-            specie.adjus_results, specie.brains = zip(*sorted(zip(specie.adjus_results, specie.brains), reverse=True))
-            specie.adjus_results = list(specie.adjus_results)
-            specie.brains = list(specie.brains)
+            specie.adjus_results, ordered_lists = sort_lists(specie.adjus_results, [specie.brains], reverse=True)
+            
+            specie.brains = ordered_lists[0]
         
         #order species
-        max_score, element.species = zip(*sorted(zip(max_score, element.species), reverse=True))
-        element.species = list(element.species)
+        max_score, ordered_lists = sort_lists(max_score, [element.species], reverse=True)
+        element.species = ordered_lists[0]
     
     elif type(element) == classes.species:    #specie was defined, order brains of that species
         #EXPECT ELEMENT OF TYPE SPECIE
         #sort the species by results
-        element.adjus_results, element.brains = zip(*sorted(zip(element.adjus_results, element.brains), reverse=True))
+        element.adjus_results, ordered_lists = sort_lists(element.adjus_results, [element.brains], reverse=True)
         
-        #convert back to list
-        element.adjus_results = list(element.adjus_results)
-        element.brains = list(element.brains)
+        element.brains = ordered_lists[0]
 
     else:
         exit("ERROR: element passed to order_by_score is not of type population or species")
@@ -342,6 +340,41 @@ def get_species_brain_index_from_single_index(pop, index):
         species_index += 1
 
     return None, None
+ 
+#helpfull function to sort lists according to the main list
+#will sort all lists and return them
+def sort_lists(main_list, lists=[], reverse = False):
+    
+    #trick to implement reverse without making function twice as big
+    rev_mult = 1
+    if reverse:
+        rev_mult = -1
+    
+    sorted = False
+    temp_holder = []
+    
+    while not sorted:
+        sorted = True
+        for main_list_i in range(1,len(main_list)):
+            #check if current element is smaller than the previous
+            if (main_list[main_list_i] - main_list[main_list_i-1])*rev_mult < 0:
+                
+                #correct main list
+                temp_holder = main_list[main_list_i]                   #store current
+                main_list[main_list_i] = main_list[main_list_i-1]     #replace current with previous
+                main_list[main_list_i-1] = temp_holder                 #replace previous with current (temp)
+                
+                #correct lists
+                for list_i in range(len(lists)):
+                    #for every list
+                    temp_holder = lists[list_i][main_list_i]                   #store current
+                    lists[list_i][main_list_i] = lists[list_i][main_list_i-1] #replace current with previous
+                    lists[list_i][main_list_i-1] = temp_holder                 #replace previous with current (temp)
+
+                sorted = False
+                
+    return main_list, lists
+     
     
 ''' OLD FUNCTIONS, DEPRECATED
 #create visualization of the genepool

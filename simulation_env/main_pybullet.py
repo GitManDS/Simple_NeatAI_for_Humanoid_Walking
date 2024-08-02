@@ -4,11 +4,11 @@ import pybullet_utils.bullet_client as pbc   #this allows for the use of several
 import random as rnd
 import threading as trd
 from threading import Thread
+import multiprocessing as mp
 from simulation_env import pybullet_supporting_functions as pbsf
 from NeatAI import NeatAI_support_functions as NAIsf
 import time
 import math
-
 
 #sim class client used to configure, manage and start a single simulation client
 class sim_client:
@@ -21,7 +21,7 @@ class sim_client:
         #options and other parameters
         self.Client.setGravity(0,0,gravity)             #set gravity
         self.robot_list = {}                            #dictionary of robots used
-        self.robot_type = "biped_norotation.urdf"       #type of robot to be used
+        self.robot_type = "biped_freeman.urdf"       #type of robot to be used
         self.clock_start = 0                            #start time of the simulation
         self.step   = 0                                 #current/last step of the simulation
         self.timer_id = None                            #timer id for the timer function (if called/used)
@@ -171,7 +171,7 @@ class sim_client:
     #for every brain the the population
     def match_brains_to_robots(self, brains_list, brain_keys=None):
         for brain_index, brain in enumerate(brains_list):
-            self.add_robot(robot_ID= brain_keys[brain_index])
+            self.add_robot(robot_ID = brain_keys[brain_index])
 
         pass
 
@@ -265,7 +265,7 @@ class sim_client:
             
         for robot in robots_to_use:
             #get head position to place the text
-            head_pos = self.Client.getLinkState(robot,3)[0]
+            head_pos = self.Client.getLinkState(self.robot_list[robot],3)[0]
             
             #eliminate the last nametags
             if self.nametag_id != None:
@@ -275,7 +275,7 @@ class sim_client:
             self.nametag_id=[]
             
             #place debug text
-            self.nametag_id.append(self.Client.addUserDebugText(robot_ID,[head_pos[0] - 0.25 , head_pos[1], head_pos[2] + 0.5 ],textColorRGB=[0,0,0], textSize=1))
+            self.nametag_id.append(self.Client.addUserDebugText(robot,[head_pos[0] - 0.25 , head_pos[1], head_pos[2] + 0.5 ],textColorRGB=[0,0,0], textSize=1))
         
         pass
 
@@ -493,7 +493,10 @@ class ThreadWithReturnValue(Thread):
 
 #will create a simulation client and run it with the specified parameters
 #MAIN FUNCTION TO RUN THE SIMULATION
+#[!] the multiprocess data and id variables are relevant when using multiprocessing only
 def simulate(brains_list,keys_list,
+             multiprocess_data = None,
+             multiprocess_id = None,
              GUI = False,
              time_controlled=False, 
              time_limit = 5,
@@ -514,8 +517,6 @@ def simulate(brains_list,keys_list,
     #includes creation of robots matching the given brain and keys list
     sim.match_brains_to_robots(brains_list, keys_list)
     
-    time.sleep(1)
-    
     #run the simulation to get results
     sim.sim_loop(brains_list,
                 time_controlled, 
@@ -529,31 +530,34 @@ def simulate(brains_list,keys_list,
                 show_coords,
                 cam_focus_ID)
     
-    #return sim data
+    #update if multithread
+    if multiprocess_id != None:
+        multiprocess_data[multiprocess_id] = sim.position_results
     
+    #return sim data
     return sim.position_results, sim.sim_data
 
 #creates the simulations and runs them in parallel
-def multithread_simulations(pop,
-             GUI = False,
-             time_controlled=False, 
-             time_limit = 5,
-             step_limit = 1000, 
-             max_threads = 4,
-             max_TPS = None,
-             debug = False,
-             show_timer = False, 
-             show_axis = False, 
-             show_IDs = False,
-             show_coords = False,
-             cam_focus_ID = None):  
+def multiprocess_simulations(pop,
+                            GUI = False,
+                            time_controlled=False, 
+                            time_limit = 5,
+                            step_limit = 1000, 
+                            max_processes = 4,
+                            max_TPS = None,
+                            debug = False,
+                            show_timer = False, 
+                            show_axis = False, 
+                            show_IDs = False,
+                            show_coords = False,
+                            cam_focus_ID = None):  
     
     #storage
     positions = {}
     sim_data = []
     
-    #max number of threads
-    threads_list = []
+    #max number of processs
+    processs_list = []
     
     #get list of brains
     brains_list = pop.get_brains()
@@ -562,37 +566,39 @@ def multithread_simulations(pop,
     #keys list to work with dictionary
     keys_list = pbsf.create_robot_list_keys(pop)
     
-    #catch case for less brains than threads
-    if (brain_max_index + 1)  < max_threads:
-        max_threads = brain_max_index
+    #catch case for less brains than processs
+    if (brain_max_index + 1)  < max_processes:
+        max_processes = brain_max_index
     
     cursor = 0
     client_index = 0
     
-    #depending on the brain count, the last thread might have to simulate more brains than the others
-    brains_per_thread = brain_max_index//max_threads
-    extra_brains_last_thread = brain_max_index%max_threads
+    #depending on the brain count, the last process might have to simulate more brains than the others
+    brains_per_process = len(brains_list)//max_processes
+    extra_brains_last_process = len(brains_list)%max_processes
+
+    #GO THROUGH ALL processS
+    manager = mp.Manager()
+    multiprocess_data = manager.dict()
     
-    
-    #GO THROUGH ALL THREADS
-    for thread_index in range(max_threads):
+    for process_index in range(max_processes):
         
-        #SETUP SIMULATION TASK FOR EACH THREAD 
+        #SETUP SIMULATION TASK FOR EACH process 
         
-        #in order to simulate all the brains and because of rounding the steps, the last thread will simulate
+        #in order to simulate all the brains and because of rounding the steps, the last process will simulate
         #the last few brains until the end of the list
-        #thread 1 , 2 , 3 ,....
-        if thread_index != max_threads - 1:
+        #process 1 , 2 , 3 ,....
+        if process_index != max_processes - 1:
             #find keys to extract from dictionary
-            keys_to_use = keys_list[ cursor : cursor + brains_per_thread ]
+            keys_to_use = keys_list[ cursor : cursor + brains_per_process ]
             #assign robot list to sim client
-            brains_to_use = brains_list[ cursor : cursor + brains_per_thread ]
+            brains_to_use = brains_list[ cursor : cursor + brains_per_process ]
         
-        #thread -1 (last thread)
+        #process -1 (last process)
         else:       
-            #if the last thread only has one element, these 2 will be empty and that needs to be corrected
+            #if the last process only has one element, these 2 will be empty and that needs to be corrected
             #IM not happy with this fix but it works
-            if len(keys_list[cursor : cursor + brains_per_thread+extra_brains_last_thread])==0:
+            if len(keys_list[cursor : cursor + brains_per_process+extra_brains_last_process])==0:
                 #get last brain
                 #find keys to extract from dictionary
                 keys_to_use = [keys_list[ cursor ]]
@@ -601,44 +607,45 @@ def multithread_simulations(pop,
             else:
                 #get every brain from the cursor to the end
                 #find keys to extract from dictionary
-                keys_to_use = keys_list[ cursor : cursor + brains_per_thread+extra_brains_last_thread ]
+                keys_to_use = keys_list[ cursor : cursor + brains_per_process+extra_brains_last_process ]
                 #assign robot list to sim client
-                brains_to_use = brains_list[ cursor : cursor + brains_per_thread+extra_brains_last_thread ]
-        
-        print(keys_to_use)
-        #assign thread task
-        new_thread_task = ThreadWithReturnValue(target = simulate, args = (brains_to_use, keys_to_use,
-                                                    GUI,
-                                                    time_controlled, 
-                                                    time_limit,
-                                                    step_limit, 
-                                                    max_TPS,
-                                                    debug,
-                                                    show_timer, 
-                                                    show_axis, 
-                                                    show_IDs,
-                                                    show_coords,
-                                                    cam_focus_ID))
-        
-        #append thread to threads list and update cursor
-        threads_list.append(new_thread_task)                 #append thread to list to then wait for the results
-        cursor += round(brain_max_index/max_threads)    #update cursor with the last brain index
-        client_index += 1                               #update client index 
-            
-    #start all threads tasks
-    for thread in threads_list:
-        thread.start()               
+                brains_to_use = brains_list[ cursor : cursor + brains_per_process+extra_brains_last_process ]
 
-    #wait for all threads to finish
-    #And get results appended to the positions and sim_data lists
-    for thread_id in threads_list:
-        positions.update(thread_id.join()[0])
-        sim_data.append(thread_id.join()[1])
+        #assign process task
+        new_process_task = mp.Process(target = simulate, args = (brains_to_use, keys_to_use,
+                                                                multiprocess_data,process_index,
+                                                                GUI,
+                                                                time_controlled, 
+                                                                time_limit,
+                                                                step_limit, 
+                                                                max_TPS,
+                                                                debug,
+                                                                show_timer, 
+                                                                show_axis, 
+                                                                show_IDs,
+                                                                show_coords,
+                                                                cam_focus_ID))
         
-    #prepare for next thread batch
-    #clear threads list 
-    threads_list = []
+        #small trick, if GUI is used, only the first process will have GUI (only one process can have GUI)
+        GUI = False
+        
+        #append process to processs list and update cursor
+        processs_list.append(new_process_task)                 #append process to list to then wait for the results
+        cursor += brains_per_process                           #update cursor with the last brain index
+        client_index += 1                                      #update client index 
+            
+    #start all processs tasks
+    for process in processs_list:
+        process.start()               
+
+    #wait for all processs to finish
+    #And get results appended to the positions and sim_data lists
+    for process_id in processs_list:
+        process_id.join()
+
+    #get data
+    positions_dict_list = multiprocess_data.values()
+    for i in range(len(positions_dict_list)):
+        positions.update(positions_dict_list[i])
     
     return positions, sim_data
-
-

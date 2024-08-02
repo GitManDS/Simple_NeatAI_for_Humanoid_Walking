@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import os
 
 class population:
-    def __init__(self, NOI, NOO, Starting_brain_count=2, MaxSpecialDist=2.5, max_offspring = 3) -> None:
+    def __init__(self, NOI, NOO, Starting_brain_count=2, MaxSpecialDist=2.5, max_offspring = 3, max_pop_brains = 10, max_mutations_per_gen = 3) -> None:
         self.species = []                       #list of all the brains in the species
         self.add_new_species()                  #create first species and append to species list  
         for i in range(Starting_brain_count):
@@ -19,6 +19,8 @@ class population:
         self.max_offspring = max_offspring           #max number of offspring per species
         self.min_offspring = 1                       #min number of offspring per species
         self.MaxSpecialDist = MaxSpecialDist         #max distance for compatibility between species
+        self.MaxBrains = max_pop_brains              #max number of brains in the population at any given time 
+        self.maxmutations = max_mutations_per_gen    #max number of mutations per generation
         pass
     
     def update_innovation(self,new_inov):
@@ -78,7 +80,7 @@ class population:
         #go one by one and mutate them
         for specie in self.species:
             for brain in specie.brains:
-                brain.mutation_random()                         #update each of the brains
+                brain.mutation_random(max_mutations = self.maxmutations)                         #update each of the brains
                 
                 if brain.inov_counter != self.innovation:       #helps save time for mutations such as toggle and update weight
                     self.update_innovation(brain.inov_counter)  #update the innovation counter
@@ -148,6 +150,9 @@ class population:
         #also check if all species have more than 1 brain
         self.populate_species()
         
+        #order the pop by score
+        self = NAIsf.order_by_score(self) 
+        
         #for each species, first remove all the brains that will not crossover
         #this is done by sorting the species by their results and removing the last ones (index self.max_offspring onwards)
         for specie_index, specie in enumerate(self.species):
@@ -169,10 +174,7 @@ class population:
                     genepool_sizes, ordered_lists = NAIsf.sort_lists(genepool_sizes, [specie.brains,specie.adjus_results], reverse=False)
                     
                     specie.brains = ordered_lists[0]
-                    specie.adjus_results = ordered_lists[1]
-                    
-                #order the species by score
-                specie = NAIsf.order_by_score(specie)  
+                    specie.adjus_results = ordered_lists[1] 
                 
                 #remove the last brains
                 #the remaining will crossover with the first (dominant) brain
@@ -206,12 +208,22 @@ class population:
 
                     #place child in parent species 
                     self.migrate(child_brain, specie)
+                    
+        
+        #enforce max brain count by removing least performing species
+        self.update_species_brain_count()
+        while self.brain_count > self.MaxBrains:
+            #remove the last species
+            self.species.pop()
+            self.update_species_brain_count()
+        
+        
         pass
            
     #################### INFORMATION ####################   
     
     #prints the information about the existing species and brains
-    def print(self , ordered_by_score = False):
+    def print(self , ordered_by_score = False, include_results = False):
         
         #optionally, we can print the species by score
         #for this, the species are ordered by score then for every species, the brains are ordered by score
@@ -223,7 +235,10 @@ class population:
         for i,specie in enumerate(self.species):
             print(f"<SPECIE> = {i}:")
             for j,brain in enumerate(specie.brains):
-                print(f"-->     <BRAIN> = {j}: (Conn Count = {len(brain.genepool)}, Node_Count = {brain.NodeCount})")
+                print(f"-->     <BRAIN> = {j}: (Conn Count = {len(brain.genepool)}, Node_Count = {brain.NodeCount})", end='')
+                if include_results:
+                    print(f"        score: {specie.adjus_results[j]}",end='')
+                print("")
         print("------------ Population Print END------------")
         pass
 
@@ -455,13 +470,21 @@ class population:
     
     #used for checking and comparing all the brains
     #will not care about order
-    def get_all_brains(self):
+    #if specied, it can retrieve specific brains using the single index
+    def get_brains(self,brain_index_list = []):
         all_brains = []
+        cursor = 0
         for specie in self.species:
             for brain in specie.brains:
-                all_brains.append(brain)
+                if brain_index_list == []:
+                    all_brains.append(brain)
+                elif cursor in brain_index_list:
+                    all_brains.append(brain)
+                cursor += 1
+                
         return all_brains
         
+    
     pass
            
 class species:
@@ -596,7 +619,7 @@ class brain_fenotype:
         
         pass
     
-    def mutation_random(self):
+    def mutation_random(self, max_mutations = 3):
         #show debug messages
         debug = False
         
@@ -608,7 +631,7 @@ class brain_fenotype:
         mutation_count = rnd.randint(1,3) #Up to 3 simultaneous mutations
         
         for current_mutation_count in range(mutation_count):
-            mutation = rnd.randint(1,3) 
+            mutation = rnd.randint(1,max_mutations) 
             
             if mutation == 0:                       #ADD CONNECTION
                     
@@ -733,12 +756,14 @@ class brain_fenotype:
     #prints to console all the connections in the brain
     #includes details
     #in_index, out_index and inov can be used to filter results
-    def print(self, in_index = -1 , out_index = -1, inov = -1):
+    def print(self, in_index = -1 , out_index = -1, inov = -1, active_only = False):
         #first print NOI, NOO and NodeCount
         print(f"<NOI> = {self.NOI}, <NOO> = {self.NOO}, <NodeCount> = {self.NodeCount}")
         
         #then all the connections
         for i,con in enumerate(self.genepool):
+            if active_only and not con.status:                    #active_only filter
+                continue
             if in_index != -1 and con.in_index != in_index:     #in_index filter
                 continue
             if out_index != -1 and con.out_index != out_index:  #out_index filter

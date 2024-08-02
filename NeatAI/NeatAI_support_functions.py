@@ -214,12 +214,14 @@ def compute_output(fenotype,input):
                 len_con_list = len(mupet_fenotype.genepool)
                 while con_index < len_con_list:
                     con = mupet_fenotype.genepool[con_index]    #this helps with readability
+                    current_node_index = node_pos_list[node_index][0]   #so does this
                     
-                    if con.out_index == node_pos_list[node_index][0]:
+                    
+                    if con.out_index == current_node_index:
                         #found a connection that leads to the node
                         #adding up value
                         if con.status == True:
-                            values[con.out_index] += con.weight * values[con.in_index] 
+                            values[current_node_index] += con.weight * values[con.in_index] 
                         
                         #REMOVE STUFF TO MAKE ITERATIONS FASTER AS IT GOES
                         #remove connection and update pool size
@@ -232,7 +234,7 @@ def compute_output(fenotype,input):
                         
                 #apply activation function
                 #only do so once all the values have been added onto the current node
-                values[con.out_index] = convert_according_to_AF(values[con.out_index])
+                values[current_node_index] = convert_according_to_AF(values[current_node_index])
                 
                 #remove node and update gene layer list size
                 #by removing this list item, iterating is not necessary
@@ -338,6 +340,7 @@ def get_species_brain_index_from_single_index(pop, index):
             cursor += 1
             brain_index += 1
         species_index += 1
+        brain_index = 0
 
     return None, None
  

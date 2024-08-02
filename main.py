@@ -16,7 +16,12 @@ import sim_AI_connection_functions as sim_AI
 #initialize AI population
 #8 inputs(joint positions) + 3 inputs(position of robot) = 11 inputs
 #8 outputs(forces on joints)
-NeatAI_pop = cl.population(NOI = 11, NOO = 8, Starting_brain_count= 4)
+NeatAI_pop = cl.population(NOI = 11, NOO = 8, 
+                           Starting_brain_count= 4, 
+                           MaxSpecialDist= 0.2,
+                           max_offspring= 2,
+                           max_pop_brains= 10,
+                           max_mutations_per_gen=1)
 
 
 
@@ -34,6 +39,10 @@ for gen in range(max_generations):
     ################### SIMULATION SETUP ###################
     #start the simulation
     mpb.sim_init(GUI = False)
+    
+    #do general mutations and reorganization round
+    #THIS HAS TO BE DONE BEFORE THE ROBOTS ARE CREATED SINCE IT SCREWS AROUND WITH THE BRAIN ORDER
+    NeatAI_pop.mutate_all()
 
     #create n robots (match brain count)
     NeatAI_pop.update_species_brain_count()
@@ -43,19 +52,24 @@ for gen in range(max_generations):
             robot_list = mpb.create_robot(robot_ID=f"S{specie_index}:B{brain_index}",robot_list=robot_list, robot_type="biped_freeman.urdf")
     
     
-    #do general mutations and reorganization round
-    NeatAI_pop.mutate_all()
-    
     ################### SIMULATION RUN ###################
-    positions, sim_data = mpb.sim_loop(robot_list, NeatAI_pop, 
-                time_controlled = False, 
+    #positions, sim_data = mpb.sim_loop(robot_list, NeatAI_pop.get_brains(), 
+    #            time_controlled = False, 
+    #            step_limit = 500,
+    #            max_TPS= None,
+    #            debug= False,
+    #            cam_focus_ID="S0:B0")
+   
+   
+    positions, sim_data = mpb.sim_loop_parallel(robot_list, NeatAI_pop.get_brains(), 
+                time_controlled = True, 
                 step_limit = 500,
                 max_TPS= None,
-                debug= False,
-                cam_focus_ID="S0:B0")
+                debug= False)
+   
     
     #debug
-    print(f"[SIM END] -- t={sim_data[0]}s -- avg_TPS={sim_data[1]}")
+    #print(f"[SIM END] -- t={sim_data[0]}s -- avg_TPS={sim_data[1]}")
 
     ################### RESULTS AND AI UPDATE ###################
     #update the population with the results
@@ -73,13 +87,14 @@ for gen in range(max_generations):
         print("new max y",maxi)
         ind = res.index(maxi)
         specie_index, brain_index = NAIsf.get_species_brain_index_from_single_index(NeatAI_pop,ind)
-        NeatAI_pop.species[specie_index].brains[brain_index].save_mental_connections(f"best_brain_{gen}.txt",overwrite=True)
+        NeatAI_pop.species[specie_index].brains[brain_index].save_mental_connections(f"best_brain.txt",overwrite=True)
+    
+    #print results and other data
+    NeatAI_pop.print(include_results=True)
+    print(f"max diff distance : {NeatAI_pop.get_max_speciation_difference_per_species()[0]}")   
         
     #prepare new gen with the best brains
     NeatAI_pop.create_new_generation()
-    
-    #end/clear simulation
-    pb.disconnect() 
     
     #plot if debug is on
     plt.plot(maxlist)

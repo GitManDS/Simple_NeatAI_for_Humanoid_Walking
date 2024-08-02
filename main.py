@@ -37,35 +37,24 @@ plt.figure()
 for gen in range(max_generations):
     
     ################### SIMULATION SETUP ###################
-    #start the simulation
-    mpb.sim_init(GUI = False)
     
     #do general mutations and reorganization round
     #THIS HAS TO BE DONE BEFORE THE ROBOTS ARE CREATED SINCE IT SCREWS AROUND WITH THE BRAIN ORDER
     NeatAI_pop.mutate_all()
+    
+    NeatAI_pop.print(include_results=False)
 
-    #create n robots (match brain count)
-    NeatAI_pop.update_species_brain_count()
-    robot_list = {}
-    for specie_index, specie in enumerate(NeatAI_pop.species):
-        for brain_index, brain in enumerate(specie.brains):
-            robot_list = mpb.create_robot(robot_ID=f"S{specie_index}:B{brain_index}",robot_list=robot_list, robot_type="biped_freeman.urdf")
-    
-    
-    ################### SIMULATION RUN ###################
-    #positions, sim_data = mpb.sim_loop(robot_list, NeatAI_pop.get_brains(), 
-    #            time_controlled = False, 
-    #            step_limit = 500,
-    #            max_TPS= None,
-    #            debug= False,
-    #            cam_focus_ID="S0:B0")
-   
-   
-    positions, sim_data = mpb.sim_loop_parallel(robot_list, NeatAI_pop.get_brains(), 
-                time_controlled = True, 
-                step_limit = 500,
-                max_TPS= None,
-                debug= False)
+    #simulate the brains/robots in parallel
+    positions, sim_data = mpb.multithread_simulations(NeatAI_pop, 
+                            GUI=False,
+                            time_controlled = False, 
+                            step_limit = 500,
+                            max_threads=4,
+                            time_limit = 10,
+                            max_TPS= None,
+                            debug= False,
+                            show_IDs=True,
+                            show_timer=True)
    
     
     #debug

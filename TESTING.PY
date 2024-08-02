@@ -11,9 +11,15 @@ from NeatAI import classes as cl
 #main dir files
 import sim_AI_connection_functions as sim_AI
 
+NeatAI_pop = cl.population(NOI = 11, NOO = 8,Starting_brain_count= 4, MaxSpecialDist= 0.2,max_offspring= 2,max_pop_brains= 10,max_mutations_per_gen=1)
 
-new_sim = mpb.sim_client(GUI = False)
-
-
-#disconnect   
-pb.disconnect()
+positions, sim_data = mpb.multithread_simulations(NeatAI_pop, 
+                GUI=False,
+                time_controlled = False, 
+                step_limit = 500,
+                max_threads=4,
+                time_limit = 10,
+                max_TPS= None,
+                debug= False,
+                show_IDs=True,
+                show_timer=True)

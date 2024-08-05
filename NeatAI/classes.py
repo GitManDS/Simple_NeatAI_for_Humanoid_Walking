@@ -2,7 +2,7 @@ from NeatAI import NeatAI_support_functions as NAIsf
 from NeatAI import visualizer as vz
 from NeatAI import temporary_testing_funcs as ttf
 import random as rnd
-import time
+import numpy as np
 import matplotlib.pyplot as plt 
 import os
 
@@ -14,6 +14,7 @@ class population:
             self.species[0].add_brain(brain_fenotype(NOI,NOO))
         
         self.innovation = 1                          #innovation counter  
+        self.inov_database = {}                      #database of all the innovations (hidden nodes and connections only)    
         self.species_count = 1                       #number of species
         self.brain_count = Starting_brain_count      #number of brains
         self.max_offspring = max_offspring           #max number of offspring per species
@@ -21,8 +22,10 @@ class population:
         self.MaxSpecialDist = MaxSpecialDist         #max distance for compatibility between species
         self.MaxBrains = max_pop_brains              #max number of brains in the population at any given time 
         self.maxmutations = max_mutations_per_gen    #max number of mutations per generation
+        
         pass
     
+    #should be called after every individual mutation
     def update_innovation(self,new_inov):
         self.innovation = new_inov
         for specie in self.species:
@@ -72,6 +75,49 @@ class population:
                 cursor += len(specie.brains)
         pass
      
+    #will reorganize the brains in the population into species
+    #according to their distance from each other
+    def organize_brains_in_species(self):
+    
+        #get list of brains
+        brains_list = self.get_brains()
+        
+        #clear pop species and create the first specie
+        #append first brain to it
+        self.species = []
+        self.add_new_species()
+        self.species[0].add_brain(brains_list[0])
+        #remove this brain from list of brains to be organized
+        brains_list.pop(0)
+        
+        #organize the rest of the brains
+        for brain in brains_list:
+            #find a species that is compatible with the brain
+            #assume its compatible, nests will try and prove it isn't
+            for species in self.species:
+                compat = True
+                for brain_to_compare in species.brains:
+                    #compare current brain with every brain in the population
+                    SpecialDist, debug_info = NAIsf.compare_fenotypes(brain, brain_to_compare)
+                    
+                    if SpecialDist > self.MaxSpecialDist:
+                        #if the brain is not compatible with the species, break the loop
+                        #only one incompatible brain is needed to break the loop
+                        compat = False
+                        break
+                
+                if compat:
+                    #its compatible with these species
+                    species.add_brain(brain)
+                    break
+            
+            #if the brain is not compatible with any species, create a new one
+            if not compat:
+                self.add_new_species()
+                self.species[-1].add_brain(brain)
+         
+        pass 
+    
     #################### MUTATIONS AND GENERATIONAL TRANSMISION ####################
     #mutate a brain and see if it fits in any of the existing species
     #to fit in a species, it must match with all the brains in that species
@@ -80,63 +126,34 @@ class population:
         #go one by one and mutate them
         for specie in self.species:
             for brain in specie.brains:
-                brain.mutation_random(max_mutations = self.maxmutations)                         #update each of the brains
+                mutations = brain.mutation_random(max_mutations = self.maxmutations)                         #update each of the brains
+            
+                
+                #this loop only checks for innovations (toggle and update are not checked as they are not innov)
+                for mutation in mutations:
+                    #check if the mutation already existed
+                    exists = 0 
+                    for key in self.inov_database:
+                        if mutations[mutation][1:] == self.inov_database[key]:
+                            #if it did, update the brain's genepool inovation counter
+                            if brain.genepool[mutations[mutation][0]].inov < key:
+                                print("AHHHHHHHHHHHHHHHHHHHHHHHH")
+                            brain.genepool[mutations[mutation][0]].inov = key
+                            #also go back 1 in the brain inovation counter
+                            brain.inov_counter -= 1
+                            
+                            exists = 1
+                            
+                    if not exists:
+                        #if it didn't, add it
+                        self.inov_database.update({mutation:mutations[mutation][1:]}) 
                 
                 if brain.inov_counter != self.innovation:       #helps save time for mutations such as toggle and update weight
                     self.update_innovation(brain.inov_counter)  #update the innovation counter
         
-        #check if all the brains belong in their respective species
-        #if not, move them
-        for specie in self.species:
-            for brain in specie.brains:
-                compat = False
-                #check out possibility of it being the only brain in species
-                if len(specie.brains) == 1:
-                    compat = True
-                
-                #for every brain, check if its still compatible with its species
-                if not compat:
-                    #this nest checks if the brain is still incompatible with other species
-                    #so start off by assuming that it is compatible with the species
-                    #if it isn't, change it
-                    compat = True
-                    for brain_compare_object in specie.brains:
-                        if brain == brain_compare_object:       #eliminate obvious self check
-                            SpecialDist = self.MaxSpecialDist
-                        else: 
-                            SpecialDist, debug_info = NAIsf.compare_fenotypes(brain, brain_compare_object)
-                        
-                        if SpecialDist > self.MaxSpecialDist:
-                            #if the brain is incompatible with one of the species, then it's incompatible with the species
-                            compat = False
-                            break
-                #if its not compatible with any brain in the species, move it to a new species
-                if not compat:
-                    #this nest checks if the brain is still incompatible with other species
-                    #so start off by assuming that it is compatible with the species
-                    #if it isn't, change it
-                    compat = True
-                    for specie_compare_object in self.species:
-                        for brain_compare_object in specie_compare_object.brains:
-                            if brain == brain_compare_object: #eliminate obvious self check
-                                SpecialDist = self.MaxSpecialDist
-                            else: 
-                                SpecialDist, debug_info  = NAIsf.compare_fenotypes(brain, brain_compare_object)
-                            
-                            if SpecialDist > self.MaxSpecialDist:
-                                #if the brain is incompatible with one of the species, then it's incompatible with the species
-                                compat = False
-                                break
-                        
-                        #if the status didn't change, the the brain is compatible with this species
-                        if compat:
-                            self.migrate(brain, specie_compare_object, specie)
-                            break
-                        
-                #if its still not compatible, create a new species
-                if not compat:
-                    self.add_new_species()
-                    self.migrate(brain, self.species[-1], specie)
+        #reorganize the brains in the population into species
+        #[!] THIS IS A VERY IMPORTANT STEP AS DISTANCES CHANGE RADICALLY AFTER MUTATION
+        self.organize_brains_in_species()
         
         pass
     
@@ -501,14 +518,17 @@ class species:
     
     def add_brain(self,brain):
         self.brains.append(brain)
+        self.brain_count += 1
         pass
     
     #removes brain from species either by index or by object itself
     def remove_brain(self,brain=-1,brain_index=-1):
         if brain_index != -1:
             self.brains.pop(brain_index)
+            self.brain_count -= 1
         elif brain != -1 and brain in self.brains:
             self.brains.remove(brain)
+            self.brain_count -= 1
         pass
     
     def update_results(self,results, index = -1):
@@ -517,6 +537,7 @@ class species:
         else:                                       #individual brian results
             self.adjus_results[index] = results
             
+        #EXPLICIT FITNESS SHARING
         #to adjust the results, divide it by the number of brains of specie
         #this way, the results are normalized
         self.adjus_results = [i/len(self.brains) for i in self.adjus_results]
@@ -550,22 +571,88 @@ class brain_fenotype:
         new_brain.NodeCount = self.NodeCount
         return new_brain
     
+    #from a given fenotype, compute the output of the brain
+    #given the input
+    def compute_output(self,input):
+        #sort the genepool by layers
+        node_pos_list, change, Number_of_layers = NAIsf.layer_sort(self,[],0)
+        while change:
+            node_pos_list, change, Number_of_layers = NAIsf.layer_sort(self,node_pos_list,Number_of_layers)
+            
+        #create a mupet fenotype that can be reduced over time
+        #[WARNING] USE COPY TO AVOID TRANSFERING POINTER
+        mupet_fenotype = self.copy()
+        
+        #create a list to store all gene values
+        values = np.zeros(self.NodeCount)
+        values[0:self.NOI] = input
+        
+        #for every node, from layer 2 to output layer from left to right, compute the value of the node
+        for layer in range(1,Number_of_layers):
+            #search for a node in said layer
+            node_index = 0
+            len_node_list = len(node_pos_list)
+            while node_index < len_node_list:
+                if node_pos_list[node_index][1] == layer:
+                    #found a node in the currently sought layer
+                    #compute the value of the node
+                    #search all connections in the entire genepool that lead to the node
+                    con_index = 0
+                    len_con_list = len(mupet_fenotype.genepool)
+                    while con_index < len_con_list:
+                        con = mupet_fenotype.genepool[con_index]    #this helps with readability
+                        current_node_index = node_pos_list[node_index][0]   #so does this
+                        
+                        
+                        if con.out_index == current_node_index:
+                            #found a connection that leads to the node
+                            #adding up value
+                            if con.status == True:
+                                values[current_node_index] += con.weight * values[con.in_index] 
+                            
+                            #REMOVE STUFF TO MAKE ITERATIONS FASTER AS IT GOES
+                            #remove connection and update pool size
+                            mupet_fenotype.genepool.pop(con_index)
+                            len_con_list -= 1
+                        else:
+                            #this connection does not lead to current node
+                            #search next connection
+                            con_index += 1
+                            
+                    #apply activation function
+                    #only do so once all the values have been added onto the current node
+                    values[current_node_index] = NAIsf.convert_according_to_AF(values[current_node_index])
+                    
+                    #remove node and update gene layer list size
+                    #by removing this list item, iterating is not necessary
+                    node_pos_list.pop(node_index)
+                    len_node_list -= 1
+                else:
+                    #search next node
+                    node_index += 1
+            
+        #output can be taken from values
+        output = values[self.NOI:self.NOI + self.NOO]           
+        return output,values
+    
     #################### MUTATIONS ####################
     #necesssary because they need to update the innovation counter and other information
     
     def mutation_update_weight(self, index_con, new_weight, index_in=0, index_out=0):
+        exit_code = 0
         
         #search for a connection by the node indexes
         if index_con == -1:
             index_con = NAIsf.search_con(self.genepool, index_in, index_out)
             if index_con == -1:
+                exit_code = 1
                 exit("Connection not found")
         
         self.genepool[index_con].weight = new_weight   
         
         #update weight isn't a topological innovation
         #self.inov_counter += 1             
-        pass 
+        return exit_code 
     
     def mutation_addconnection(self, in_index, out_index, weight):       
         #add a connection to the brain
@@ -573,7 +660,8 @@ class brain_fenotype:
         
         #update counter
         self.inov_counter += 1
-        pass
+        
+        return 0
     
     def mutation_toggleconnection(self, index):
         #toggle the status of a connection
@@ -581,9 +669,11 @@ class brain_fenotype:
         
         #toggle connection isn't a topological innovation
         #self.inov_counter += 1
-        pass
+        return 0
     
     def mutation_addnode(self,index_in,index_out,weight):
+        exit_code = 0
+        
         #search for the connection
         index_con = NAIsf.search_con_index(self.genepool, index_in, index_out)
         
@@ -597,12 +687,13 @@ class brain_fenotype:
             self.genepool.append(conn_gene(index_in,self.NodeCount,weight,self.inov_counter))
             self.inov_counter += 1 
             self.genepool.append(conn_gene(self.NodeCount,index_out,self.genepool[index_con].weight, self.inov_counter))
+            self.inov_counter += 1 
         else: 
             #if it doesn't exist, the same loop precaution as for add_connection must be taken
             if NAIsf.detect_loops(self, critical_index=index_in, current_node_index=index_out, order=5):
                 #print("[LOOP] NOT ADDING NODE DUE TO LOOP")
                 #ttf.record_to_text_file("[LOOP] NOT ADDING NODE DUE TO LOOP")
-                pass
+                return 1
             else:
             #if loop is not a problem
             #simply create 2 connections of the same weight
@@ -610,28 +701,46 @@ class brain_fenotype:
                 self.genepool.append(conn_gene(index_in,self.NodeCount,weight,self.inov_counter))
                 self.inov_counter += 1
                 self.genepool.append(conn_gene(self.NodeCount,index_out,weight,self.inov_counter))
+                self.inov_counter += 1 
 
         
         
         #update node count and innovation counter
         self.NodeCount += 1  
-        self.inov_counter += 1 
         
-        pass
+        return exit_code
+    
+    def mutation_removenode(self, index):
+        exit_code = 0
+        
+        #removing a node means removing all the connections in and out of it
+        #search for the connections
+        for i in range(len(self.genepool)):
+            if i < len(self.genepool):     #catch weird bug where i might go beyond the list (i dont know what causes this)
+                if self.genepool[i].in_index == index or self.genepool[i].out_index == index:
+                    self.genepool.pop(i)
+        
+        return exit_code
     
     def mutation_random(self, max_mutations = 3):
         #show debug messages
         debug = False
         
+        #create a return info with the mutations made
+        # innovation : [conn_index, in_index, out_index]
+        # con index is used to alter the inov_number in case it already existed
+        mutations = {}
+        
         #0 - add connection
         #1 - add node
-        #2 - toggle connection
-        #3 - update weight
+        #2 - remove node
+        #3 - toggle connection
+        #4 - update weight
         rnd.seed = rnd.uniform(0,1000)
-        mutation_count = rnd.randint(1,3) #Up to 3 simultaneous mutations
+        mutation_count = rnd.randint(1,max_mutations) #Up to 3 simultaneous mutations
         
         for current_mutation_count in range(mutation_count):
-            mutation = rnd.randint(1,max_mutations) 
+            mutation = rnd.randint(0,4) 
             
             if mutation == 0:                       #ADD CONNECTION
                     
@@ -677,14 +786,14 @@ class brain_fenotype:
                         ttf.record_to_text_file("[LOOP] NOT ADDING CONNECTION DUE TO LOOP")
                 else:
                     #add connection
+                    mutations.update({self.inov_counter : [len(self.genepool), in_index, out_index]})
                     self.mutation_addconnection(in_index, out_index, rnd.uniform(0,1))
                     
                 #DEBUG
                 if debug:
                     print(f"Added connection: {in_index} -> {out_index}")
                     ttf.record_to_text_file(f"Added connection: {in_index} -> {out_index}")
-                    
-            
+                           
             if mutation == 1:                       #ADD NODE
                 
                 #input node index
@@ -699,14 +808,32 @@ class brain_fenotype:
                     out_index = rnd.randint(self.NOI, self.NodeCount-1)
                     
                 #add node
-                self.mutation_addnode(in_index, out_index, rnd.uniform(0,1))
+                #check if it was successful (its possible it didnt add a node due to loops)
+                if self.mutation_addnode(in_index, out_index, rnd.uniform(0,1)) == 0:
+                    mutations.update({self.inov_counter-2: [len(self.genepool)-2,in_index,self.genepool[-1].in_index]})
+                    mutations.update({self.inov_counter-1: [len(self.genepool)-1,self.genepool[-1].in_index,out_index]})
                 
                 #DEBUG
                 if debug:
                     print(f"Added node between {in_index} and {out_index}")
                     ttf.record_to_text_file(f"Added node between {in_index} and {out_index}")
             
-            if mutation == 2:                       #TOGGLE CONNECTION
+            if mutation == 2:                       #REMOVE NODE
+                #choose random node to remove (hidden only)
+                #only works if there are actually hidden nodes
+                if self.NodeCount > self.NOI+self.NOO:
+                    index_range = [self.NOI+self.NOO, self.NodeCount-1]
+                    index = rnd.randint(index_range[0], index_range[1])
+                
+                    #remove node
+                    self.mutation_removenode(index)
+                    
+                    #DEBUG
+                    if debug:
+                        print(f"Added node between {in_index} and {out_index}")
+                        ttf.record_to_text_file(f"Added node between {in_index} and {out_index}")
+                               
+            if mutation == 3:                       #TOGGLE CONNECTION
                 index = rnd.randint(0, len(self.genepool)-1)
                 previous_status = self.genepool[index].status
                 #toggle connection
@@ -717,7 +844,7 @@ class brain_fenotype:
                     print(f"Connection {index} toggled from {previous_status} to {not previous_status}")
                     ttf.record_to_text_file(f"Connection {index} toggled from {previous_status} to {not previous_status}")
             
-            if mutation == 3:                       #UPDATE WEIGHT
+            if mutation == 4:                       #UPDATE WEIGHT
                 index = rnd.randint(0, len(self.genepool)-1)
                 old_weight = self.genepool[index].weight
                 
@@ -732,7 +859,10 @@ class brain_fenotype:
                 if debug:               
                     print(f"Connection {index} weight updated to {new_weight} ({amplitude*100}%)")
                     ttf.record_to_text_file(f"Connection {index} weight updated to {new_weight} ({amplitude*100}%)")
-        pass
+        
+        #return info with the mutations made
+        
+        return mutations
     
     #################### INFORMATION ####################
     #creates a diagram of the brain

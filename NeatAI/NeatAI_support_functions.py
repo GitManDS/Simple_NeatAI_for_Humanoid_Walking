@@ -87,9 +87,10 @@ def combine_fenotypes(dominant_fenotype, recessive_fenotype):
 def compare_fenotypes(fenotype1,fenotype2):
     #Weights
     #delta = c1 *  excess/gene_larger_genome + c2 * disjoint/gene_bigger_genome + c3 * AWD
-    c1 = 1.5       #excess genes get a bigger value since they are discarded in the child if given by a recessive        
-    c2 = 1.2
-    c3 = 1
+    #excess and disjoint genes are more critical than weight differences
+    c1 = 1               
+    c2 = 1
+    c3 = 0
     
     #get data for the final calculation
     bigger_fenotype_conn_count = max(len(fenotype1.genepool),len(fenotype2.genepool))
@@ -105,15 +106,15 @@ def compare_fenotypes(fenotype1,fenotype2):
     existant_inov_feno1 = {}
     for index, con in enumerate(fenotype1.genepool):
         #note down all the inovation numbers that appear if they haven't been noted down already
-        if con.inov not in existant_inov_feno1:   
-            existant_inov_feno1.update({con.inov:index})
+        #if con.inov not in existant_inov_feno1:   
+        existant_inov_feno1.update({con.inov:index})
         
     #repeat for fenotype 2
     existant_inov_feno2 = {}
     for index, con in enumerate(fenotype2.genepool):
         #note down all the inovation numbers that appear if they haven't been noted down already
-        if con.inov not in existant_inov_feno2:   
-            existant_inov_feno2.update({con.inov:index})
+        #if con.inov not in existant_inov_feno2:   
+        existant_inov_feno2.update({con.inov:index})
             
     #first, go over all the inovations and check matching inovation numbers
     #if both lists have one inovation number, get the difference and store it
@@ -122,8 +123,10 @@ def compare_fenotypes(fenotype1,fenotype2):
     phony_existant_inov_feno1 = existant_inov_feno1.copy()
     for inov in phony_existant_inov_feno1:
         if inov in existant_inov_feno2.keys():
+            #found 2 connections with matching inov numbers
             conn_index1 = existant_inov_feno1[inov]
             conn_index2 = existant_inov_feno2[inov]
+            
             #both fenotypes have the same inovation number
             #get the difference in weight
             weight_difference.append(abs(fenotype1.genepool[conn_index1].weight - fenotype2.genepool[conn_index2].weight))
@@ -131,6 +134,7 @@ def compare_fenotypes(fenotype1,fenotype2):
             #remove from dictionary to allow for search of excess genes and disjoint genes
             existant_inov_feno1.pop(inov)
             existant_inov_feno2.pop(inov)
+            
     #calculate average weight difference
     AWD = sum(weight_difference)/len(weight_difference)
     
@@ -183,70 +187,6 @@ def layer_sort(fenotype,node_pos_list=[], layer_count = 0):
     node_pos_list, change, layer_count = vz.reorganize_hidden_layer_positions(fenotype, node_pos_list,layer_count)
     
     return node_pos_list, change, layer_count
-
-#from a given fenotype, compute the output of the brain
-#given the input
-def compute_output(fenotype,input):
-    #sort the genepool by layers
-    node_pos_list, change, Number_of_layers = layer_sort(fenotype,[],0)
-    while change:
-        node_pos_list, change, Number_of_layers = layer_sort(fenotype,node_pos_list,Number_of_layers)
-        
-    #create a mupet fenotype that can be reduced over time
-    #[WARNING] USE COPY TO AVOID TRANSFERING POINTER
-    mupet_fenotype = fenotype.copy()
-     
-    #create a list to store all gene values
-    values = np.zeros(fenotype.NodeCount)
-    values[0:fenotype.NOI] = input
-      
-    #for every node, from layer 2 to output layer from left to right, compute the value of the node
-    for layer in range(1,Number_of_layers):
-        #search for a node in said layer
-        node_index = 0
-        len_node_list = len(node_pos_list)
-        while node_index < len_node_list:
-            if node_pos_list[node_index][1] == layer:
-                #found a node in the currently sought layer
-                #compute the value of the node
-                #search all connections in the entire genepool that lead to the node
-                con_index = 0
-                len_con_list = len(mupet_fenotype.genepool)
-                while con_index < len_con_list:
-                    con = mupet_fenotype.genepool[con_index]    #this helps with readability
-                    current_node_index = node_pos_list[node_index][0]   #so does this
-                    
-                    
-                    if con.out_index == current_node_index:
-                        #found a connection that leads to the node
-                        #adding up value
-                        if con.status == True:
-                            values[current_node_index] += con.weight * values[con.in_index] 
-                        
-                        #REMOVE STUFF TO MAKE ITERATIONS FASTER AS IT GOES
-                        #remove connection and update pool size
-                        mupet_fenotype.genepool.pop(con_index)
-                        len_con_list -= 1
-                    else:
-                        #this connection does not lead to current node
-                        #search next connection
-                        con_index += 1
-                        
-                #apply activation function
-                #only do so once all the values have been added onto the current node
-                values[current_node_index] = convert_according_to_AF(values[current_node_index])
-                
-                #remove node and update gene layer list size
-                #by removing this list item, iterating is not necessary
-                node_pos_list.pop(node_index)
-                len_node_list -= 1
-            else:
-                #search next node
-                node_index += 1
-        
-    #output can be taken from values
-    output = values[fenotype.NOI:fenotype.NOI + fenotype.NOO]           
-    return output,values
 
 #activation function
 def convert_according_to_AF(input):
@@ -378,76 +318,3 @@ def sort_lists(main_list, lists=[], reverse = False):
                 
     return main_list, lists
      
-    
-''' OLD FUNCTIONS, DEPRECATED
-#create visualization of the genepool
-def visualize_genepool(fenotype):
-    #initialize the graph
-    feno_view = nx.Graph()
-    
-    #get list of existing nodes
-    nodes = {}
-    nodes_count_per_layer = [0.5,0,0] #input, hidden, output
-    
-    #prepare color map
-    color_map = []
-    
-    #go through every connection
-    for con in fenotype.genepool:                   
-        #if node (in or out) doesn't exist in the graph, add it
-        #this isn't redundant since even though graph.add_edge does this automatically, it doesnt lign them up
-        
-        #Check the input node
-        if con.in_index not in nodes:
-            if con.in_index < fenotype.NOI:                   #if input
-                spacing_index = 0
-            else:
-                spacing_index = 1                             #if hidden
-        
-            nodes.update({con.in_index : (nodes_count_per_layer[spacing_index],spacing_index)})
-            nodes_count_per_layer[spacing_index] += 1
-            
-        #Check the output node
-        if con.out_index not in nodes:
-            if con.out_index < fenotype.NOO + fenotype.NOI:    #if output
-                spacing_index = 2
-            else:
-                spacing_index = 1                             #if hidden
-            
-            nodes.update({con.out_index : (nodes_count_per_layer[spacing_index],spacing_index)})
-            nodes_count_per_layer[spacing_index] += 1
-            
-        #add the connection to the graph
-        print(f"{con.in_index} -> {con.out_index}")                             #debug
-        feno_view.add_edge(con.in_index,con.out_index,weight=con.weight)        
-        
-        #define colors according to strength of the connection
-        color_map.append(color_gradient(fenotype.genepool, con.weight))
-
-    nx.draw(feno_view, nodes, 
-            with_labels=True, 
-            font_weight='bold',
-            edge_color=color_map, 
-            node_color = 'black',
-            font_color = 'white')
-    
-    plt.show()
-    pass
-
-#returns the color of a connection based on the weight value for a given color scale
-def color_gradient(genepool,weight):
-    #2 extremes of the color scale
-    #red-blue color scal
-     
-    #find max weight value
-    max_weight = 0
-    for con in genepool:
-        if con.weight > max_weight:
-            max_weight = con.weight
-            
-    #interpolate
-    f = weight/max_weight
-    
-    return (1*f,0,1*(1-f)) #return the color
-
-'''

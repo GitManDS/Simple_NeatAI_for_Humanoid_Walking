@@ -130,7 +130,7 @@ class sim_client:
                     main_body_position, main_body_rotation, joint_pos_index = self.get_robot_and_joints_position_rotation(robot_ID=robot_ID)
                     
                     #calculate the output of the brain which corresponds to the torque to apply to the robot
-                    output, val = NAIsf.compute_output(brains_list[i], list(main_body_position)+list(joint_pos_index))
+                    output, val = brains_list[i].compute_output(list(main_body_position)+list(joint_pos_index))
                     
                                 
                     #multiply the output
@@ -473,7 +473,6 @@ class sim_client:
         pass
 
     pass
-
 
 #way of implementing a thread with a return value
 class ThreadWithReturnValue(Thread):

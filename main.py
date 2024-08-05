@@ -2,6 +2,7 @@
 import pybullet as pb
 import sys, os
 import matplotlib.pyplot as plt
+import time
 
 #files from other directories
 from simulation_env import pybullet_supporting_functions as pbsf
@@ -21,10 +22,10 @@ if __name__ == "__main__":
     #8 outputs(forces on joints)
     NeatAI_pop = cl.population(NOI = 11, NOO = 8, 
                             Starting_brain_count= 4, 
-                            MaxSpecialDist= 0.2,
-                            max_offspring= 2,
-                            max_pop_brains= 10,
-                            max_mutations_per_gen=1)
+                            MaxSpecialDist= 0.15,
+                            max_offspring= 3,
+                            max_pop_brains= 20,
+                            max_mutations_per_gen=2)
 
 
 
@@ -46,6 +47,7 @@ if __name__ == "__main__":
         NeatAI_pop.mutate_all()
 
         #simulate the brains/robots in parallel
+        clock_start = time.time()
         positions, sim_data = mpb.multiprocess_simulations(NeatAI_pop, 
                                 GUI=False,
                                 time_controlled = False, 
@@ -56,6 +58,8 @@ if __name__ == "__main__":
                                 debug= False,
                                 show_IDs=True,
                                 show_timer=True)
+        
+        print("[!] sim time",time.time()-clock_start)
     
         
         #debug
@@ -78,11 +82,11 @@ if __name__ == "__main__":
             NeatAI_pop.species[specie_index].brains[brain_index].save_mental_connections(f"best_brain.txt",overwrite=True)
         
         #print results and other data
-        NeatAI_pop.print(include_results=True)
+        NeatAI_pop.print(include_results=True, ordered_by_score=True)
         print(f"max diff distance : {NeatAI_pop.get_max_speciation_difference_per_species()[0]}")   
             
         #prepare new gen with the best brains
-        NeatAI_pop.create_new_generation(prioritize_smaller_brains=True)
+        NeatAI_pop.create_new_generation(prioritize_smaller_brains=False)
         
         #plot if debug is on
         plt.plot(maxlist)

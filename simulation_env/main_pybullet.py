@@ -364,10 +364,10 @@ class sim_client:
         for robot in robots_to_use:
             #get the coordinates
             #torso rot is not used
-            torso_pos, torso_rot = self.Client.getLinkState(robot,4)[0:2]
+            torso_pos, torso_rot = self.Client.getLinkState(robots_to_use[robot],4)[0:2]
             
             #get head position to place the text
-            head_pos = self.Client.getLinkState(robot,3)[0]
+            head_pos = self.Client.getLinkState(robots_to_use[robot],3)[0]
             
             #lifetime
             Ltime = 1        #movie 1/fps
@@ -474,26 +474,73 @@ class sim_client:
 
     pass
 
-#way of implementing a thread with a return value
-class ThreadWithReturnValue(Thread):
-    def __init__(self, group=None, target=None, name=None,
-                 args=(), kwargs={}, Verbose=None):
-        Thread.__init__(self, group, target, name, args, kwargs)
-        self._return = None
 
-    def run(self):
-        if self._target is not None:
-            self._return = self._target(*self._args,
-                                                **self._kwargs)
-    def join(self, *args):
-        Thread.join(self, *args)
-        return self._return
+#Will run the simulation single process or multi process
+#decides so based on the max_processes variable
+def simulate(pop,
+            GUI = False,
+            max_single_process_brains = 7,
+            max_processes = 4,
+            time_controlled=False, 
+            time_limit = 5,
+            step_limit = 1000, 
+            max_TPS = None,
+            debug = False,
+            show_timer = False, 
+            show_axis = False, 
+            show_IDs = False,
+            show_coords = False,
+            cam_focus_ID = None):
+    
+    positions = {}
+    sim_data = []
+    
+    brains_list = pop.get_brains()  
+    
+    #if the number of brains is less than the max_processes, then run a single process
+    if len(brains_list) < max_single_process_brains:
+        #create the necessary keys for the robot list
+        keys_list = pbsf.create_robot_list_keys(pop)
+        
+        #run sim and get results
+        positions, sim_data = single_process_simulation(brains_list,keys_list,
+             GUI = GUI,
+             time_controlled=time_controlled, 
+             time_limit = time_limit,
+             step_limit = step_limit, 
+             max_TPS = max_TPS,
+             debug = debug,
+             show_timer = show_timer, 
+             show_axis = show_axis, 
+             show_IDs = show_IDs,
+             show_coords = show_coords,
+             cam_focus_ID = cam_focus_ID)
+    
+    #if the number of brains is more than the max_processes, then run a multi process
+    else: 
+        positions, sim_data = multiprocess_simulations(pop,
+                                GUI = GUI,
+                                time_controlled=time_controlled, 
+                                time_limit = time_limit,
+                                step_limit = step_limit, 
+                                max_processes = max_processes,
+                                max_TPS = max_TPS,
+                                debug = debug,
+                                show_timer = show_timer, 
+                                show_axis = show_axis, 
+                                show_IDs = show_IDs,
+                                show_coords = show_coords,
+                                cam_focus_ID = cam_focus_ID)
+        
+        
+        
+    return positions, sim_data
 
 
 #will create a simulation client and run it with the specified parameters
 #MAIN FUNCTION TO RUN THE SIMULATION
 #[!] the multiprocess data and id variables are relevant when using multiprocessing only
-def simulate(brains_list,keys_list,
+def single_process_simulation(brains_list,keys_list,
              multiprocess_data = None,
              multiprocess_id = None,
              GUI = False,
@@ -611,7 +658,7 @@ def multiprocess_simulations(pop,
                 brains_to_use = brains_list[ cursor : cursor + brains_per_process+extra_brains_last_process ]
 
         #assign process task
-        new_process_task = mp.Process(target = simulate, args = (brains_to_use, keys_to_use,
+        new_process_task = mp.Process(target = single_process_simulation, args = (brains_to_use, keys_to_use,
                                                                 multiprocess_data,process_index,
                                                                 GUI,
                                                                 time_controlled, 

@@ -136,8 +136,6 @@ class population:
                     for key in self.inov_database:
                         if mutations[mutation][1:] == self.inov_database[key]:
                             #if it did, update the brain's genepool inovation counter
-                            if brain.genepool[mutations[mutation][0]].inov < key:
-                                print("AHHHHHHHHHHHHHHHHHHHHHHHH")
                             brain.genepool[mutations[mutation][0]].inov = key
                             #also go back 1 in the brain inovation counter
                             brain.inov_counter -= 1
@@ -160,6 +158,7 @@ class population:
     #creates a new generation of brains
     #includes checks for speciation, species viability and offspring number
     def create_new_generation(self, prioritize_smaller_brains = False):
+        
         
         #first calculate and update the number of offspring for each species
         self.update_planned_offspring_count()
@@ -225,14 +224,15 @@ class population:
 
                     #place child in parent species 
                     self.migrate(child_brain, specie)
-                    
-        
-        #enforce max brain count by removing least performing species
+                                
+        #remove worst performing species
+        #this is species with the worst performing brains (last species (its ordered by score))
         self.update_species_brain_count()
         while self.brain_count > self.MaxBrains:
-            #remove the last species
-            self.species.pop()
-            self.update_species_brain_count()
+            for specie in self.species:
+                #remove the last brains
+                self.species.pop()
+                self.update_species_brain_count()
         
         
         pass
@@ -246,9 +246,11 @@ class population:
         #for this, the species are ordered by score then for every species, the brains are ordered by score
         #only makes sense if scores exist in the first place
         if ordered_by_score and len(self.species[-1].adjus_results) > 0:
-            self = NAIsf.order_by_score(self)   
+            self = NAIsf.order_by_score(self) 
         
+        self.update_species_brain_count()
         print("------------ Population Print ------------")
+        print(f"Number of species: {len(self.species)}, Number of brains: {self.brain_count}")
         for i,specie in enumerate(self.species):
             print(f"<SPECIE> = {i}:")
             for j,brain in enumerate(specie.brains):
@@ -501,7 +503,23 @@ class population:
                 
         return all_brains
         
-    
+    #used for when the scores need to be bound to the brains, and not the species
+    def store_scores_in_brains(self):
+        for specie in self.species:
+            for brain_index, brain in enumerate(specie.brains):
+                brain.score = specie.adjus_results[brain_index]
+            
+    #used for the ooposite of store_scores_in_brains, retrieves the scores, stores them in the species
+    #also returns a complete list of scores
+    def retrieve_scores_from_brains(self):
+        scores = []
+        for specie in self.species:
+            specie.specie_retrieve_scores_from_brains()
+            scores.append(specie.adjus_results)
+            
+        return scores
+        
+        
     pass
            
 class species:
@@ -548,12 +566,22 @@ class species:
         self.brain_count = len(self.brains)
         pass
     
+    #################### DEBUG AND MISCELANEOUS ####################
+    
+    #retrive scores per brain in species
+    def specie_retrieve_scores_from_brains(self):
+        for brain_index, brain in enumerate(self.brains):
+            self.adjus_results[brain_index] = brain.score
+        pass
+      
 class brain_fenotype:
     def __init__(self,NOI,NOO):
         #initiliaze the brain with the minimum number of connections/nodes
         self.NOI = NOI                #number of input nodes
         self.NOO = NOO                #number of output nodes
         self.NodeCount = NOI + NOO    #total number of nodes
+        self.LastNodeIndex = NOI + NOO - 1 #index of the last node (might be different to node count due to mutations) 
+        self.score = 0                #lastest score of the brain
         
         self.genepool = []            #list of all the connections in the brain
         self.inov_counter = 1
@@ -569,11 +597,14 @@ class brain_fenotype:
         new_brain.genepool = self.genepool.copy()
         new_brain.inov_counter = self.inov_counter
         new_brain.NodeCount = self.NodeCount
+        new_brain.LastNodeIndex = self.LastNodeIndex
+        new_brain.score = self.score
         return new_brain
     
     #from a given fenotype, compute the output of the brain
     #given the input
     def compute_output(self,input):
+        
         #sort the genepool by layers
         node_pos_list, change, Number_of_layers = NAIsf.layer_sort(self,[],0)
         while change:
@@ -584,7 +615,8 @@ class brain_fenotype:
         mupet_fenotype = self.copy()
         
         #create a list to store all gene values
-        values = np.zeros(self.NodeCount)
+        #needs to use last node index+1 to avoid out of bounds
+        values = np.zeros(self.LastNodeIndex+1)
         values[0:self.NOI] = input
         
         #for every node, from layer 2 to output layer from left to right, compute the value of the node
@@ -684,10 +716,11 @@ class brain_fenotype:
             
             #also the connection must be split into two and one of them must inherit the old weight value
             #add connections to the new node
-            self.genepool.append(conn_gene(index_in,self.NodeCount,weight,self.inov_counter))
+            self.genepool.append(conn_gene(index_in,self.LastNodeIndex+1,weight,self.inov_counter))
             self.inov_counter += 1 
-            self.genepool.append(conn_gene(self.NodeCount,index_out,self.genepool[index_con].weight, self.inov_counter))
+            self.genepool.append(conn_gene(self.LastNodeIndex+1,index_out,self.genepool[index_con].weight, self.inov_counter))
             self.inov_counter += 1 
+            
         else: 
             #if it doesn't exist, the same loop precaution as for add_connection must be taken
             if NAIsf.detect_loops(self, critical_index=index_in, current_node_index=index_out, order=5):
@@ -698,15 +731,16 @@ class brain_fenotype:
             #if loop is not a problem
             #simply create 2 connections of the same weight
             #add connections to the new node    
-                self.genepool.append(conn_gene(index_in,self.NodeCount,weight,self.inov_counter))
+                self.genepool.append(conn_gene(index_in,self.LastNodeIndex+1,weight,self.inov_counter))
                 self.inov_counter += 1
-                self.genepool.append(conn_gene(self.NodeCount,index_out,weight,self.inov_counter))
+                self.genepool.append(conn_gene(self.LastNodeIndex+1,index_out,weight,self.inov_counter))
                 self.inov_counter += 1 
 
         
         
         #update node count and innovation counter
         self.NodeCount += 1  
+        self.LastNodeIndex += 1
         
         return exit_code
     
@@ -715,10 +749,19 @@ class brain_fenotype:
         
         #removing a node means removing all the connections in and out of it
         #search for the connections
-        for i in range(len(self.genepool)):
-            if i < len(self.genepool):     #catch weird bug where i might go beyond the list (i dont know what causes this)
-                if self.genepool[i].in_index == index or self.genepool[i].out_index == index:
+        #can't use for loop, we are activelly removing items from the list
+        i=0
+        while i < len(self.genepool):
+            if self.genepool[i].in_index == index or self.genepool[i].out_index == index:
                     self.genepool.pop(i)
+                    self.NodeCount -= 1
+            else:
+                i += 1
+                
+            #update the lastnodeindex
+            self.update_nodecount()
+            if self.LastNodeIndex == index:
+                self.LastNodeIndex -= 1
         
         return exit_code
     
@@ -762,15 +805,15 @@ class brain_fenotype:
                         #get new combination of input/output nodes such that a new connection that doesn't exist is created
                         
                         #input node index
-                        if rnd.randint(0,1) < 0.5 or self.NOO+self.NOI == self.NodeCount: #if there are no hidden nodes
-                            in_index = rnd.randint(0, self.NOI-1)                                   #input nodes for input
+                        if rnd.randint(0,1) < 0.5 or self.NOO+self.NOI == (self.LastNodeIndex + 1): #if there are no hidden nodes
+                            in_index = rnd.randint(0, self.NOI-1)                         #input nodes for input
                         else:
-                            in_index = rnd.randint(self.NOO+self.NOI, self.NodeCount-1)     #hidden nodes for input  
+                            in_index = rnd.randint(self.NOO+self.NOI, self.LastNodeIndex)     #hidden nodes for input  
                     
                         out_index = in_index
                         #output node index
                         while out_index == in_index:
-                            out_index = rnd.randint(self.NOI, self.NodeCount-1)
+                            out_index = rnd.randint(self.NOI, self.LastNodeIndex)
                         
                         if checks > 30:
                             if debug:
@@ -797,15 +840,15 @@ class brain_fenotype:
             if mutation == 1:                       #ADD NODE
                 
                 #input node index
-                if rnd.randint(0,1) < 0.5 or self.NOO+self.NOI == self.NodeCount:   #if there are no hidden nodes
+                if rnd.randint(0,1) < 0.5 or self.NOO+self.NOI == (self.LastNodeIndex + 1):   #if there are no hidden nodes
                     in_index = rnd.randint(0, self.NOI-1)                           #input nodes for input
                 else:
-                    in_index = rnd.randint(self.NOO+self.NOI, self.NodeCount-1)     #hidden nodes for input  
+                    in_index = rnd.randint(self.NOO+self.NOI, self.LastNodeIndex)     #hidden nodes for input  
                 
                 out_index = in_index
                 #output node index
                 while out_index == in_index:
-                    out_index = rnd.randint(self.NOI, self.NodeCount-1)
+                    out_index = rnd.randint(self.NOI, self.LastNodeIndex)
                     
                 #add node
                 #check if it was successful (its possible it didnt add a node due to loops)
@@ -821,13 +864,27 @@ class brain_fenotype:
             if mutation == 2:                       #REMOVE NODE
                 #choose random node to remove (hidden only)
                 #only works if there are actually hidden nodes
-                if self.NodeCount > self.NOI+self.NOO:
-                    index_range = [self.NOI+self.NOO, self.NodeCount-1]
+                if self.NodeCount-1 > self.NOI+self.NOO:
+                    index_range = [self.NOI+self.NOO, self.LastNodeIndex]
                     index = rnd.randint(index_range[0], index_range[1])
                 
                     #remove node
                     self.mutation_removenode(index)
                     
+                    #update mutations to not include removed nodes
+                    keys = list(mutations.keys())
+                    for key in keys:
+                        if NAIsf.search_con_index(genepool=self.genepool,in_index=mutations[key][1],out_index=mutations[key][2]) == -1:
+                            #this connection doesn't exist anymore, remove it
+                            poped_mutation = mutations.pop(key)
+                            
+                    #update all others such that they point to the correct connection index
+                    #unfortunatelly since they are not order, the only way to do this is to check all of them
+                    for mutation_key in mutations.keys():
+                        mutations[mutation_key][0] = NAIsf.search_con_index(genepool=self.genepool,
+                                                                                in_index=mutations[mutation_key][1],
+                                                                                out_index=mutations[mutation_key][2])
+         
                     #DEBUG
                     if debug:
                         print(f"Added node between {in_index} and {out_index}")
@@ -985,6 +1042,9 @@ class brain_fenotype:
             i_inov_start = line.find("Inovation")+12
             i_inov_end = line.find("\n",i_inov_start)
             self.genepool[index].inov = int(line[i_inov_start:i_inov_end])
+            
+            #update other stuff
+            self.update_nodecount()
         pass
         
     #################### DEBUG ####################
@@ -1017,8 +1077,11 @@ class brain_fenotype:
         for con in self.genepool:
             if con.in_index + 1 > self.NodeCount:
                 self.NodeCount = con.in_index + 1
+                self.LastNodeIndex = con.in_index
             if con.out_index + 1 > self.NodeCount:
                 self.NodeCount = con.out_index + 1
+                self.LastNodeIndex = con.out_index
+        pass
                 
     #observe function but doesn't draw
     #usefull for custum drawing (i.e. real time drawing)

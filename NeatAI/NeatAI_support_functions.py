@@ -177,7 +177,7 @@ def layer_sort(fenotype,node_pos_list=[], layer_count = 0):
             node_pos_list.append([i,0])         #input nodes
         for i in range(fenotype.NOI, fenotype.NOI + fenotype.NOO):
             node_pos_list.append([i,2])         #output nodes
-        for i in range(fenotype.NOI + fenotype.NOO, fenotype.NodeCount):
+        for i in range(fenotype.NOI + fenotype.NOO, (fenotype.LastNodeIndex+1)):
             node_pos_list.append([i,1])         #hidden nodes
             
     if layer_count == 0:   #first time initializing

@@ -15,13 +15,17 @@ NeatAI_pop = cl.population(NOI = 11, NOO = 8,Starting_brain_count= 4, MaxSpecial
 
 brain = cl.brain_fenotype(11,8)
 brain.load_mental_connections("best_brain.txt")
+NeatAI_pop.species = []
+NeatAI_pop.add_new_species()
+NeatAI_pop.species[0].add_brain(brain)
 
-positions, sim_data = mpb.simulate(brains_list=[brain],keys_list=["best_brain"], 
+positions, sim_data = mpb.simulate(NeatAI_pop, 
                 GUI=True,
                 time_controlled = False, 
                 step_limit = 500,
                 time_limit = 10,
                 max_TPS= None,
-                debug= True,
+                debug= False,
                 show_IDs=True,
-                show_timer=True)
+                show_timer=True,
+                show_coords=True)

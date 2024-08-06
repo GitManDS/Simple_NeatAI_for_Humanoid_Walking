@@ -589,11 +589,13 @@ class brain_fenotype:
         self.NodeCount = NOI + NOO    #total number of nodes
         self.LastNodeIndex = NOI + NOO - 1 #index of the last node (might be different to node count due to mutations) 
         self.score = 0                #lastest score of the brain
+        self.AF_method = "tanh"       #activation function method
         
         self.genepool = []            #list of all the connections in the brain
         self.inov_counter = 1
         for i in range(NOO):
             for j in range(NOI): #for each output node, connect it to each input node
+                rnd.seed = rnd.uniform(0,1000) #seed the random number generator
                 self.genepool.append(conn_gene(j,i+NOI,rnd.uniform(-1,1),self.inov_counter)) #add the connection to the genepool    
                 self.inov_counter += 1 #increment the innovation number
         pass
@@ -660,7 +662,7 @@ class brain_fenotype:
                             
                     #apply activation function
                     #only do so once all the values have been added onto the current node
-                    values[current_node_index] = NAIsf.convert_according_to_AF(values[current_node_index])
+                    values[current_node_index] = NAIsf.convert_according_to_AF(values[current_node_index], method=self.AF_method)
                     
                     #remove node and update gene layer list size
                     #by removing this list item, iterating is not necessary

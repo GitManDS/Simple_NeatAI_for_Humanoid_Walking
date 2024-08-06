@@ -269,7 +269,7 @@
     <parent link="r_upperleg"/>
     <child link="r_lowerleg"/>
     <axis xyz="1 0 0"/>
-    <limit effort="10.0" lower="-1.57." upper="1.57" velocity="1000.0"/>
+    <limit effort="10.0" lower="-1.57." upper="0.2" velocity="1000.0"/>
     <origin rpy="0 0 0" xyz="0.015 0 -.41"/>
   </joint>
 
@@ -300,7 +300,7 @@
     <parent link="l_upperleg"/>
     <child link="l_lowerleg"/>
     <axis xyz="1 0 0"/>
-    <limit effort="10.0" lower="-1.57." upper="1.57" velocity="1000.0"/>
+    <limit effort="10.0" lower="-1.57." upper="0.2" velocity="1000.0"/>
     <origin rpy="0 0 0" xyz="-0.015 0 -.41"/>
   </joint>
 

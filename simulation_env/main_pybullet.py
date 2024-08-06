@@ -9,6 +9,7 @@ from simulation_env import pybullet_supporting_functions as pbsf
 from NeatAI import NeatAI_support_functions as NAIsf
 import time
 import math
+import numpy as np
 
 #sim class client used to configure, manage and start a single simulation client
 class sim_client:
@@ -37,7 +38,7 @@ class sim_client:
         self.Client.setAdditionalSearchPath(assets_folder)
         
         #create physical environment (plane)
-        planeId = self.Client.loadURDF("plane.urdf", useFixedBase=True) 
+        planeId = self.Client.loadURDF("plane.urdf", useFixedBase=True, basePosition=[0,0,0]) 
         
         pass
     
@@ -63,7 +64,8 @@ class sim_client:
     
         #start clock
         self.clock_start = time.time()
-                
+        main_body_position_old = [[0,0,0]] * len(self.robot_list)
+        
         ######################## TIME CONTROLLED ########################
         
         #run time controlled/limited (will run forever until GUI is closed)
@@ -125,23 +127,26 @@ class sim_client:
                         
                 #WRITE FUNCTIONS TO RUN IN CODE HERE!!!
                 #
-           
-                torque_multiplier = 100      
+    
                 for i, robot_ID in enumerate(self.robot_list):
                     #get robot info
-                    main_body_position, main_body_rotation, joint_pos_index = self.get_robot_and_joints_position_rotation(robot_ID=robot_ID)
+                    #[5-L upper leg, 6- L lower leg, 8-R upper leg, 9-R lower leg]
+                    main_body_position, main_body_rotation, joint_pos_index = self.get_robot_and_joints_position_rotation(robot_ID=robot_ID, joint_list=[5,6,8,9])
                     
-                    #temp remove ankle info
-                    joint_pos_index = joint_pos_index[0:-2]
+                    #get velocity from the last step (units/step) and update old pos
+                    velocity = [main_body_position[j] - main_body_position_old[i][j] for j in range(3)]
+                    main_body_position_old[i] = main_body_position
                     
-                    #calculate the output of the brain which corresponds to the torque to apply to the robot
-                    output, val = brains_list[i].compute_output(list(main_body_position)+list(joint_pos_index))
-                    
-                                
-                    #multiply the output
-                    output = [x*torque_multiplier for x in output]
+                    #normalize the joint pos inputs
+                    #[TODO]
                             
-                    self.apply_torque_to_robot(torque=output, robot_ID=robot_ID)
+                    #calculate the output of the brain which corresponds to the torque to apply to the robot
+                    output, val = brains_list[i].compute_output(list(velocity)+list(joint_pos_index))
+                    
+                            
+                    #self.apply_torque_to_robot(torque=output, robot_ID=robot_ID, joint_list=[5,6,8,9])
+                    output=pbsf.convert_input_to_joint_ranges(output)
+                    self.apply_position_input_to_robot(position=output, robot_ID=robot_ID, joint_list=[5,6,8,9])
                     pass
                 
                 #
@@ -155,6 +160,7 @@ class sim_client:
                 
         #get simulation results
         #1- get the robot info for every robot
+        
         for robot_ID in self.robot_list:
             main_body_position, main_body_rotation, joint_pos_index = self.get_robot_and_joints_position_rotation(self.robot_list[robot_ID])
             self.position_results.update({robot_ID: main_body_position})
@@ -177,13 +183,28 @@ class sim_client:
     def match_brains_to_robots(self, brains_list, brain_keys=None):
         for brain_index, brain in enumerate(brains_list):
             self.add_robot(robot_ID = brain_keys[brain_index])
+        
+          
+        #manage collisions
+        for robot_ID in self.robot_list:
+            first_link_index = 3
+            last_link_index = 10
+            for link_id in range(first_link_index,last_link_index+1):
+                #disable the robot collisions between each other
+                self.Client.setCollisionFilterGroupMask(self.robot_list[robot_ID], link_id, 0, 0)
+                #enable the robot collisions with the plane
+                #0- plane link id, #1 - enablecollisions
+                plane_ID = 0
+                self.Client.setCollisionFilterPair(self.robot_list[robot_ID], plane_ID, link_id, 0, 1)
+            pass         
+          
 
         pass
 
     #returns the position of the body in the world, aswell as 
     #[!]can be expanded to give contact points and forces
     #the outputs are not stored in variables since they are already stored inside the simulation client
-    def get_robot_and_joints_position_rotation(self, robot = None, robot_ID = None):
+    def get_robot_and_joints_position_rotation(self, robot = None, robot_ID = None, joint_list = None):
 
         ### get robot ###
         if (robot_ID != None and self.robot_list != None):
@@ -203,8 +224,11 @@ class sim_client:
         #object joints
         #Get the position index of each index from -a to a
         #firts 5 joints are the reference joints
+        if joint_list == None:
+            joint_list = range(5,self.Client.getNumJoints(robot))
+    
         joint_pos_index = []
-        for i in range(5,self.Client.getNumJoints(robot)):
+        for i in joint_list:
             joint_pos_index.append(self.Client.getJointState(robot,i)[0])
             pass
 
@@ -213,9 +237,7 @@ class sim_client:
 
     #will apply a torque to the the joints of the robot
     #accepts a list of torques to apply to the robot in the following order of joints
-    #order: r_rot-r_upperleg-r_lowerleg-r_ankle-l_rot-l_upperleg-l_lowerleg-l_ankle
-    #[[[[!!!!!!]]]] CURRENTLY EDITED TO IGNORE ANKLE JOINTS CONTROL
-    def apply_torque_to_robot(self, torque, robot = None, robot_ID = None):
+    def apply_torque_to_robot(self, torque, robot = None, robot_ID = None, joint_list = None):
         
         ### get robot ###
         if (robot_ID != None and self.robot_list != None):
@@ -227,16 +249,44 @@ class sim_client:
             pass
         #################
         
-        first_joint_index = 5
-        #-2 to ignore the ankle joints, account for non existent revolute joints
-        last_joint_index = 12 - 2 - 2
+        #multiply the torque
+        torque = [x*self.joint_torque_multiplier for x in torque]
+        
+        #first 5 joints are reference joints
         index = 0
-        for joint_index in range(first_joint_index,last_joint_index+1):
+        if joint_list == None:
+            joint_list = range(5,self.Client.getNumJoints(robot))
+            
+        for joint_index in joint_list:
             self.Client.setJointMotorControl2(robot, joint_index, self.Client.TORQUE_CONTROL, force=torque[index])
             index += 1
         
         pass
 
+    #will set the objective end position of each joint of the robot
+    #uses torque multiplier as a limit torque 
+    def apply_position_input_to_robot(self, position, robot = None, robot_ID = None, joint_list = None):
+        
+        ### get robot ###
+        if (robot_ID != None and self.robot_list != None):
+            robot = self.robot_list[robot_ID]
+            pass
+        
+        elif robot == None:
+            print("No robot to show axis on, quitting axis display")
+            pass
+        #################
+        
+        #first 5 joints are reference joints
+        if joint_list == None:
+            joint_list = range(5,self.Client.getNumJoints(robot))
+            
+        index = 0
+        for joint_index in joint_list:
+            self.Client.setJointMotorControl2(robot, joint_index, self.Client.POSITION_CONTROL, targetPosition = position[index], force=self.joint_torque_multiplier)
+            index += 1
+        
+        pass
 
     ################### VISUAL FUNCTIONS ###################
     #will focus the camera on a robot or on an robot ID
@@ -336,9 +386,9 @@ class sim_client:
         for robot in robots_to_use:
             #get current axis position
             #z=1, x=2 , y=3
-            pos_y = self.Client.getLinkState(robot,2)[0]
-            pos_x = self.Client.getLinkState(robot,1)[0]
-            pos_z = self.Client.getLinkState(robot,0)[0]
+            pos_y = self.Client.getLinkState(robots_to_use[robot],2)[0]
+            pos_x = self.Client.getLinkState(robots_to_use[robot],1)[0]
+            pos_z = self.Client.getLinkState(robots_to_use[robot],0)[0]
             
             pos_y2 = [pos_y[0],leng+pos_y[1],pos_y[2]]
             pos_x2 = [leng+pos_x[0],pos_x[1],pos_x[2]]
@@ -453,10 +503,8 @@ class sim_client:
             robot_ID = "RND_" + str(rnd.uniform(0,1000))
             
         #get a starting position for the robot
-        #for that we need to know how many robots are already in the simulation
         #z spacing of 1.1 matches roughly the height of the robot
-        #2 [unit] is roughly enough spacing between 2 robots
-        starting_pos = [len(self.robot_list),0,1.1]
+        starting_pos = [0,0,1.1]
         starting_orientation = self.Client.getQuaternionFromEuler([0,0,0])
         
         #create the robot

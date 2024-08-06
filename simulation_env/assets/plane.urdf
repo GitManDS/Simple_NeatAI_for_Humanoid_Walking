@@ -25,5 +25,27 @@
       </geometry>
     </collision>
   </link>
+
+  <link name="origin">
+  <visual>
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0.0 0"/>
+      <material name="Black"/>
+    </visual>
+  <inertial>
+      <mass value="0"/>
+      <inertia ixx="0.2125" ixy="-0.005" ixz="0.0225" iyy="0.205" iyz="0.045" izz="0.0125"/>
+      <origin rpy="0 0 0" xyz="0 0.0 0"/>
+    </inertial>
+	</link>
+
+  <joint name="plane_to_origin" type="fixed">
+    <parent link="origin"/>
+    <child link="planeLink"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+
 </robot>
 

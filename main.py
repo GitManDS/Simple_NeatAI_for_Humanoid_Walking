@@ -22,10 +22,11 @@ def objective_function_calculator(main_body_positions):
     #add contribution of y value
     obj_value += abs(main_body_positions[1])
     
+    #OLD
     #scale objective value by the z-1.11 (height) value of the body position
     #max scaling = 25% of the objective value
     #if z_final = 0 for instance, a 25% penalty is applied
-    obj_value *= abs((main_body_positions[2])/1.11)*obj_value
+    obj_value *= abs((main_body_positions[2])/1.11)*0.25
     
     return obj_value
 
@@ -34,20 +35,19 @@ if __name__ == "__main__":
 
     ################### AI SETUP ###################
     #initialize AI population
-    #8 inputs(joint positions) + 3 inputs(position of robot) = 11 inputs
-    #8 outputs(forces on joints)
-    NeatAI_pop = cl.population(NOI = 11, NOO = 8, 
+    #7 NOI (3 robot position + 4 robot joint positions) and 8 NOO (4 robot joint torques)
+    NeatAI_pop = cl.population(NOI = 7, NOO = 4, 
                             Starting_brain_count= 4, 
                             MaxSpecialDist= 0.15,
                             max_offspring= 5,
                             max_pop_brains= 30,
-                            max_mutations_per_gen=2)
+                            max_mutations_per_gen=5)
 
 
 
     ################### SETUP AND RUN ###################
 
-    max_generations = 1000
+    max_generations = 100
     max_y = 0
     maxlist = []
     minlist = []
@@ -68,12 +68,15 @@ if __name__ == "__main__":
         clock_start = time.time()
         positions, sim_data = mpb.simulate(NeatAI_pop, 
                                 max_single_process_brains = 7,
+                                robot_type= "biped_freeman_simple.urdf",
+                                joint_friction=10,
+                                torque_multiplier=20,
                                 GUI=True,
                                 time_controlled = False, 
-                                step_limit = 100,
+                                step_limit = 300,
                                 max_processes = 4,
                                 time_limit = 10,
-                                max_TPS= None,
+                                max_TPS= 60,
                                 debug= False,
                                 show_IDs=True,
                                 show_timer=False,
@@ -120,7 +123,12 @@ if __name__ == "__main__":
         plt.ylabel("max_score")
         
         plt.pause(1)
-        plt.clf()
+        if gen < max_generations-1:
+            plt.clf()
+        
+    #save population
+    plt.savefig("max_score.png")
+    NeatAI_pop.save_population("final_pop.txt")
 
 
 

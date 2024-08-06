@@ -189,10 +189,11 @@ def layer_sort(fenotype,node_pos_list=[], layer_count = 0):
     return node_pos_list, change, layer_count
 
 #activation function
-def convert_according_to_AF(input):
-    #if method == "sigmoid":
-    #    for i in range(0,len(input)):
-    input = 1/(1+np.exp(input))
+def convert_according_to_AF(input, method = "sigmoid"):
+    if method == "sigmoid":
+        input = 1/(1+np.exp(input))
+    if method == "tanh":
+        input = np.tanh(input)*2
 
     #elif method == "rectified_liner":
     #    for i in input:

@@ -12,7 +12,7 @@ import math
 
 #sim class client used to configure, manage and start a single simulation client
 class sim_client:
-    def __init__(self, GUI = False, gravity = -9.81):
+    def __init__(self, GUI = False, gravity = -9.81, robot_type = "biped_freeman.urdf"):
         if GUI:
             self.Client = pbc.BulletClient(connection_mode=pb.GUI)
         else:
@@ -21,13 +21,15 @@ class sim_client:
         #options and other parameters
         self.Client.setGravity(0,0,gravity)             #set gravity
         self.robot_list = {}                            #dictionary of robots used
-        self.robot_type = "biped_freeman.urdf"       #type of robot to be used
+        self.robot_type = robot_type                    #type of robot to be used
+        self.joint_friction = 10                        #friction of the robot  
+        self.joint_torque_multiplier = 100              #torque multiplier for the robot
         self.clock_start = 0                            #start time of the simulation
         self.step   = 0                                 #current/last step of the simulation
         self.timer_id = None                            #timer id for the timer function (if called/used)
         self.step_id = None                             #step id for the step count function (if called/used)
         self.nametag_id = None                          #nametag id for the identify robot function (if called/used)
-        self.position_results = {}                               #results of the simulation
+        self.position_results = {}                      #results of the simulation
         self.sim_data = []                              #simulation data
         
         #add assets folder
@@ -123,11 +125,14 @@ class sim_client:
                         
                 #WRITE FUNCTIONS TO RUN IN CODE HERE!!!
                 #
-                
+           
                 torque_multiplier = 100      
                 for i, robot_ID in enumerate(self.robot_list):
                     #get robot info
                     main_body_position, main_body_rotation, joint_pos_index = self.get_robot_and_joints_position_rotation(robot_ID=robot_ID)
+                    
+                    #temp remove ankle info
+                    joint_pos_index = joint_pos_index[0:-2]
                     
                     #calculate the output of the brain which corresponds to the torque to apply to the robot
                     output, val = brains_list[i].compute_output(list(main_body_position)+list(joint_pos_index))
@@ -209,6 +214,7 @@ class sim_client:
     #will apply a torque to the the joints of the robot
     #accepts a list of torques to apply to the robot in the following order of joints
     #order: r_rot-r_upperleg-r_lowerleg-r_ankle-l_rot-l_upperleg-l_lowerleg-l_ankle
+    #[[[[!!!!!!]]]] CURRENTLY EDITED TO IGNORE ANKLE JOINTS CONTROL
     def apply_torque_to_robot(self, torque, robot = None, robot_ID = None):
         
         ### get robot ###
@@ -222,7 +228,8 @@ class sim_client:
         #################
         
         first_joint_index = 5
-        last_joint_index = 12
+        #-2 to ignore the ankle joints, account for non existent revolute joints
+        last_joint_index = 12 - 2 - 2
         index = 0
         for joint_index in range(first_joint_index,last_joint_index+1):
             self.Client.setJointMotorControl2(robot, joint_index, self.Client.TORQUE_CONTROL, force=torque[index])
@@ -457,7 +464,7 @@ class sim_client:
         
         #relax the muscles/define standard friction
         #must not be 0
-        jointFrictionForce = 10
+        jointFrictionForce = self.joint_friction
         for joint in range(self.Client.getNumJoints(robot)):
             self.Client.setJointMotorControl2(robot, joint, self.Client.POSITION_CONTROL, force=jointFrictionForce)
             
@@ -474,10 +481,12 @@ class sim_client:
 
     pass
 
-
 #Will run the simulation single process or multi process
 #decides so based on the max_processes variable
 def simulate(pop,
+            robot_type = "biped_freeman.urdf",
+            joint_friction = 10,
+            torque_multiplier = 100,
             GUI = False,
             max_single_process_brains = 7,
             max_processes = 4,
@@ -504,6 +513,9 @@ def simulate(pop,
         
         #run sim and get results
         positions, sim_data = single_process_simulation(brains_list,keys_list,
+             robot_type=robot_type,
+             joint_friction=joint_friction,
+             torque_multiplier=torque_multiplier,
              GUI = GUI,
              time_controlled=time_controlled, 
              time_limit = time_limit,
@@ -519,6 +531,9 @@ def simulate(pop,
     #if the number of brains is more than the max_processes, then run a multi process
     else: 
         positions, sim_data = multiprocess_simulations(pop,
+                                robot_type=robot_type,
+                                joint_friction=joint_friction,
+                                torque_multiplier=torque_multiplier,
                                 GUI = GUI,
                                 time_controlled=time_controlled, 
                                 time_limit = time_limit,
@@ -536,13 +551,15 @@ def simulate(pop,
         
     return positions, sim_data
 
-
 #will create a simulation client and run it with the specified parameters
 #MAIN FUNCTION TO RUN THE SIMULATION
 #[!] the multiprocess data and id variables are relevant when using multiprocessing only
 def single_process_simulation(brains_list,keys_list,
              multiprocess_data = None,
              multiprocess_id = None,
+             robot_type = "biped_freeman.urdf",
+             joint_friction = 10,
+             torque_multiplier = 100,
              GUI = False,
              time_controlled=False, 
              time_limit = 5,
@@ -557,7 +574,11 @@ def single_process_simulation(brains_list,keys_list,
     
     #create sim client
     #includes creation of environment and gravity setting
-    sim = sim_client(GUI=GUI)
+    sim = sim_client(GUI=GUI, robot_type=robot_type)
+    
+    #update joint friction and torque multiplier
+    sim.joint_friction = joint_friction
+    sim.joint_torque_multiplier = torque_multiplier
     
     #setup sim client
     #includes creation of robots matching the given brain and keys list
@@ -585,6 +606,9 @@ def single_process_simulation(brains_list,keys_list,
 
 #creates the simulations and runs them in parallel
 def multiprocess_simulations(pop,
+                            robot_type = "biped_freeman.urdf",
+                            joint_friction = 10,
+                            torque_multiplier = 100,
                             GUI = False,
                             time_controlled=False, 
                             time_limit = 5,
@@ -660,6 +684,9 @@ def multiprocess_simulations(pop,
         #assign process task
         new_process_task = mp.Process(target = single_process_simulation, args = (brains_to_use, keys_to_use,
                                                                 multiprocess_data,process_index,
+                                                                robot_type,
+                                                                joint_friction,
+                                                                torque_multiplier,
                                                                 GUI,
                                                                 time_controlled, 
                                                                 time_limit,

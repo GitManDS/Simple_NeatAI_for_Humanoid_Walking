@@ -11,19 +11,33 @@ from NeatAI import classes as cl
 #main dir files
 import sim_AI_connection_functions as sim_AI
 
-NeatAI_pop = cl.population(NOI = 11, NOO = 8,Starting_brain_count= 4, MaxSpecialDist= 0.2,max_offspring= 2,max_pop_brains= 10,max_mutations_per_gen=1)
+#7 NOI (3 robot position + 4 robot joint positions) and 8 NOO (4 robot joint torques)
+NeatAI_pop = cl.population(NOI = 7, NOO = 4, 
+                            Starting_brain_count= 4, 
+                            MaxSpecialDist= 0.15,
+                            max_offspring= 5,
+                            max_pop_brains= 30,
+                            max_mutations_per_gen=2)
+
+'''
+NeatAI_pop = cl.population(NOI = 11, NOO = 8,Starting_brain_count= 4, MaxSpecialDist= 0.2,
+                           max_offspring= 2,max_pop_brains= 10,max_mutations_per_gen=1, import_from_file="best_brain_run1.txt")
+
+NeatAI_pop.species[0].brains[0].print()
 
 brain = cl.brain_fenotype(11,8)
 brain.load_mental_connections("best_brain.txt")
 NeatAI_pop.species = []
 NeatAI_pop.add_new_species()
 NeatAI_pop.species[0].add_brain(brain)
+'''
 
 positions, sim_data = mpb.simulate(NeatAI_pop, 
+                robot_type= "biped_freeman_simple.urdf",
                 GUI=True,
                 time_controlled = False, 
                 step_limit = 500,
-                time_limit = 10,
+                time_limit = 100,
                 max_TPS= None,
                 debug= False,
                 show_IDs=True,

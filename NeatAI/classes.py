@@ -7,11 +7,18 @@ import matplotlib.pyplot as plt
 import os
 
 class population:
-    def __init__(self, NOI, NOO, Starting_brain_count=2, MaxSpecialDist=2.5, max_offspring = 3, max_pop_brains = 10, max_mutations_per_gen = 3) -> None:
+    def __init__(self, NOI, NOO, Starting_brain_count=2, MaxSpecialDist=2.5, max_offspring = 3, max_pop_brains = 10, max_mutations_per_gen = 3, import_from_file = None) -> None:
         self.species = []                       #list of all the brains in the species
         self.add_new_species()                  #create first species and append to species list  
-        for i in range(Starting_brain_count):
-            self.species[0].add_brain(brain_fenotype(NOI,NOO))
+
+        new_brain = brain_fenotype(NOI,NOO) 
+        #if import_from_file is given, load the brain from the file
+        if import_from_file != None:
+            new_brain.load_mental_connections(import_from_file)       
+            
+        for i in range(Starting_brain_count):    
+            self.species[0].add_brain(new_brain.copy())
+            
         
         self.innovation = 1                          #innovation counter  
         self.inov_database = {}                      #database of all the innovations (hidden nodes and connections only)    
@@ -22,6 +29,7 @@ class population:
         self.MaxSpecialDist = MaxSpecialDist         #max distance for compatibility between species
         self.MaxBrains = max_pop_brains              #max number of brains in the population at any given time 
         self.maxmutations = max_mutations_per_gen    #max number of mutations per generation
+        self.preserve_best = False                   #If true, best brain of every generation is preserved / does not mutate
         
         pass
     
@@ -126,9 +134,8 @@ class population:
         #go one by one and mutate them
         for specie in self.species:
             for brain in specie.brains:
-                mutations = brain.mutation_random(max_mutations = self.maxmutations)                         #update each of the brains
-            
-                
+                mutations = brain.mutation_random(max_mutations = self.maxmutations)           #update each of the brains
+             
                 #this loop only checks for innovations (toggle and update are not checked as they are not innov)
                 for mutation in mutations:
                     #check if the mutation already existed
@@ -528,7 +535,7 @@ class species:
         self.adjus_results = [] #list of all the adjus_results of the species, ordered in the same way as the brains              
         
         self.max_offspring = 1 #max number of offspring per species
-        self.brain_count=0     
+        self.brain_count = 0     
         pass
 
     

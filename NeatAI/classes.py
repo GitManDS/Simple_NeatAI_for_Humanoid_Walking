@@ -7,17 +7,21 @@ import matplotlib.pyplot as plt
 import os
 
 class population:
-    def __init__(self, NOI, NOO, Starting_brain_count=2, MaxSpecialDist=2.5, max_offspring = 3, max_pop_brains = 10, max_mutations_per_gen = 3, import_from_file = None) -> None:
+    def __init__(self, NOI, NOO, Starting_brain_count=2, MaxSpecialDist=2.5, 
+                 max_offspring = 3, max_pop_brains = 10, max_mutations_per_gen = 3, 
+                 import_brains_from_file = None, preserve_top_brain = False,
+                 import_population_from_file = None) -> None:
         self.species = []                       #list of all the brains in the species
         self.add_new_species()                  #create first species and append to species list  
 
-        new_brain = brain_fenotype(NOI,NOO) 
-        #if import_from_file is given, load the brain from the file
-        if import_from_file != None:
-            new_brain.load_mental_connections(import_from_file)       
-            
-        for i in range(Starting_brain_count):    
-            self.species[0].add_brain(new_brain.copy())
+        #if import_population_from_file is given, load the population from the file
+        if import_population_from_file != None:
+            self.load_population(import_population_from_file)
+        else:
+            #create a population from scratch using random brains or imported brains
+            #if import_brains_from_file is given, load the brain from the file         
+            for i in range(Starting_brain_count):    
+                self.species[0].add_brain(brain_fenotype(NOI,NOO, import_from_file=import_brains_from_file))
             
         
         self.innovation = 1                          #innovation counter  
@@ -29,7 +33,7 @@ class population:
         self.MaxSpecialDist = MaxSpecialDist         #max distance for compatibility between species
         self.MaxBrains = max_pop_brains              #max number of brains in the population at any given time 
         self.maxmutations = max_mutations_per_gen    #max number of mutations per generation
-        self.preserve_best = False                   #If true, best brain of every generation is preserved / does not mutate
+        self.preserve_top_brain = preserve_top_brain #If true, best brain of every generation is preserved / does not mutate
         
         pass
     
@@ -129,32 +133,50 @@ class population:
     #################### MUTATIONS AND GENERATIONAL TRANSMISION ####################
     #mutate a brain and see if it fits in any of the existing species
     #to fit in a species, it must match with all the brains in that species
-    def mutate_all(self):
+    def mutate_all(self):       
         #start mutation for all brains  in population
         #go one by one and mutate them
-        for specie in self.species:
-            for brain in specie.brains:
-                mutations = brain.mutation_random(max_mutations = self.maxmutations)           #update each of the brains
+        
+        #to preserve the top brain, we need to know which one it is
+        #find the index and then find the species and brain index
+        if self.preserve_top_brain:
+            brains_list = self.get_brains(brain_index_list=[0])
+            max_score = 0
+            max_index = 0
+            for brain_index, brain in enumerate(brains_list):
+                if brain.score > max_score:
+                    max_score = brain.score
+                    max_index = brain_index
+            
+            specie_index, brain_index = NAIsf.get_species_brain_index_from_single_index(self,max_index)        
+
+        for sp_index, specie in enumerate(self.species):
+            for br_index, brain in enumerate(specie.brains):
+                #preserve top brain
+                if self.preserve_top_brain and specie_index==sp_index and brain_index==br_index:
+                    mutations = {}        #no mutations for the top brain   
+                else:
+                    mutations = brain.mutation_random(max_mutations = self.maxmutations)           #update each of the brains
              
-                #this loop only checks for innovations (toggle and update are not checked as they are not innov)
-                for mutation in mutations:
-                    #check if the mutation already existed
-                    exists = 0 
-                    for key in self.inov_database:
-                        if mutations[mutation][1:] == self.inov_database[key]:
-                            #if it did, update the brain's genepool inovation counter
-                            brain.genepool[mutations[mutation][0]].inov = key
-                            #also go back 1 in the brain inovation counter
-                            brain.inov_counter -= 1
-                            
-                            exists = 1
-                            
-                    if not exists:
-                        #if it didn't, add it
-                        self.inov_database.update({mutation:mutations[mutation][1:]}) 
-                
-                if brain.inov_counter != self.innovation:       #helps save time for mutations such as toggle and update weight
-                    self.update_innovation(brain.inov_counter)  #update the innovation counter
+                    #this loop only checks for innovations (toggle and update are not checked as they are not innov)
+                    for mutation in mutations:
+                        #check if the mutation already existed
+                        exists = 0 
+                        for key in self.inov_database:
+                            if mutations[mutation][1:] == self.inov_database[key]:
+                                #if it did, update the brain's genepool inovation counter
+                                brain.genepool[mutations[mutation][0]].inov = key
+                                #also go back 1 in the brain inovation counter
+                                brain.inov_counter -= 1
+                                
+                                exists = 1
+                                
+                        if not exists:
+                            #if it didn't, add it
+                            self.inov_database.update({mutation:mutations[mutation][1:]}) 
+                    
+                    if brain.inov_counter != self.innovation:       #helps save time for mutations such as toggle and update weight
+                        self.update_innovation(brain.inov_counter)  #update the innovation counter
         
         #reorganize the brains in the population into species
         #[!] THIS IS A VERY IMPORTANT STEP AS DISTANCES CHANGE RADICALLY AFTER MUTATION
@@ -166,6 +188,8 @@ class population:
     #includes checks for speciation, species viability and offspring number
     def create_new_generation(self, prioritize_smaller_brains = False):
         
+        #since this is the first step where the population is being edited, bake the results in the brains
+        self.store_scores_in_brains()
         
         #first calculate and update the number of offspring for each species
         self.update_planned_offspring_count()
@@ -174,6 +198,7 @@ class population:
         self.populate_species()
         
         #order the pop by score
+        #also necessary if preserve top brain is on
         self = NAIsf.order_by_score(self) 
         
         #for each species, first remove all the brains that will not crossover
@@ -203,15 +228,18 @@ class population:
                 #the remaining will crossover with the first (dominant) brain
                 #while the number of brains is higher than the number of offspring + the dominant brain
                 while len(specie.brains) > specie.max_offspring+1:
-                    specie.remove_brain(brain_index=specie.max_offspring) #remove the first brain after the last max offspring brain parent
-                    specie.adjus_results.pop(specie.max_offspring)              #same for results
+                    specie.remove_brain(brain_index= len(specie.brains)-1)      #remove the first brain after the last max offspring brain parent
+                    specie.adjus_results.pop(len(specie.brains)-1)              #same for results
         
                 #crossover every recessive brain with the dominant brain in the species
                 dominant_index = 0
                 for brain_index in range(1,len(specie.brains)):
                     #combine the 2 brains
                     child_brain = NAIsf.combine_fenotypes(specie.brains[dominant_index],specie.brains[brain_index])
-
+                    
+                    #avoid fake results
+                    child_brain.score = 0
+                        
                     #place child in parent species 
                     self.migrate(child_brain, specie)
                     
@@ -229,6 +257,9 @@ class population:
                     #combine the 2 brains
                     child_brain = NAIsf.combine_fenotypes(specie.brains[dominant_index],specie.brains[recessive_index])
 
+                    #avoid fake results
+                    child_brain.score = 0
+                    
                     #place child in parent species 
                     self.migrate(child_brain, specie)
                                 
@@ -247,7 +278,8 @@ class population:
     #################### INFORMATION ####################   
     
     #prints the information about the existing species and brains
-    def print(self , ordered_by_score = False, include_results = False):
+    #simplified option won't print the brains, just the specie stats
+    def print(self , ordered_by_score = False, include_results = False, simplified = False):
         
         #optionally, we can print the species by score
         #for this, the species are ordered by score then for every species, the brains are ordered by score
@@ -260,11 +292,19 @@ class population:
         print(f"Number of species: {len(self.species)}, Number of brains: {self.brain_count}")
         for i,specie in enumerate(self.species):
             print(f"<SPECIE> = {i}:")
-            for j,brain in enumerate(specie.brains):
-                print(f"-->     <BRAIN> = {j}: (Conn Count = {len(brain.genepool)}, Node_Count = {brain.NodeCount})", end='')
+            if simplified:
+                #print simplified version
+                print(f"-->     <BRAIN COUNT> = {specie.brain_count}", end='')  
                 if include_results:
-                    print(f"        score: {specie.adjus_results[j]}",end='')
+                        print(f"        max score: {max(specie.adjus_results)}",end='')
                 print("")
+            else:
+                #print complete version
+                for j,brain in enumerate(specie.brains):
+                    print(f"-->     <BRAIN> = {j}: (Conn Count = {len(brain.genepool)}, Node_Count = {brain.NodeCount})", end='')
+                    if include_results:
+                        print(f"        score: {specie.adjus_results[j]}",end='')
+                    print("")
         print("------------ Population Print END------------")
         pass
 
@@ -472,7 +512,7 @@ class population:
         
         #calculate the adjusted fitness of every brain in the population
         for specie in self.species:
-            summed_adjusted_fitness.append(sum(specie.adjus_results)/len(specie.brains))
+            summed_adjusted_fitness.append(sum(specie.adjus_results))
             
         #calculate the number of offspring for each species by linear interpolation
         if len(self.species) != 1:
@@ -565,7 +605,7 @@ class species:
         #EXPLICIT FITNESS SHARING
         #to adjust the results, divide it by the number of brains of specie
         #this way, the results are normalized
-        self.adjus_results = [i/len(self.brains) for i in self.adjus_results]
+        #self.adjus_results = [i/len(self.brains) for i in self.adjus_results]
         pass
     
     #################### INFORMATION ####################
@@ -582,7 +622,7 @@ class species:
         pass
       
 class brain_fenotype:
-    def __init__(self,NOI,NOO):
+    def __init__(self,NOI,NOO, import_from_file = None):
         #initiliaze the brain with the minimum number of connections/nodes
         self.NOI = NOI                #number of input nodes
         self.NOO = NOO                #number of output nodes
@@ -593,11 +633,17 @@ class brain_fenotype:
         
         self.genepool = []            #list of all the connections in the brain
         self.inov_counter = 1
-        for i in range(NOO):
-            for j in range(NOI): #for each output node, connect it to each input node
-                rnd.seed = rnd.uniform(0,1000) #seed the random number generator
-                self.genepool.append(conn_gene(j,i+NOI,rnd.uniform(-1,1),self.inov_counter)) #add the connection to the genepool    
-                self.inov_counter += 1 #increment the innovation number
+        
+        #if import from file is specified, load the brain from the file
+        if import_from_file != None:
+            self.load_mental_connections(import_from_file)
+        else:
+            #else, a random simple brain is created
+            for i in range(NOO):
+                for j in range(NOI): #for each output node, connect it to each input node
+                    rnd.seed = rnd.uniform(0,1000) #seed the random number generator
+                    self.genepool.append(conn_gene(j,i+NOI,rnd.uniform(-1,1),self.inov_counter)) #add the connection to the genepool    
+                    self.inov_counter += 1 #increment the innovation number
         pass
     
     #creates copy of the brain and returns it
@@ -990,7 +1036,7 @@ class brain_fenotype:
         file = open(path, "w")
         
         #write to file
-        file.write(f"<NOI> = {self.NOI}, <NOO> = {self.NOO}, <NodeCount> = {self.NodeCount}\n")  
+        file.write(f"<NOI> = {self.NOI}, <NOO> = {self.NOO}, <NodeCount> = {self.NodeCount}, <LastNodeIndex> = {self.LastNodeIndex}\n")  
         for i,con in enumerate(self.genepool):
             file.write(f"[{con.status}] <{i}> Connection: {con.in_index} -> {con.out_index}: Weight = {con.weight}: Inovation = {con.inov}\n")
         
@@ -1015,8 +1061,10 @@ class brain_fenotype:
         
         #get info on the brain
         self.NOI = int(lines[0][7:lines[0].find(",",7)])
-        self.NOO = int(lines[0][lines[0].find("<NOO>")+7:lines[0].find(",",lines[0].find("<NOO>")+7)])
-        self.NodeCount = int(lines[0][lines[0].find("<NodeCount>")+13:-1])
+        self.NOO = int(lines[0][lines[0].find("<NOO>")+7 : lines[0].find(",",lines[0].find("<NOO>")+7)])
+        self.NodeCount = int(lines[0][lines[0].find("<NodeCount>")+13 : lines[0].find(",",lines[0].find("<NodeCount>")+13)])
+        self.NodeCount = int(lines[0][lines[0].find("<LastNodeIndex>")+17:-1])
+        
         
         #remove that information line
         lines.pop(0)

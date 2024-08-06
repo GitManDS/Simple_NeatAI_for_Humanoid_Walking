@@ -1,0 +1,16 @@
+robot_type : biped_freeman_simple.urdf
+joint_friction : 10
+torque_multiplier : 100
+GUI : True
+max_single_process_brains : 7
+max_processes : 4
+time_controlled:False 
+time_limit : 10
+step_limit : 600 
+max_TPS : None
+debug : False
+show_timer : False
+show_axis : False 
+show_IDs : False
+show_coords : False
+cam_focus_ID : None

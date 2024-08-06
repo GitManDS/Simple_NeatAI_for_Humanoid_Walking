@@ -46,3 +46,56 @@ def convert_input_to_joint_ranges(inputs):
             
     
     return positions
+
+#will load sim options from a file:
+def load_options_from_file():
+    #storage
+    options = {}
+    #expected options
+    expected_keys = {"robot_type": str,
+                     "joint_friction": float,
+                     "torque_multiplier": float,
+                     "GUI": bool , 
+                     "max_single_process_brains": int,
+                     "max_processes": int,
+                     "time_controlled": bool, 
+                     "step_limit": int, 
+                     "time_limit": int, 
+                     "max_TPS": int, 
+                     "debug": bool, 
+                     "show_IDs": bool, 
+                     "show_timer": bool, 
+                     "show_coords": bool, 
+                     "show_axis": bool,
+                     "cam_focus_ID": int}
+    
+    #open file
+    f = open("sim_options.txt", "r") 
+    
+    #read each line and extract the option
+    for line in f:
+        #split the line into key and value
+        key, value = line.split(":")
+        #take out any whitespace and remove the \n from the value
+        key = key.strip()
+        value = value.strip()
+        value = value.replace("\n", "")
+        
+        #check if the key is expected and convert the variable type of the value
+        if key in expected_keys:
+            if value == "None":
+                value = None
+            elif value == "True":
+                value = True
+            elif value == "False":
+                value = False
+            else:
+                value = expected_keys[key](value)
+        else:
+            print(f"[!] Unexpected key: {key}")
+            continue
+        
+        #add the key and value to the options
+        options[key] = value
+    
+    return options

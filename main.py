@@ -20,13 +20,11 @@ def objective_function_calculator(main_body_positions):
     obj_value = 0
     
     #add contribution of y value
-    obj_value += abs(main_body_positions[1])
+    obj_value += main_body_positions[1]
     
     #OLD
     #scale objective value by the z-1.11 (height) value of the body position
-    #max scaling = 25% of the objective value
-    #if z_final = 0 for instance, a 25% penalty is applied
-    obj_value *= abs((main_body_positions[2])/1.11)*0.25
+    obj_value += abs((main_body_positions[2])-1)*0.75*obj_value
     
     return obj_value
 
@@ -37,11 +35,12 @@ if __name__ == "__main__":
     #initialize AI population
     #7 NOI (3 robot position + 4 robot joint positions) and 8 NOO (4 robot joint torques)
     NeatAI_pop = cl.population(NOI = 7, NOO = 4, 
-                            Starting_brain_count= 4, 
-                            MaxSpecialDist= 0.15,
+                            Starting_brain_count= 20, 
+                            MaxSpecialDist= 0.25,
                             max_offspring= 5,
                             max_pop_brains= 30,
-                            max_mutations_per_gen=5)
+                            max_mutations_per_gen=8,
+                            preserve_top_brain=True)
 
 
 
@@ -52,6 +51,24 @@ if __name__ == "__main__":
     maxlist = []
     minlist = []
     avglist = []
+    
+    #options
+    options = {"robot_type" : "biped_freeman.urdf",
+            "joint_friction" : 10,
+            "torque_multiplier" : 100,
+            "GUI" : False,
+            "max_single_process_brains" : 7,
+            "max_processes" : 4,
+            "time_controlled":False, 
+            "time_limit" : 5,
+            "step_limit" : 1000, 
+            "max_TPS" : None,
+            "debug" : False,
+            "show_timer" : False, 
+            "show_axis" : False, 
+            "show_IDs" : False,
+            "show_coords" : False,
+            "cam_focus_ID" : None}
 
     #create new plot for debug
     plt.figure()
@@ -60,6 +77,25 @@ if __name__ == "__main__":
         
         ################### SIMULATION SETUP ###################
         
+        if True:
+            #load options from file
+            options = pbsf.load_options_from_file()
+        
+        max_single_process_brains = options["max_single_process_brains"]
+        robot_type= options["robot_type"]
+        joint_friction=options["joint_friction"]
+        torque_multiplier=options["torque_multiplier"]
+        GUI=options["GUI"]
+        time_controlled = options["time_controlled"]
+        step_limit = options["step_limit"]
+        max_processes = options["max_processes"]
+        time_limit = options["time_limit"]
+        max_TPS= options["max_TPS"]
+        debug= options["debug"]
+        show_IDs=options["show_IDs"]
+        show_timer=options["show_timer"]
+        show_coords=options["show_coords"]
+        
         #do general mutations and reorganization round
         #THIS HAS TO BE DONE BEFORE THE ROBOTS ARE CREATED SINCE IT SCREWS AROUND WITH THE BRAIN ORDER
         NeatAI_pop.mutate_all()
@@ -67,20 +103,20 @@ if __name__ == "__main__":
         #simulate the brains/robots in parallel
         clock_start = time.time()
         positions, sim_data = mpb.simulate(NeatAI_pop, 
-                                max_single_process_brains = 7,
-                                robot_type= "biped_freeman_simple.urdf",
-                                joint_friction=10,
-                                torque_multiplier=20,
-                                GUI=True,
-                                time_controlled = False, 
-                                step_limit = 300,
-                                max_processes = 4,
-                                time_limit = 10,
-                                max_TPS= 60,
-                                debug= False,
-                                show_IDs=True,
-                                show_timer=False,
-                                show_coords=True)
+                                max_single_process_brains = max_single_process_brains,
+                                robot_type= robot_type,
+                                joint_friction=joint_friction,
+                                torque_multiplier=torque_multiplier,
+                                GUI=GUI,
+                                time_controlled = time_controlled, 
+                                step_limit = step_limit,
+                                max_processes = max_processes,
+                                time_limit = time_limit,
+                                max_TPS= max_TPS,
+                                debug= debug,
+                                show_IDs=show_IDs,
+                                show_timer=show_timer,
+                                show_coords=show_coords)
         
         print("[!] sim time",time.time()-clock_start)
     
@@ -93,6 +129,9 @@ if __name__ == "__main__":
         #results of interest are y positions
         res = [objective_function_calculator(positions[robot]) for robot in positions]
         NeatAI_pop.update_results(results=res)
+        res2 = NeatAI_pop.get_results()
+        if res != res2:
+            print("results not the same")
         
         #save best brain
         maxlist.append(max(res))
@@ -108,11 +147,12 @@ if __name__ == "__main__":
             NeatAI_pop.species[specie_index].brains[brain_index].save_mental_picture(f"best_brain_pic.png",overwrite=True)
         
         #print results and other data
-        NeatAI_pop.print(include_results=True, ordered_by_score=True)
+        NeatAI_pop.print(include_results=True, ordered_by_score=True, simplified=True)
         print(f"max diff distance : {NeatAI_pop.get_max_speciation_difference_per_species()[0]}")   
             
         #prepare new gen with the best brains
-        NeatAI_pop.create_new_generation(prioritize_smaller_brains=False)
+        #NeatAI_pop.create_new_generation(prioritize_smaller_brains=False)
+        NeatAI_pop.store_scores_in_brains()
         
         #plot if debug is on
         plt.plot(maxlist, color='green')
@@ -125,6 +165,7 @@ if __name__ == "__main__":
         plt.pause(1)
         if gen < max_generations-1:
             plt.clf()
+            
         
     #save population
     plt.savefig("max_score.png")

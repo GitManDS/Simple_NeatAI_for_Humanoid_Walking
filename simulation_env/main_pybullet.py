@@ -32,6 +32,7 @@ class sim_client:
         self.nametag_id = None                          #nametag id for the identify robot function (if called/used)
         self.position_results = {}                      #results of the simulation
         self.sim_data = []                              #simulation data
+        self.robot_joint_count = 0                      #joint count of the robot (to be updated)
         
         #add assets folder
         assets_folder = "C:/Users/diogo serra/Desktop/trabalhos, documentose afixos de programas/TUDelft-MEaer/een/even semester/AI/Bipedal agent project/simulation_env/assets"
@@ -183,7 +184,6 @@ class sim_client:
     def match_brains_to_robots(self, brains_list, brain_keys=None):
         for brain_index, brain in enumerate(brains_list):
             self.add_robot(robot_ID = brain_keys[brain_index])
-        
           
         #manage collisions
         for robot_ID in self.robot_list:
@@ -225,7 +225,7 @@ class sim_client:
         #Get the position index of each index from -a to a
         #firts 5 joints are the reference joints
         if joint_list == None:
-            joint_list = range(5,self.Client.getNumJoints(robot))
+            joint_list = range(5,self.robot_joint_count)
     
         joint_pos_index = []
         for i in joint_list:
@@ -255,7 +255,7 @@ class sim_client:
         #first 5 joints are reference joints
         index = 0
         if joint_list == None:
-            joint_list = range(5,self.Client.getNumJoints(robot))
+            joint_list = range(5,self.robot_joint_count)
             
         for joint_index in joint_list:
             self.Client.setJointMotorControl2(robot, joint_index, self.Client.TORQUE_CONTROL, force=torque[index])
@@ -279,7 +279,7 @@ class sim_client:
         
         #first 5 joints are reference joints
         if joint_list == None:
-            joint_list = range(5,self.Client.getNumJoints(robot))
+            joint_list = range(5,self.robot_joint_count)
             
         index = 0
         for joint_index in joint_list:
@@ -458,7 +458,7 @@ class sim_client:
         #################
         
         types = {0:"REV",1:"PRIS",2:"SPHER",3:"PLAN",4:"FIXED"}
-        for i in range(self.Client.getNumJoints(robot)):
+        for i in range(self.robot_joint_count):
             info = self.Client.getJointInfo(robot,i)
             if type == None:
                 print(f"<{info[0]}> [{types[info[2]]}] {info[1]}]: pos={info[3]}, vel={info[4]}")
@@ -483,7 +483,7 @@ class sim_client:
         #################
         
         #get link count (joint count + 1)
-        link_count = self.Client.getNumJoints(robot) + 1
+        link_count = self.robot_joint_count + 1
         
         for i in range(link_count):
             info = self.Client.getLinkState(robot,i)
@@ -510,10 +510,14 @@ class sim_client:
         #create the robot
         robot = self.Client.loadURDF(self.robot_type, starting_pos, starting_orientation, useFixedBase=False)
         
+        #update joint count of robot if needed
+        if self.robot_joint_count == 0:
+            self.robot_joint_count = self.Client.getNumJoints(robot)
+        
         #relax the muscles/define standard friction
         #must not be 0
         jointFrictionForce = self.joint_friction
-        for joint in range(self.Client.getNumJoints(robot)):
+        for joint in range(self.robot_joint_count):
             self.Client.setJointMotorControl2(robot, joint, self.Client.POSITION_CONTROL, force=jointFrictionForce)
             
         #reference joints should be set at 0

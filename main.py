@@ -37,9 +37,9 @@ if __name__ == "__main__":
     #7 NOI (3 robot position + 4 robot joint positions) and 8 NOO (4 robot joint torques)
     NeatAI_pop = cl.population(NOI = 11, NOO = 4, 
                             Starting_brain_count= 4, 
-                            MaxSpecialDist= 0.15,
+                            MaxSpecialDist= 0.25,
                             max_offspring= 8,
-                            max_pop_brains= 30,
+                            max_pop_brains= 50,
                             max_mutations_per_gen=2,
                             preserve_top_brain=False)
 
@@ -73,6 +73,10 @@ if __name__ == "__main__":
 
     #create new plot for debug
     plt.figure()
+    
+    #delete old stop file
+    if os.path.exists("stop_sim_now"):
+        os.remove("stop_sim_now")
 
     for gen in range(max_generations):
         

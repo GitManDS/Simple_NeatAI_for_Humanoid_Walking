@@ -92,7 +92,7 @@ def compare_fenotypes(fenotype1,fenotype2):
     #excess and disjoint genes are more critical than weight differences
     c1 = 1               
     c2 = 1
-    c3 = 0.25
+    c3 = 0.4
     
     #get data for the final calculation
     bigger_fenotype_conn_count = max(len(fenotype1.genepool),len(fenotype2.genepool))

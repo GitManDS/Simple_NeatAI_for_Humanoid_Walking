@@ -233,10 +233,9 @@ class population:
         #this is species with the worst performing brains (last species (its ordered by score))
         self.update_species_brain_count()
         while self.brain_count > self.MaxBrains:
-            for specie in self.species:
-                #remove the last brains
-                self.species.pop()
-                self.update_species_brain_count()
+            #remove the last brains
+            self.species.pop()
+            self.update_species_brain_count()
         
         
         pass

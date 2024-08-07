@@ -67,7 +67,7 @@ def load_options_from_file():
                      "show_timer": bool, 
                      "show_coords": bool, 
                      "show_axis": bool,
-                     "cam_focus_ID": int}
+                     "cam_focus_ID": str}
     
     #open file
     f = open("sim_options.txt", "r") 
@@ -75,7 +75,7 @@ def load_options_from_file():
     #read each line and extract the option
     for line in f:
         #split the line into key and value
-        key, value = line.split(":")
+        key, value = line.split("=")
         #take out any whitespace and remove the \n from the value
         key = key.strip()
         value = value.strip()

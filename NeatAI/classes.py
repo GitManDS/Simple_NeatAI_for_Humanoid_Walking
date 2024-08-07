@@ -85,6 +85,7 @@ class population:
             for specie in self.species:
                 specie.update_results(results[cursor:cursor+len(specie.brains)], brain_index)
                 cursor += len(specie.brains)
+                
         pass
      
     #will reorganize the brains in the population into species
@@ -136,25 +137,13 @@ class population:
     def mutate_all(self):       
         #start mutation for all brains  in population
         #go one by one and mutate them
-        
-        #to preserve the top brain, we need to know which one it is
-        #find the index and then find the species and brain index
-        if self.preserve_top_brain:
-            brains_list = self.get_brains(brain_index_list=[0])
-            max_score = 0
-            max_index = 0
-            for brain_index, brain in enumerate(brains_list):
-                if brain.score > max_score:
-                    max_score = brain.score
-                    max_index = brain_index
-            
-            specie_index, brain_index = NAIsf.get_species_brain_index_from_single_index(self,max_index)        
-
-        for sp_index, specie in enumerate(self.species):
-            for br_index, brain in enumerate(specie.brains):
+        for specie in self.species:
+            for brain in specie.brains:
                 #preserve top brain
-                if self.preserve_top_brain and specie_index==sp_index and brain_index==br_index:
+                if brain.preserve:
+                    brain.preserve = False
                     mutations = {}        #no mutations for the top brain   
+
                 else:
                     mutations = brain.mutation_random(max_mutations = self.maxmutations)           #update each of the brains
              
@@ -186,10 +175,7 @@ class population:
     
     #creates a new generation of brains
     #includes checks for speciation, species viability and offspring number
-    def create_new_generation(self, prioritize_smaller_brains = False):
-        
-        #since this is the first step where the population is being edited, bake the results in the brains
-        self.store_scores_in_brains()
+    def create_new_generation(self):
         
         #first calculate and update the number of offspring for each species
         self.update_planned_offspring_count()
@@ -206,46 +192,24 @@ class population:
         for specie_index, specie in enumerate(self.species):
             if len(specie.brains) > 2:
                 
-                #get the list of results, reorder everything such that the results
-                #are in the order of the brains with the least to most connection in the genepool
-                #update results list
-                #WARNING: NUMBER OF OFFSPRING IS STILL DICTATED BY THE ORIGINAL ORDER OF THE BRAINS (POINTS BASED)
-                if prioritize_smaller_brains:              
-                    #get the list of the genepool sizes
-                    genepool_sizes=[]
-                    for i in range(len(specie.brains)):
-                        a=len(specie.brains[i].genepool)
-                        while a in genepool_sizes:             #lazy way of avoiding a list with 2 entries of the same value
-                            a+=1                            
-                        genepool_sizes.append(a)
-                    #order brains and results according to the genepool_sizes list
-                    genepool_sizes, ordered_lists = NAIsf.sort_lists(genepool_sizes, [specie.brains,specie.adjus_results], reverse=False)
-                    
-                    specie.brains = ordered_lists[0]
-                    specie.adjus_results = ordered_lists[1] 
-                
                 #remove the last brains
                 #the remaining will crossover with the first (dominant) brain
                 #while the number of brains is higher than the number of offspring + the dominant brain
                 while len(specie.brains) > specie.max_offspring+1:
-                    specie.remove_brain(brain_index= len(specie.brains)-1)      #remove the first brain after the last max offspring brain parent
-                    specie.adjus_results.pop(len(specie.brains)-1)              #same for results
+                    specie.remove_brain(brain_index = len(specie.brains)-1)      #remove the first brain after the last max offspring brain parent
         
                 #crossover every recessive brain with the dominant brain in the species
                 dominant_index = 0
                 for brain_index in range(1,len(specie.brains)):
                     #combine the 2 brains
                     child_brain = NAIsf.combine_fenotypes(specie.brains[dominant_index],specie.brains[brain_index])
-                    
-                    #avoid fake results
-                    child_brain.score = 0
                         
                     #place child in parent species 
                     self.migrate(child_brain, specie)
                     
             elif len(specie.brains)==2:                 #breaking up if statements to avoid errors with empty species
                 #if there only 2 species, crossover the dominant brain of the first species with the dominant brain of the second species
-                if specie.adjus_results[0] > self.species[1].adjus_results[0]:
+                if specie.brains[0].score > specie.brains[1].score:
                     dominant_index = 0
                     recessive_index = 1
                 else:
@@ -284,10 +248,11 @@ class population:
         #optionally, we can print the species by score
         #for this, the species are ordered by score then for every species, the brains are ordered by score
         #only makes sense if scores exist in the first place
-        if ordered_by_score and len(self.species[-1].adjus_results) > 0:
+        if ordered_by_score:
             self = NAIsf.order_by_score(self) 
         
         self.update_species_brain_count()
+        
         print("------------ Population Print ------------")
         print(f"Number of species: {len(self.species)}, Number of brains: {self.brain_count}")
         for i,specie in enumerate(self.species):
@@ -296,14 +261,16 @@ class population:
                 #print simplified version
                 print(f"-->     <BRAIN COUNT> = {specie.brain_count}", end='')  
                 if include_results:
-                        print(f"        max score: {max(specie.adjus_results)}",end='')
+                        print(f"        max score: {max(specie.specie_retrieve_scores_from_brains())}",end='')
                 print("")
             else:
                 #print complete version
                 for j,brain in enumerate(specie.brains):
-                    print(f"-->     <BRAIN> = {j}: (Conn Count = {len(brain.genepool)}, Node_Count = {brain.NodeCount})", end='')
+                    print(f"-->     <BRAIN> = {j}: (ID:{brain.brain_unique_ID}) (Conn Count = {len(brain.genepool)}, Node_Count = {brain.NodeCount})", end='')
                     if include_results:
-                        print(f"        score: {specie.adjus_results[j]}",end='')
+                        print(f"        score: {brain.score}",end='')
+                    if brain.preserve:
+                        print("        [PRESERVED]",end='')
                     print("")
         print("------------ Population Print END------------")
         pass
@@ -467,24 +434,6 @@ class population:
                 brain.update_nodecount()    
         pass
     
-    #same as update results but gets a list of the current results
-    #index specification works the same way
-    def get_results(self, specie_index = -1, brain_index = -1):
-        results = []
-        if specie_index != -1:
-            if brain_index != -1:
-                results= self.species[specie_index].adjus_results[brain_index] 
-            else:
-                results= self.species[specie_index].adjus_results 
-                
-        elif brain_index == -1:     #supplying a brain index but not a specie index is not allowed
-            #results for all species in all brains
-            cursor = 0
-            for specie in self.species:
-                results.append(specie.adjus_results)
-                
-        return results
-    
     #goes species by species and gets the max difference between the results of the brains
     #appends the max difference of each species to a list
     def get_max_speciation_difference_per_species(self):
@@ -512,10 +461,10 @@ class population:
         
         #calculate the adjusted fitness of every brain in the population
         for specie in self.species:
-            summed_adjusted_fitness.append(sum(specie.adjus_results))
+            summed_adjusted_fitness.append(sum(specie.specie_retrieve_scores_from_brains()))
             
         #calculate the number of offspring for each species by linear interpolation
-        if len(self.species) != 1:
+        if len(self.species) != 1 and max(summed_adjusted_fitness) != min(summed_adjusted_fitness):
             offspring_slope = (self.max_offspring - self.min_offspring)/(max(summed_adjusted_fitness)-min(summed_adjusted_fitness))
             
             for index, specie in enumerate(self.species):
@@ -549,36 +498,27 @@ class population:
                 cursor += 1
                 
         return all_brains
-        
-    #used for when the scores need to be bound to the brains, and not the species
-    def store_scores_in_brains(self):
-        for specie in self.species:
-            for brain_index, brain in enumerate(specie.brains):
-                brain.score = specie.adjus_results[brain_index]
-            
+                 
     #used for the ooposite of store_scores_in_brains, retrieves the scores, stores them in the species
     #also returns a complete list of scores
     def retrieve_scores_from_brains(self):
         scores = []
         for specie in self.species:
-            specie.specie_retrieve_scores_from_brains()
-            scores.append(specie.adjus_results)
+            for brain in specie.brains:
+                scores.append(brain.score)
             
         return scores
-        
-        
+             
     pass
            
 class species:
     def __init__(self) -> None:
         self.brains = [] #list of all the brains in the species
-        self.adjus_results = [] #list of all the adjus_results of the species, ordered in the same way as the brains              
-        
+     
         self.max_offspring = 1 #max number of offspring per species
         self.brain_count = 0     
         pass
-
-    
+ 
     #################### BRAINS MANAGEMENT ####################
     
     def add_brain(self,brain):
@@ -597,15 +537,22 @@ class species:
         pass
     
     def update_results(self,results, index = -1):
-        if index == -1:                             #all brain results
-            self.adjus_results = results
-        else:                                       #individual brian results
-            self.adjus_results[index] = results
-            
+        #udpate brain count
+        self.update_brain_count()
+        
         #EXPLICIT FITNESS SHARING
         #to adjust the results, divide it by the number of brains of specie
         #this way, the results are normalized
         #self.adjus_results = [i/len(self.brains) for i in self.adjus_results]
+        if index == -1:                             #all brain results
+            for brain_index, brain in enumerate(self.brains):
+                #brain.score = results[brain_index] / self.brain_count
+                brain.score = results[brain_index]
+        else:                                       #individual brian results
+            #self.brains[index].score = results/self.brain_count
+            brain.score = results[index]
+            
+        
         pass
     
     #################### INFORMATION ####################
@@ -617,19 +564,26 @@ class species:
     
     #retrive scores per brain in species
     def specie_retrieve_scores_from_brains(self):
+        #storage
+        scores = []
+        
+        
         for brain_index, brain in enumerate(self.brains):
-            self.adjus_results[brain_index] = brain.score
-        pass
+            scores.append(brain.score)
+            
+        return scores
       
 class brain_fenotype:
     def __init__(self,NOI,NOO, import_from_file = None):
         #initiliaze the brain with the minimum number of connections/nodes
+        self.brain_unique_ID = rnd.randint(0,1000)
         self.NOI = NOI                #number of input nodes
         self.NOO = NOO                #number of output nodes
         self.NodeCount = NOI + NOO    #total number of nodes
         self.LastNodeIndex = NOI + NOO - 1 #index of the last node (might be different to node count due to mutations) 
         self.score = 0                #lastest score of the brain
         self.AF_method = "tanh"       #activation function method
+        self.preserve = False         #if True, this brain will not be mutated
         
         self.genepool = []            #list of all the connections in the brain
         self.inov_counter = 1
@@ -649,11 +603,15 @@ class brain_fenotype:
     #creates copy of the brain and returns it
     def copy(self):
         new_brain = brain_fenotype(self.NOI,self.NOO)
-        new_brain.genepool = self.genepool.copy()
+        
+        #copy genepool (hardest part, can't use .copy because each connection is an object with a reference attatched)
+        new_brain.genepool = [con.copy() for con in self.genepool]
+               
         new_brain.inov_counter = self.inov_counter
         new_brain.NodeCount = self.NodeCount
         new_brain.LastNodeIndex = self.LastNodeIndex
         new_brain.score = self.score
+        new_brain.AF_method = self.AF_method
         return new_brain
     
     #from a given fenotype, compute the output of the brain
@@ -835,7 +793,7 @@ class brain_fenotype:
         #3 - toggle connection
         #4 - update weight
         rnd.seed = rnd.uniform(0,1000)
-        mutation_count = rnd.randint(1,max_mutations) #Up to 3 simultaneous mutations
+        mutation_count = rnd.randint(1,max_mutations) #Up to max_mutations simultaneous mutations
         
         for current_mutation_count in range(mutation_count):
             mutation = rnd.randint(0,4) 
@@ -1159,3 +1117,9 @@ class conn_gene:
     def Toggle(self):               # Toggles the status of the connection
         self.status = not self.status
         pass
+    
+    #copy the connection object without reference
+    def copy(self):
+        new_conn = conn_gene(self.in_index, self.out_index, self.weight, self.inov)
+        new_conn.status = self.status
+        return new_conn

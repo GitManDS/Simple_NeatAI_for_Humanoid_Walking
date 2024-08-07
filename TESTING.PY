@@ -26,21 +26,20 @@ def objective_function_calculator(main_body_positions):
     return obj_value
 
 #7 NOI (3 robot position + 4 robot joint positions) and 8 NOO (4 robot joint torques)
-NeatAI_pop = cl.population(NOI = 7, NOO = 4, 
+NeatAI_pop = cl.population(NOI = 11, NOO = 4, 
                             Starting_brain_count= 1, 
                             MaxSpecialDist= 0.15,
                             max_offspring= 5,
                             max_pop_brains= 30,
-                            max_mutations_per_gen=2)
-
-
-NeatAI_pop = cl.population(NOI = 11, NOO = 8,Starting_brain_count= 1, MaxSpecialDist= 0.2,
-                           max_offspring= 2,max_pop_brains= 10,max_mutations_per_gen=1, import_brains_from_file="best_brain.txt")
+                            max_mutations_per_gen=2,
+                            import_brains_from_file="test.txt")
 maxlist = []
+
 plt.figure()
 while True:
     positions, sim_data = mpb.simulate(NeatAI_pop, 
                     robot_type= "biped_freeman_simple.urdf",
+                    max_single_process_brains=70,
                     GUI=True,
                     time_controlled = False, 
                     step_limit = 600,
@@ -49,8 +48,8 @@ while True:
                     debug= False,
                     show_IDs=False,
                     show_timer=False,
-                    show_coords=False,
-                    show_axis=True,
+                    show_coords=True,
+                    show_axis=False,
                     cam_focus_ID="S0:B0")
     
     #calculate objective value

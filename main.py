@@ -3,6 +3,7 @@ import pybullet as pb
 import sys, os
 import matplotlib.pyplot as plt
 import time
+import math
 
 #files from other directories
 from simulation_env import pybullet_supporting_functions as pbsf
@@ -20,11 +21,11 @@ def objective_function_calculator(main_body_positions):
     obj_value = 0
     
     #add contribution of y value
-    obj_value += main_body_positions[1]
+    obj_value += math.exp(main_body_positions[1])
     
     #OLD
     #scale objective value by the z-1.11 (height) value of the body position
-    obj_value += abs((main_body_positions[2])-1)*0.75*obj_value
+    obj_value -= abs((main_body_positions[2])-1)*0.80*obj_value
     
     return obj_value
 
@@ -34,12 +35,12 @@ if __name__ == "__main__":
     ################### AI SETUP ###################
     #initialize AI population
     #7 NOI (3 robot position + 4 robot joint positions) and 8 NOO (4 robot joint torques)
-    NeatAI_pop = cl.population(NOI = 7, NOO = 4, 
-                            Starting_brain_count= 20, 
+    NeatAI_pop = cl.population(NOI = 11, NOO = 4, 
+                            Starting_brain_count= 4, 
                             MaxSpecialDist= 0.25,
                             max_offspring= 5,
                             max_pop_brains= 30,
-                            max_mutations_per_gen=8,
+                            max_mutations_per_gen=4,
                             preserve_top_brain=True)
 
 
@@ -122,16 +123,16 @@ if __name__ == "__main__":
     
         
         #debug
-        #print(f"[SIM END] -- t={sim_data[0]}s -- avg_TPS={sim_data[1]}")
 
         ################### RESULTS AND AI UPDATE ###################
         #update the population with the results
         #results of interest are y positions
         res = [objective_function_calculator(positions[robot]) for robot in positions]
+        if NeatAI_pop.preserve_top_brain:
+            max_index = res.index(max(res))
+            specie_index, brain_index = NAIsf.get_species_brain_index_from_single_index(NeatAI_pop,max_index)
+            NeatAI_pop.species[specie_index].brains[brain_index].preserve = True
         NeatAI_pop.update_results(results=res)
-        res2 = NeatAI_pop.get_results()
-        if res != res2:
-            print("results not the same")
         
         #save best brain
         maxlist.append(max(res))
@@ -147,12 +148,11 @@ if __name__ == "__main__":
             NeatAI_pop.species[specie_index].brains[brain_index].save_mental_picture(f"best_brain_pic.png",overwrite=True)
         
         #print results and other data
-        NeatAI_pop.print(include_results=True, ordered_by_score=True, simplified=True)
+        NeatAI_pop.print(include_results=True,ordered_by_score=True, simplified=False)
         print(f"max diff distance : {NeatAI_pop.get_max_speciation_difference_per_species()[0]}")   
             
         #prepare new gen with the best brains
-        #NeatAI_pop.create_new_generation(prioritize_smaller_brains=False)
-        NeatAI_pop.store_scores_in_brains()
+        NeatAI_pop.create_new_generation()
         
         #plot if debug is on
         plt.plot(maxlist, color='green')
@@ -165,6 +165,10 @@ if __name__ == "__main__":
         plt.pause(1)
         if gen < max_generations-1:
             plt.clf()
+            
+        #CHECK FOR IMMEDIATE TERMINATION FILE
+        if os.path.exists("stop_sim_now"):
+            break
             
         
     #save population

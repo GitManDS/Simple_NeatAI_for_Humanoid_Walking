@@ -65,7 +65,17 @@ class sim_client:
     
         #start clock
         self.clock_start = time.time()
-        main_body_position_old = [[0,0,0]] * len(self.robot_list)
+        
+        #SET CAMERA (centered)
+        self.Client.resetDebugVisualizerCamera(cameraDistance=5, 
+                                               cameraYaw=65, 
+                                               cameraPitch=-25, 
+                                               cameraTargetPosition=[0,0,0])
+        
+        #REMOVE THIS!!!!!!!!!!!!!!!!!!  [DEBUG ONLY]
+        '''
+        inputs = []
+        '''
         
         ######################## TIME CONTROLLED ########################
         
@@ -111,6 +121,13 @@ class sim_client:
         elif not time_controlled:
             #step once to begin simulation, but define first step as step 0
             self.Client.stepSimulation()
+            
+            #get initial robot positions
+            main_body_position_old = []
+            for robot_ID in self.robot_list:
+                main_body_position, main_body_rotation, joint_pos, joint_vel = self.get_robot_and_joints_position_rotation(self.robot_list[robot_ID])
+                main_body_position_old.append(main_body_position)
+            
             for self.step in range(step_limit):
                 
                 ############################# OPTIONAL/debug ############################# 
@@ -132,18 +149,25 @@ class sim_client:
                 for i, robot_ID in enumerate(self.robot_list):
                     #get robot info
                     #[5-L upper leg, 6- L lower leg, 8-R upper leg, 9-R lower leg]
-                    main_body_position, main_body_rotation, joint_pos_index = self.get_robot_and_joints_position_rotation(robot_ID=robot_ID, joint_list=[5,6,8,9])
+                    main_body_position, main_body_rotation, joint_pos, joint_vel = self.get_robot_and_joints_position_rotation(robot_ID=robot_ID, joint_list=[5,6,8,9])
                     
                     #get velocity from the last step (units/step) and update old pos
                     velocity = [main_body_position[j] - main_body_position_old[i][j] for j in range(3)]
                     main_body_position_old[i] = main_body_position
                     
                     #normalize the joint pos inputs
-                    #[TODO]
+                    velocity = [i/0.1 for i in velocity]
+                    joint_pos = joint_pos
+                    joint_vel = [i/10 for i in joint_vel]
+                    input = velocity + joint_pos + joint_vel    
                             
                     #calculate the output of the brain which corresponds to the torque to apply to the robot
-                    output, val = brains_list[i].compute_output(list(velocity)+list(joint_pos_index))
+                    output, val = brains_list[i].compute_output(input)
                     
+                    #REMOVE THIS!!!!!!!!!!!!!!!!!! [DEBUG ONLY]
+                    '''
+                    inputs.append(input)
+                    '''
                             
                     #self.apply_torque_to_robot(torque=output, robot_ID=robot_ID, joint_list=[5,6,8,9])
                     output=pbsf.convert_input_to_joint_ranges(output)
@@ -163,7 +187,7 @@ class sim_client:
         #1- get the robot info for every robot
         
         for robot_ID in self.robot_list:
-            main_body_position, main_body_rotation, joint_pos_index = self.get_robot_and_joints_position_rotation(self.robot_list[robot_ID])
+            main_body_position, main_body_rotation, joint_pos, joint_vel = self.get_robot_and_joints_position_rotation(self.robot_list[robot_ID])
             self.position_results.update({robot_ID: main_body_position})
             
         #2- get simulation data
@@ -173,6 +197,21 @@ class sim_client:
         
         #automatic disconnect/close the sim
         self.Client.disconnect() 
+        
+        #REMOVE THIS!!!!!!!!!!!!!!!!!!  [DEBUG ONLY]
+        '''
+        store = []
+        maxi = []
+        where_it_occoured = []
+        for i in range(len(inputs[0])):
+            for input_in in inputs:
+                store.append(input_in[i])
+            maxi.append(max(store))
+            where_it_occoured.append(store.index(max(store)))
+            store=[]
+        print(maxi)
+        print(where_it_occoured)
+        '''
         
         #return for immediate post processing
         return self.position_results, self.sim_data
@@ -227,13 +266,15 @@ class sim_client:
         if joint_list == None:
             joint_list = range(5,self.robot_joint_count)
     
-        joint_pos_index = []
+        joint_pos = []
+        joint_vel = []
         for i in joint_list:
-            joint_pos_index.append(self.Client.getJointState(robot,i)[0])
+            joint_pos.append(self.Client.getJointState(robot,i)[0])
+            joint_vel.append(self.Client.getJointState(robot,i)[1])
             pass
 
 
-        return main_body_position, main_body_rotation, joint_pos_index
+        return main_body_position, main_body_rotation, joint_pos, joint_vel
 
     #will apply a torque to the the joints of the robot
     #accepts a list of torques to apply to the robot in the following order of joints

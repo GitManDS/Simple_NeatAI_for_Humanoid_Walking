@@ -78,6 +78,8 @@ def combine_fenotypes(dominant_fenotype, recessive_fenotype):
     
     #update the nodecount
     child_fenotype.update_nodecount()
+    #make sure score is reset to worst value possible
+    child_fenotype.score = -1000
     
     return child_fenotype
 
@@ -235,30 +237,62 @@ def detect_loops(fenotype, critical_index, current_node_index, order = 2):
 #by default, it only orders brains
 #by giving a population, it sorts everything
 #FUNCTION NOT IN CLASSES ALLOWS FOR THE USE OF EITHER A POPULATION OR A SPECIE
-def order_by_score(element):
+def order_by_score(element, reverse = True):
+    
+    #define order direction
+    rev_mult = 1
+    if reverse:
+        rev_mult = -1
     
     if type(element) == classes.population:     #no species supplied, order all species and all brains
-        #EXPECT ELEMENT OF TYPE POPULATION    
-        max_score = []
         
         #order brains for each species
         for specie in element.species:
-            max_score.append(max(specie.adjus_results))
-            #order brains and convert to list
-            specie.adjus_results, ordered_lists = sort_lists(specie.adjus_results, [specie.brains], reverse=True)
-            
-            specie.brains = ordered_lists[0]
+            sorted = False
+            while not sorted:
+                sorted = True
+                for brain_i in range(1,len(specie.brains)):
+                    #check if current element is smaller than the previous
+                    if (specie.brains[brain_i].score - specie.brains[brain_i-1].score)*rev_mult < 0:
+                        #still not sorted
+                        sorted = False
+                        
+                        #correct main list
+                        temp_holder = specie.brains[brain_i]                   #store current
+                        specie.brains[brain_i] = specie.brains[brain_i-1]     #replace current with previous
+                        specie.brains[brain_i-1] = temp_holder                 #replace previous with current (temp)
         
         #order species
-        max_score, ordered_lists = sort_lists(max_score, [element.species], reverse=True)
-        element.species = ordered_lists[0]
+        sorted = False
+        while not sorted:   
+            sorted = True
+            for specie_i in range(1,len(element.species)):
+                #check if current element is smaller than the previous
+                if (element.species[specie_i].brains[0].score - element.species[specie_i-1].brains[0].score)*rev_mult < 0:
+                    #still not sorted
+                    sorted = False
+                    
+                    #correct main list
+                    temp_holder = element.species[specie_i]                     #store current
+                    element.species[specie_i] = element.species[specie_i-1]     #replace current with previous
+                    element.species[specie_i-1] = temp_holder                 #replace previous with current (temp)
     
     elif type(element) == classes.species:    #specie was defined, order brains of that species
-        #EXPECT ELEMENT OF TYPE SPECIE
-        #sort the species by results
-        element.adjus_results, ordered_lists = sort_lists(element.adjus_results, [element.brains], reverse=True)
         
-        element.brains = ordered_lists[0]
+        sorted = False
+        while not sorted:
+            sorted = True
+            for brain_i in range(1,len(element.brains)):
+                #check if current element is smaller than the previous
+                if (element.brains[brain_i] - element.brains[brain_i-1])*rev_mult < 0:
+                    #still not sorted
+                    sorted = False
+                    
+                    #correct main list
+                    temp_holder = element.brains[brain_i]                   #store current
+                    element.brains[brain_i] = element.brains[brain_i-1]     #replace current with previous
+                    element.brains[brain_i-1] = temp_holder                 #replace previous with current (temp)
+        
 
     else:
         exit("ERROR: element passed to order_by_score is not of type population or species")
@@ -284,7 +318,9 @@ def get_species_brain_index_from_single_index(pop, index):
         brain_index = 0
 
     return None, None
- 
+    
+    
+'''
 #helpfull function to sort lists according to the main list
 #will sort all lists and return them
 def sort_lists(main_list, lists=[], reverse = False):
@@ -318,4 +354,5 @@ def sort_lists(main_list, lists=[], reverse = False):
                 sorted = False
                 
     return main_list, lists
-     
+    
+'''

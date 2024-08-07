@@ -32,19 +32,21 @@ NeatAI_pop = cl.population(NOI = 11, NOO = 4,
                             max_offspring= 5,
                             max_pop_brains= 30,
                             max_mutations_per_gen=2,
-                            import_brains_from_file="test.txt")
+                            import_brains_from_file="best_brain.txt")
 maxlist = []
 
 plt.figure()
 while True:
     positions, sim_data = mpb.simulate(NeatAI_pop, 
                     robot_type= "biped_freeman_simple.urdf",
+                    joint_friction=10,
+                    torque_multiplier=400,
                     max_single_process_brains=70,
                     GUI=True,
                     time_controlled = False, 
                     step_limit = 600,
                     time_limit = 100,
-                    max_TPS= None,
+                    max_TPS= 60,
                     debug= False,
                     show_IDs=False,
                     show_timer=False,

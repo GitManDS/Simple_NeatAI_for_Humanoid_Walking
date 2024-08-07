@@ -11,17 +11,19 @@ class population:
                  max_offspring = 3, max_pop_brains = 10, max_mutations_per_gen = 3, 
                  import_brains_from_file = None, preserve_top_brain = False,
                  import_population_from_file = None) -> None:
+        
         self.species = []                       #list of all the brains in the species
-        self.add_new_species()                  #create first species and append to species list  
 
         #if import_population_from_file is given, load the population from the file
         if import_population_from_file != None:
+            self.add_new_species()                  #create first species and append to species list  
             self.load_population(import_population_from_file)
         else:
             #create a population from scratch using random brains or imported brains
             #if import_brains_from_file is given, load the brain from the file         
-            for i in range(Starting_brain_count):    
-                self.species[0].add_brain(brain_fenotype(NOI,NOO, import_from_file=import_brains_from_file))
+            for i in range(Starting_brain_count):   
+                self.add_new_species()                  #create first species and append to species list   
+                self.species[i].add_brain(brain_fenotype(NOI,NOO, import_from_file=import_brains_from_file))
             
         
         self.innovation = 1                          #innovation counter  
@@ -546,11 +548,9 @@ class species:
         #self.adjus_results = [i/len(self.brains) for i in self.adjus_results]
         if index == -1:                             #all brain results
             for brain_index, brain in enumerate(self.brains):
-                #brain.score = results[brain_index] / self.brain_count
-                brain.score = results[brain_index]
+                brain.score = results[brain_index] / self.brain_count
         else:                                       #individual brian results
-            #self.brains[index].score = results/self.brain_count
-            brain.score = results[index]
+            self.brains[index].score = results/self.brain_count
             
         
         pass

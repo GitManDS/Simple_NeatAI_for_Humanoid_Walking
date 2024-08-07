@@ -25,7 +25,7 @@ def objective_function_calculator(main_body_positions):
     
     #OLD
     #scale objective value by the z-1.11 (height) value of the body position
-    obj_value -= abs((main_body_positions[2])-1)*0.80*obj_value
+    obj_value *= abs((main_body_positions[2])-0.24)
     
     return obj_value
 
@@ -37,11 +37,11 @@ if __name__ == "__main__":
     #7 NOI (3 robot position + 4 robot joint positions) and 8 NOO (4 robot joint torques)
     NeatAI_pop = cl.population(NOI = 11, NOO = 4, 
                             Starting_brain_count= 4, 
-                            MaxSpecialDist= 0.25,
-                            max_offspring= 5,
+                            MaxSpecialDist= 0.15,
+                            max_offspring= 8,
                             max_pop_brains= 30,
-                            max_mutations_per_gen=4,
-                            preserve_top_brain=True)
+                            max_mutations_per_gen=2,
+                            preserve_top_brain=False)
 
 
 
@@ -148,7 +148,7 @@ if __name__ == "__main__":
             NeatAI_pop.species[specie_index].brains[brain_index].save_mental_picture(f"best_brain_pic.png",overwrite=True)
         
         #print results and other data
-        NeatAI_pop.print(include_results=True,ordered_by_score=True, simplified=False)
+        NeatAI_pop.print(include_results=True, ordered_by_score=True, simplified=True)
         print(f"max diff distance : {NeatAI_pop.get_max_speciation_difference_per_species()[0]}")   
             
         #prepare new gen with the best brains

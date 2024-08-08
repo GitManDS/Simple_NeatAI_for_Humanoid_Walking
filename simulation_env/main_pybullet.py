@@ -31,6 +31,7 @@ class sim_client:
         self.step_id = None                             #step id for the step count function (if called/used)
         self.nametag_id = None                          #nametag id for the identify robot function (if called/used)
         self.position_results = {}                      #results of the simulation
+        self.inputs = {}                                #inputs of the simulation
         self.sim_data = []                              #simulation data
         self.robot_joint_count = 0                      #joint count of the robot (to be updated)
         
@@ -72,10 +73,19 @@ class sim_client:
                                                cameraPitch=-25, 
                                                cameraTargetPosition=[0,0,0])
         
-        #REMOVE THIS!!!!!!!!!!!!!!!!!!  [DEBUG ONLY]
-        '''
-        inputs = []
-        '''
+        #for the storage of any input and the position of the robots
+        #need to initialize it here to avoid errors
+        self.inputs = {}
+        for robot_ID in self.robot_list:
+            self.inputs.update({robot_ID: []})  
+            self.position_results.update({robot_ID: []}) 
+            
+        #copy the robot list to avoid issues with the dictionary changing size during iteration
+        robot_list_copy = self.robot_list.copy() 
+        
+        '''REMOVE THIS LATER'''
+        #input_debug = []
+        
         
         ######################## TIME CONTROLLED ########################
         
@@ -146,10 +156,22 @@ class sim_client:
                 #WRITE FUNCTIONS TO RUN IN CODE HERE!!!
                 #
     
-                for i, robot_ID in enumerate(self.robot_list):
+                #catch case of no robots left to sim
+                if len(robot_list_copy) == 0:
+                    break
+
+                #for i, robot_ID in enumerate(self.robot_list):
+                i=0
+                robot_ID_list = list(robot_list_copy.keys())
+                while i < len(robot_list_copy):
+                    robot_ID = robot_ID_list[i]
                     #get robot info
                     #[5-L upper leg, 6- L lower leg, 8-R upper leg, 9-R lower leg]
-                    main_body_position, main_body_rotation, joint_pos, joint_vel = self.get_robot_and_joints_position_rotation(robot_ID=robot_ID, joint_list=[5,6,8,9])
+                    main_body_position, main_body_rotation, joint_pos, joint_vel = self.get_robot_and_joints_position_rotation(robot_ID=robot_ID, joint_list=[1,2,4,5])
+                               
+                    #convert rotation to euler angles
+                    main_body_rotation = list(self.Client.getEulerFromQuaternion(main_body_rotation))  
+                    main_body_rotation = [i/math.pi for i in main_body_rotation]     
                     
                     #get velocity from the last step (units/step) and update old pos
                     velocity = [main_body_position[j] - main_body_position_old[i][j] for j in range(3)]
@@ -159,20 +181,38 @@ class sim_client:
                     velocity = [i/0.1 for i in velocity]
                     joint_pos = joint_pos
                     joint_vel = [i/10 for i in joint_vel]
-                    input = velocity + joint_pos + joint_vel    
-                            
-                    #calculate the output of the brain which corresponds to the torque to apply to the robot
-                    output, val = brains_list[i].compute_output(input)
                     
-                    #REMOVE THIS!!!!!!!!!!!!!!!!!! [DEBUG ONLY]
-                    '''
-                    inputs.append(input)
-                    '''
+                    #create input
+                    input = velocity + main_body_rotation + joint_pos + joint_vel   
+                    
+                    '''REMOVE THIS LATER'''
+                    #input_debug.append(input)
                             
-                    #self.apply_torque_to_robot(torque=output, robot_ID=robot_ID, joint_list=[5,6,8,9])
-                    output=pbsf.convert_input_to_joint_ranges(output)
-                    self.apply_position_input_to_robot(position=output, robot_ID=robot_ID, joint_list=[5,6,8,9])
-                    pass
+                    #save the inputs for this robot
+                    #include step count as a way to measure time
+                    self.inputs[robot_ID].append(joint_pos + [main_body_position[2]] + main_body_rotation  + [self.step])
+                    
+                    #if the robot fell, delete it
+                    if main_body_position[2] < 0.25:
+                        self.position_results[robot_ID] = main_body_position
+                        self.Client.removeBody(robot_list_copy[robot_ID])
+                        robot_list_copy.pop(robot_ID)
+                        robot_ID_list.pop(i)
+                        
+                        #dont iterate to next robot since this one was deleted from the list
+                    
+                    else:
+                        #continue with the simulation for this robot
+                        
+                        #calculate the output of the brain which corresponds to the torque to apply to the robot
+                        output, val = brains_list[i].compute_output(input)
+                        
+                        #self.apply_torque_to_robot(torque=output, robot_ID=robot_ID, joint_list=[5,6,8,9])
+                        output=pbsf.convert_input_to_joint_ranges(output)
+                        self.apply_position_input_to_robot(position=output, robot_ID=robot_ID, joint_list=[1,2,4,5])
+                        
+                        #next robot
+                        i += 1
                 
                 #
                 #potential pause to match TPS
@@ -184,11 +224,10 @@ class sim_client:
                             
                 
         #get simulation results
-        #1- get the robot info for every robot
-        
-        for robot_ID in self.robot_list:
+        #1- get the robot info for every robot that wasn't deleted
+        for robot_ID in robot_list_copy:
             main_body_position, main_body_rotation, joint_pos, joint_vel = self.get_robot_and_joints_position_rotation(self.robot_list[robot_ID])
-            self.position_results.update({robot_ID: main_body_position})
+            self.position_results[robot_ID] = main_body_position
             
         #2- get simulation data
         sim_time = self.clock_start - time.time()
@@ -198,23 +237,22 @@ class sim_client:
         #automatic disconnect/close the sim
         self.Client.disconnect() 
         
-        #REMOVE THIS!!!!!!!!!!!!!!!!!!  [DEBUG ONLY]
-        '''
-        store = []
-        maxi = []
-        where_it_occoured = []
-        for i in range(len(inputs[0])):
-            for input_in in inputs:
-                store.append(input_in[i])
-            maxi.append(max(store))
-            where_it_occoured.append(store.index(max(store)))
-            store=[]
-        print(maxi)
-        print(where_it_occoured)
-        '''
+        '''REMOVE THIS LATER'''
+        '''USEFULL FOR TUNING NORMALIZATION
+        input_debug_max = input_debug[0]
+        max_index = [0]*len(input_debug_max)
+        for data_index in range(len(input_debug[0])):
+            for entry_index,entry in enumerate(input_debug):
+                if input_debug_max[data_index] < entry[data_index]:
+                    #found new max, store it
+                    input_debug_max[data_index] = entry[data_index]
+                    max_index[data_index] = entry_index
+        print(input_debug_max)
+        print(max_index)
+        '''    
         
         #return for immediate post processing
-        return self.position_results, self.sim_data
+        return self.position_results, self.inputs, self.sim_data
 
     #################### ROBOT CONTROL ####################
 
@@ -226,9 +264,8 @@ class sim_client:
           
         #manage collisions
         for robot_ID in self.robot_list:
-            first_link_index = 3
-            last_link_index = 10
-            for link_id in range(first_link_index,last_link_index+1):
+            last_link_index = 7
+            for link_id in range(0,last_link_index+1):
                 #disable the robot collisions between each other
                 self.Client.setCollisionFilterGroupMask(self.robot_list[robot_ID], link_id, 0, 0)
                 #enable the robot collisions with the plane
@@ -324,7 +361,11 @@ class sim_client:
             
         index = 0
         for joint_index in joint_list:
-            self.Client.setJointMotorControl2(robot, joint_index, self.Client.POSITION_CONTROL, targetPosition = position[index], force=self.joint_torque_multiplier)
+            self.Client.setJointMotorControl2(robot, joint_index, 
+                                              self.Client.POSITION_CONTROL, 
+                                              targetPosition = position[index], 
+                                              targetVelocity = 10,
+                                              force=self.joint_torque_multiplier)
             index += 1
         
         pass
@@ -605,7 +646,7 @@ def simulate(pop,
         keys_list = pbsf.create_robot_list_keys(pop)
         
         #run sim and get results
-        positions, sim_data = single_process_simulation(brains_list,keys_list,
+        positions, inputs, sim_data = single_process_simulation(brains_list,keys_list,
              robot_type=robot_type,
              joint_friction=joint_friction,
              torque_multiplier=torque_multiplier,
@@ -623,7 +664,7 @@ def simulate(pop,
     
     #if the number of brains is more than the max_processes, then run a multi process
     else: 
-        positions, sim_data = multiprocess_simulations(pop,
+        positions, inputs, sim_data = multiprocess_simulations(pop,
                                 robot_type=robot_type,
                                 joint_friction=joint_friction,
                                 torque_multiplier=torque_multiplier,
@@ -642,7 +683,7 @@ def simulate(pop,
         
         
         
-    return positions, sim_data
+    return positions, inputs, sim_data
 
 #will create a simulation client and run it with the specified parameters
 #MAIN FUNCTION TO RUN THE SIMULATION
@@ -692,10 +733,10 @@ def single_process_simulation(brains_list,keys_list,
     
     #update if multithread
     if multiprocess_id != None:
-        multiprocess_data[multiprocess_id] = sim.position_results
+        multiprocess_data[multiprocess_id] = [sim.position_results,sim.inputs,sim.sim_data]
     
     #return sim data
-    return sim.position_results, sim.sim_data
+    return sim.position_results, sim.inputs , sim.sim_data
 
 #creates the simulations and runs them in parallel
 def multiprocess_simulations(pop,
@@ -717,6 +758,7 @@ def multiprocess_simulations(pop,
     
     #storage
     positions = {}
+    inputs = {}
     sim_data = []
     
     #max number of processs
@@ -812,6 +854,7 @@ def multiprocess_simulations(pop,
     #get data
     positions_dict_list = multiprocess_data.values()
     for i in range(len(positions_dict_list)):
-        positions.update(positions_dict_list[i])
+        positions.update(positions_dict_list[i][0])
+        inputs.update(positions_dict_list[i][1])
     
-    return positions, sim_data
+    return positions, inputs, sim_data

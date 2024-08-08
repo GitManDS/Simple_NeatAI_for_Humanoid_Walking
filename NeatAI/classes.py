@@ -603,8 +603,7 @@ class brain_fenotype:
     def copy(self):
         new_brain = brain_fenotype(self.NOI,self.NOO)
         
-        #copy genepool (hardest part, can't use .copy because each connection is an object with a reference attatched)
-        new_brain.genepool = [con.copy() for con in self.genepool]
+        new_brain.genepool = self.copy_genepool()
                
         new_brain.inov_counter = self.inov_counter
         new_brain.NodeCount = self.NodeCount
@@ -612,6 +611,11 @@ class brain_fenotype:
         new_brain.score = self.score
         new_brain.AF_method = self.AF_method
         return new_brain
+    
+    #creates a copy of the genepool only and returns it
+    def copy_genepool(self):
+        #copy genepool (hardest part, can't use .copy because each connection is an object with a reference attatched)
+        return [con.copy() for con in self.genepool]
     
     #from a given fenotype, compute the output of the brain
     #given the input

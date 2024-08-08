@@ -37,6 +37,10 @@ def combine_fenotypes(dominant_fenotype, recessive_fenotype):
     #a copy of the dominant fenotype is created
     child_fenotype = dominant_fenotype.copy()
     
+    #copy of the recessive fenotype genepool is created to speed up the process
+    #this way the recessive fenotype genepool can be modified without affecting the original
+    recessive_fenotype_genepool = recessive_fenotype.copy_genepool()
+    
     #get all the inovation numbers that exist in the dominant fenotype
     existant_inov = []
     for con in dominant_fenotype.genepool:
@@ -44,42 +48,42 @@ def combine_fenotypes(dominant_fenotype, recessive_fenotype):
         if con.inov not in existant_inov:   
             existant_inov.append(con.inov)
     
-    #disjoint genes need to be added to the child from the recessive
-    #excess genes do NOT need to be added to the child
-    #do so by checking if there are genes in the recessive with a inovation number that doesn't exist in the dominant
-    speed_cursor = 0   #disjoint and recessive genes will be inserted from left to right always, this helps speed it up
-    for con in recessive_fenotype.genepool:
-        #check if theres a connection that doesn't exist in child
-        #AND it cannot be an excess connection from the recessive
-        if con.inov not in existant_inov and con.inov < child_fenotype.genepool[-1].inov:  
-            #this connection is disjoint or excess
-            #need to check if it exists in the child already
-            if search_con_index(child_fenotype.genepool,con.in_index,con.out_index) == -1:
-                #it doesn't exist, still need to check if adding it would result in a loop
-                #do this by checking if by connecting the in_index(critical) to the out_index, a loop is created
-                if detect_loops(child_fenotype,con.in_index,con.out_index, order = 10) == False:
-                    #loop not detected, add connection
-
-                    #search for index to place the connection
-                    #speed cursor is conserved in the for loop to speed up the process
-                    while speed_cursor < len(child_fenotype.genepool):
-                        if child_fenotype.genepool[speed_cursor].inov > con.inov:   #stops in the node after the one to be inserted
-                            child_fenotype.genepool.insert(speed_cursor,con)
-                            break
-                        speed_cursor += 1
-                else:
-                    if debug:
-                        print(f"[LOOP] Loop detected, connection with inov {con.inov} from {con.in_index} to {con.out_index} not added")
-                        ttf.record_to_text_file(f"[LOOP] Loop detected, connection with inov {con.inov} from {con.in_index} to {con.out_index} not added")
+    #disjoint and excess genes do not need to be added to the child (they come from the dominant parent)
+    #matching genes are randomly selected from the parents
+    #go over the dominant parent and check if they exist in the recessive parent
+    for dom_con_index, dominant_con in enumerate(dominant_fenotype.genepool):
+        
+        recessive_con_index = 0      
+        while recessive_con_index < len(recessive_fenotype_genepool):
+            #up until this point, it is assured that 2 identical connections get the same inovation number
+            if dominant_con.inov == recessive_fenotype_genepool[recessive_con_index].inov:
+                #matching gene
+                #randomly select one of the parents to get the connection from
+                rnd.seed = rnd.randint(0,1000)
+                if rnd.randint(0,1) == 1:
+                    #get connection from dominant parent
+                    #[!] USE COPY() TO AVOID REFERENCE ERRORS
+                    child_fenotype.genepool[dom_con_index] = recessive_fenotype_genepool[recessive_con_index].copy()
+                #else:
+                    #do nothing, connection is already from dominant parent
+                
+                #remove the connection from the recessive genepool
+                #this helps speed up search time 
+                recessive_fenotype_genepool.pop(recessive_con_index)
+                break
             else:
-                if debug:
-                    print(f"[DUPLICATE] Connection with inov {con.inov} from {con.in_index} to {con.out_index} already exists")
-                    ttf.record_to_text_file(f"[DUPLICATE] Connection with inov {con.inov} from {con.in_index} to {con.out_index} already exists")
-    
+                #iterate
+                recessive_con_index += 1
+            
+        
+            
     #update the nodecount
     child_fenotype.update_nodecount()
     #make sure score is reset to worst value possible
     child_fenotype.score = -1000
+    
+    ##debug
+    #vz.draw_fenotype_list([dominant_fenotype,recessive_fenotype,child_fenotype])
     
     return child_fenotype
 
@@ -355,4 +359,69 @@ def sort_lists(main_list, lists=[], reverse = False):
                 
     return main_list, lists
     
+
+
+
+#combine and merge 2 fenotypes according to innavtion numbers
+#only invoke after confirming that speciation is the same!!!
+#use compare_fenotypes to check distance before this
+def combine_fenotypes(dominant_fenotype, recessive_fenotype):
+    #debug
+    debug = False
+    
+    #a copy of the dominant fenotype is created
+    child_fenotype = dominant_fenotype.copy()
+    
+    #get all the inovation numbers that exist in the dominant fenotype
+    existant_inov = []
+    for con in dominant_fenotype.genepool:
+        #note down all the inovation numbers that appear if they haven't been noted down already
+        if con.inov not in existant_inov:   
+            existant_inov.append(con.inov)
+    
+    #disjoint genes need to be added to the child from the recessive
+    #excess genes do NOT need to be added to the child
+    #do so by checking if there are genes in the recessive with a inovation number that doesn't exist in the dominant
+    speed_cursor = 0   #disjoint and recessive genes will be inserted from left to right always, this helps speed it up
+    for con in recessive_fenotype.genepool:
+        
+        #check if theres a connection that doesn't exist in child
+        #AND it cannot be an excess connection from the recessive
+        if con.inov not in existant_inov and con.inov < child_fenotype.genepool[-1].inov:  
+            
+            #this connection is disjoint or excess
+            #need to check if it exists in the child already
+            if search_con_index(child_fenotype.genepool,con.in_index,con.out_index) == -1:
+                
+                #it doesn't exist, still need to check if adding it would result in a loop
+                #do this by checking if by connecting the in_index(critical) to the out_index, a loop is created
+                
+                if detect_loops(child_fenotype,con.in_index,con.out_index, order = 10) == False:
+                    #loop not detected, add connection
+
+                    #search for index to place the connection
+                    #speed cursor is conserved in the for loop to speed up the process
+                    while speed_cursor < len(child_fenotype.genepool):
+                        if child_fenotype.genepool[speed_cursor].inov > con.inov:   #stops in the node after the one to be inserted
+                            child_fenotype.genepool.insert(speed_cursor,con)
+                            break
+                        speed_cursor += 1
+                else:
+                    if debug:
+                        print(f"[LOOP] Loop detected, connection with inov {con.inov} from {con.in_index} to {con.out_index} not added")
+                        ttf.record_to_text_file(f"[LOOP] Loop detected, connection with inov {con.inov} from {con.in_index} to {con.out_index} not added")
+            else:
+                if debug:
+                    print(f"[DUPLICATE] Connection with inov {con.inov} from {con.in_index} to {con.out_index} already exists")
+                    ttf.record_to_text_file(f"[DUPLICATE] Connection with inov {con.inov} from {con.in_index} to {con.out_index} already exists")
+    
+    #update the nodecount
+    child_fenotype.update_nodecount()
+    #make sure score is reset to worst value possible
+    child_fenotype.score = -1000
+    
+    ##debug
+    vz.draw_fenotype_list([dominant_fenotype,recessive_fenotype,child_fenotype])
+    
+    return child_fenotype
 '''

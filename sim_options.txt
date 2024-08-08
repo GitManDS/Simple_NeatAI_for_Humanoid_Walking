@@ -1,6 +1,6 @@
-robot_type = biped_freeman_abs.urdf
+robot_type = biped_2d_simple.urdf
 joint_friction = 5
-torque_multiplier = 25
+torque_multiplier = 200
 GUI = True
 max_single_process_brains = 7
 max_processes = 4

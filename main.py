@@ -35,53 +35,62 @@ def objective_function_calculator(main_body_positions, inputs):
                
         #WALKING TRAINING
         #add contribution of y value
-        #obj_value.append(math.exp(main_body_positions[robot_ID][1]))
+        distance_travelled = main_body_positions[robot_ID][1]
+        obj_value.append(math.exp(distance_travelled))
         
         #STANDING TRAINING
-        obj_value.append(0)
+        #obj_value.append(0)
               
         #add contribution of the inputs
         #first for every robot, a list is created with the joint positions of the 2 upper legs at every step
         L_leg_integral = 0
         R_leg_integral = 0
+        L_leg_pos = []
+        R_leg_pos = []
+        alternating_leg_integral = 0
         rot_integral = 0
-        y_pos_integral = 0
+        z_pos_integral = 0
         for entry in inputs[robot_ID]:
-            #get the first value (L leg) and the third value (R leg)
-            current_robot_input.append([entry[0],entry[2]])  
-            
+                  
             #integrate the input values over the step for the L leg
-            L_leg_integral += abs(current_robot_input[-1][0])
+            L_leg_pos.append(entry[0])
+            L_leg_integral += abs(entry[0])
             #integrate the input values over the step for the R leg
-            R_leg_integral += abs(current_robot_input[-1][1])
+            R_leg_pos.append(entry[2])
+            R_leg_integral += abs(entry[2])
+            
+            #get the alternating leg integral
+            alternating_leg_integral += abs(entry[0]+entry[2])
             
             #integrate the position z over the step
-            y_pos_integral += abs(entry[4])
+            z_pos_integral += abs(main_body_positions[robot_ID][2])
             
             #integrate the rotation values over the step for the x,y,z values
             #this is done by summing the absolute values of the rotation values
-            rot_integral += sum([abs(x) for x in entry[4:-1]])
+            rot_integral += abs(entry[4])
             
 
 
         #scale objective value by the z-1.11 (height) value of the body position
         #if final height is 0.24, the obj value is set to ~0
         #obj_value[robot_index] -= abs((main_body_positions[robot_ID][2])-0.25) * 100
-        obj_value[robot_index] -= abs(y_pos_integral/(0.2*step_count)) * 100
+        obj_value[robot_index] += abs(1-(z_pos_integral/(1*step_count))) * distance_travelled
         
-        '''
         #update the objective value for a penalty related to the integrals
         #the integral should be scaled by the max value of the integral (2 (legs) *  area of the rectangle with height 1.5 and width step_count)
-        obj_value[robot_index] += (abs(L_leg_integral+R_leg_integral)/(2*1.5*step_count)) * 0.25 * 100
+        obj_value[robot_index] += abs(1-((L_leg_integral+R_leg_integral)/(2*1.5*step_count))) * 0.25 * distance_travelled
         
         #update the objective value for a penalty related to the rotation integral
         #the integral should be scaled by the max value of the integral (3 (rotation values) *  area of the rectangle with height 1 and width step_count)
-        obj_value[robot_index] -= (abs(rot_integral)/(3*1*step_count)) * 0.25 * 100
+        obj_value[robot_index] += abs(1-((rot_integral)/(1*step_count))) * 0.25 * distance_travelled
         
         #add bonus points for time survived
-        obj_value[robot_index] += step_count/max(step_count_list) * 0.05 * 100
-        ''' 
+        obj_value[robot_index] += abs(step_count/(sum(step_count_list)/len(step_count_list))) * 0.25 * distance_travelled
         
+        #add bonus points for alternating legs
+        #2 now means the area created when the 2 legs are at the same position
+        obj_value[robot_index] += abs(1-((alternating_leg_integral)/(2*1.5*step_count))) * 0.1 * distance_travelled
+           
     
     return obj_value
 
@@ -90,14 +99,16 @@ if __name__ == "__main__":
 
     ################### AI SETUP ###################
     #initialize AI population
-    #7 NOI (3 robot position + 4 robot joint positions) and 8 NOO (4 robot joint torques)
-    NeatAI_pop = cl.population(NOI = 14, NOO = 4, 
-                            Starting_brain_count= 8, 
+    #11 NOI (2 robot velocities) + 4 (robot joint positions) + 4 (robot joint velocities) + 1 (robot rotation)  
+    #4 NOO (4 robot joint torques)
+    NeatAI_pop = cl.population(NOI = 11, NOO = 4, 
+                            Starting_brain_count= 4, 
                             MaxSpecialDist= 0.25,
                             max_offspring= 8,
                             max_pop_brains= 50,
                             max_mutations_per_gen=2,
-                            preserve_top_brain=False)
+                            preserve_top_brain=False,
+                            import_population_from_file="final_pop.txt")
 
 
 
@@ -106,6 +117,7 @@ if __name__ == "__main__":
     max_generations = 100
     max_y = 0
     maxlist = []
+    maxdist = []
     minlist = []
     avglist = []
     
@@ -196,6 +208,7 @@ if __name__ == "__main__":
         NeatAI_pop.update_results(results=res)
         
         #save best brain
+        maxdist.append(max(positions.values(), key=lambda x: x[1])[1])
         maxlist.append(max(res))
         minlist.append(min(res))
         avglist.append(sum(res)/len(res))
@@ -216,9 +229,7 @@ if __name__ == "__main__":
         NeatAI_pop.create_new_generation()
         
         #plot if debug is on
-        plt.plot(maxlist, color='green')
-        plt.plot(minlist, color='red')
-        plt.plot(avglist, color='blue')
+        plt.plot(maxdist, color='green')
         plt.legend(["max","min","avg"])
         plt.xlabel("Generation")
         plt.ylabel("max_score")
@@ -235,6 +246,7 @@ if __name__ == "__main__":
     #save population
     plt.savefig("max_score.png")
     NeatAI_pop.save_population("final_pop.txt")
+    NeatAI_pop.save_population(f"final_pop_{time.time()}.txt")
 
 
 

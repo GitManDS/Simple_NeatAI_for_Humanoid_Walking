@@ -25,6 +25,7 @@ class sim_client:
         self.robot_type = robot_type                    #type of robot to be used
         self.joint_friction = 10                        #friction of the robot  
         self.joint_torque_multiplier = 100              #torque multiplier for the robot
+        self.target_joint_velocity = 2                #target joint velocity for the robot
         self.clock_start = 0                            #start time of the simulation
         self.step   = 0                                 #current/last step of the simulation
         self.timer_id = None                            #timer id for the timer function (if called/used)
@@ -34,6 +35,7 @@ class sim_client:
         self.inputs = {}                                #inputs of the simulation
         self.sim_data = []                              #simulation data
         self.robot_joint_count = 0                      #joint count of the robot (to be updated)
+        self.relevant_joints = [5,6,8,9]                       #joints to search info for and apply forces to
         
         #add assets folder
         assets_folder = "C:/Users/diogo serra/Desktop/trabalhos, documentose afixos de programas/TUDelft-MEaer/een/even semester/AI/Bipedal agent project/simulation_env/assets"
@@ -113,7 +115,8 @@ class sim_client:
                         
                 #WRITE FUNCTIONS TO RUN IN CODE HERE!!!
                 #
-                    
+                   
+                self.apply_position_input_to_robot(position=[1.5], robot = None, robot_ID = "S0:B0", joint_list = [5])
                 
                 #
                 #check if time limit has been reached
@@ -140,6 +143,10 @@ class sim_client:
             
             for self.step in range(step_limit):
                 
+                #catch case of no robots left to sim
+                if len(robot_list_copy) == 0:
+                    break
+                
                 ############################# OPTIONAL/debug ############################# 
                 if debug:
                     if show_timer:
@@ -151,15 +158,21 @@ class sim_client:
                     if show_coords:
                         self.show_coords()
                 if cam_focus_ID != None:
+                    if cam_focus_ID == "BEST":
+                        #find the robot with the highest y position
+                        y_pos = 0
+                        for robot_ID in robot_list_copy:
+                            main_body_position, main_body_rotation, joint_pos, joint_vel = self.get_robot_and_joints_position_rotation(robot_ID=robot_ID, joint_list=self.relevant_joints)
+                            if main_body_position[1] > y_pos:
+                                y_pos = main_body_position[1]
+                                cam_focus_ID = robot_ID   
+                                
                     self.focus_camera(robot_ID=cam_focus_ID) 
                         
                 #WRITE FUNCTIONS TO RUN IN CODE HERE!!!
                 #
     
-                #catch case of no robots left to sim
-                if len(robot_list_copy) == 0:
-                    break
-
+            
                 #for i, robot_ID in enumerate(self.robot_list):
                 i=0
                 robot_ID_list = list(robot_list_copy.keys())
@@ -167,7 +180,7 @@ class sim_client:
                     robot_ID = robot_ID_list[i]
                     #get robot info
                     #[5-L upper leg, 6- L lower leg, 8-R upper leg, 9-R lower leg]
-                    main_body_position, main_body_rotation, joint_pos, joint_vel = self.get_robot_and_joints_position_rotation(robot_ID=robot_ID, joint_list=[1,2,4,5])
+                    main_body_position, main_body_rotation, joint_pos, joint_vel = self.get_robot_and_joints_position_rotation(robot_ID=robot_ID, joint_list=self.relevant_joints)
                                
                     #convert rotation to euler angles
                     main_body_rotation = list(self.Client.getEulerFromQuaternion(main_body_rotation))  
@@ -177,20 +190,22 @@ class sim_client:
                     velocity = [main_body_position[j] - main_body_position_old[i][j] for j in range(3)]
                     main_body_position_old[i] = main_body_position
                     
-                    #normalize the joint pos inputs
-                    velocity = [i/0.1 for i in velocity]
+                    #normalize the joint and pos inputs
+                    #rotation goes from -1 to 1
+                    velocity = [i*100 for i in velocity]
                     joint_pos = joint_pos
                     joint_vel = [i/10 for i in joint_vel]
                     
+                    
                     #create input
-                    input = velocity + main_body_rotation + joint_pos + joint_vel   
+                    input = [velocity[1]] + [velocity[2]] + [main_body_rotation[0]] + joint_pos + joint_vel   
                     
                     '''REMOVE THIS LATER'''
                     #input_debug.append(input)
                             
                     #save the inputs for this robot
                     #include step count as a way to measure time
-                    self.inputs[robot_ID].append(joint_pos + [main_body_position[2]] + main_body_rotation  + [self.step])
+                    self.inputs[robot_ID].append(joint_pos + [main_body_rotation[0]]  + [self.step])
                     
                     #if the robot fell, delete it
                     if main_body_position[2] < 0.25:
@@ -209,7 +224,7 @@ class sim_client:
                         
                         #self.apply_torque_to_robot(torque=output, robot_ID=robot_ID, joint_list=[5,6,8,9])
                         output=pbsf.convert_input_to_joint_ranges(output)
-                        self.apply_position_input_to_robot(position=output, robot_ID=robot_ID, joint_list=[1,2,4,5])
+                        self.apply_position_input_to_robot(position=output, robot_ID=robot_ID, joint_list=self.relevant_joints)
                         
                         #next robot
                         i += 1
@@ -243,10 +258,11 @@ class sim_client:
         max_index = [0]*len(input_debug_max)
         for data_index in range(len(input_debug[0])):
             for entry_index,entry in enumerate(input_debug):
-                if input_debug_max[data_index] < entry[data_index]:
+                if abs(input_debug_max[data_index]) < abs(entry[data_index]):
                     #found new max, store it
-                    input_debug_max[data_index] = entry[data_index]
+                    input_debug_max[data_index] = abs(entry[data_index])
                     max_index[data_index] = entry_index
+                    
         print(input_debug_max)
         print(max_index)
         '''    
@@ -264,7 +280,7 @@ class sim_client:
           
         #manage collisions
         for robot_ID in self.robot_list:
-            last_link_index = 7
+            last_link_index = 13
             for link_id in range(0,last_link_index+1):
                 #disable the robot collisions between each other
                 self.Client.setCollisionFilterGroupMask(self.robot_list[robot_ID], link_id, 0, 0)
@@ -364,7 +380,7 @@ class sim_client:
             self.Client.setJointMotorControl2(robot, joint_index, 
                                               self.Client.POSITION_CONTROL, 
                                               targetPosition = position[index], 
-                                              targetVelocity = 10,
+                                              targetVelocity = self.target_joint_velocity,
                                               force=self.joint_torque_multiplier)
             index += 1
         

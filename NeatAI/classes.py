@@ -277,9 +277,9 @@ class population:
         pass
 
     #save to file the entire population
-    def save_population(self, filename, overwrite = False):
+    def save_population(self, filename, dir = "NeatAI/brain_saves/", overwrite = False):
         #standard path
-        path = "NeatAI/brain_saves/" + filename
+        path = dir + filename
         
         #check if file exists
         #if it does, change the path name
@@ -293,22 +293,35 @@ class population:
         file = open(path, "w")
         
         #write to file
-        file.write(f"<Inov> = {self.innovation} :<MaxOff> = {self.max_offspring} : <MaxSpeDist> = {self.MaxSpecialDist}\n")  
+        file.write(f"<Inov> = {self.innovation}\n")  
+        file.close()
         for specie in self.species:
-            for brain in specie.brains:
+            for brain in specie.brains: 
+                file = open(path, "a")
                 file.write(f"<SPECIE> = {self.species.index(specie)} : <BRAIN> = {specie.brains.index(brain)}\n")
+                file.close()   
+                brain.save_mental_connections(path, dir = "", mode="a")
+            
+            
+                '''
                 file.write(f"<NOI> = {brain.NOI}, <NOO> = {brain.NOO}, <NodeCount> = {brain.NodeCount}\n")  
                 for i,con in enumerate(brain.genepool):
                     file.write(f"[{con.status}] <{i}> Connection: {con.in_index} -> {con.out_index}: Weight = {con.weight}: Inovation = {con.inov}\n")
-
+                '''
+                
         #close file
         file.close()      
-        pass
+        
+        #return actual path in which the file was saved
+        #remove dir first
+        path = path.replace(dir,"")
+        return path
+
 
     #load from file the entire population
-    def load_population(self, filename):
+    def load_population(self, filename, dir = "NeatAI/brain_saves/"):
         #standard path
-        path = "NeatAI/brain_saves/" + filename
+        path = dir + filename
         
         #check if file exists
         if not os.path.isfile(path):
@@ -321,8 +334,6 @@ class population:
         
         #get info on the pop
         self.innovation = int(lines[0][9:lines[0].find(":",9)])
-        self.max_offspring = int(lines[0][lines[0].find("<MaxOff>")+11:lines[0].find(":",lines[0].find("<MaxOff>")+11)])
-        self.MaxSpecialDist = int(lines[0][lines[0].find("<MaxSpeDist>")+15:-1])
         
         #get rid of the first line
         lines.pop(0)
@@ -353,7 +364,6 @@ class population:
             if line.find("<SPECIE>") != -1:
                 cursor_species_index = int(line[11: line.find(":",11)])
                 cursor_brain_index = int(line[line.find("<BRAIN>")+10:-1])
-                cursor_conn_index = 0               #reset
                 
                 #check if the species exists
                 if cursor_species_index >= len(self.species):
@@ -364,54 +374,19 @@ class population:
                     
                 #iterate to the next line with info on the brain
                 index += 1
-                line = lines[index]
-                #read info on brain
-                #get info on the brain
-                self.species[cursor_species_index].brains[cursor_brain_index].NOI = int(line[7:line.find(",",7)])
-                self.species[cursor_species_index].brains[cursor_brain_index].NOO = int(line[line.find("<NOO>")+7:line.find(",",line.find("<NOO>")+7)])
-                self.species[cursor_species_index].brains[cursor_brain_index].NodeCount = int(line[line.find("<NodeCount>")+13:-1])
-
-                #iterate to the next line in order to read brain data
-                index +=1
-                line = lines[index]
-            
-            #normal routine: read brain connections
-            
-            #UNNECESSARY CHECKS, JUST MAKE SURE THERE'S NO CONNECTIONS IN THE FIRST PLACE
-            #see if a new connection needs to be added
-            #if cursor_conn_index > 0 or len(self.species[0].brains[0].genepool) == 0:
-            #    self.species[cursor_species_index].brains[cursor_brain_index].add_random_connection()
-            
-            #add new connection
-            self.species[cursor_species_index].brains[cursor_brain_index].add_random_connection()
-            
-            #parse the line
-            #get status
-            if line[1] == "T":
-                self.species[cursor_species_index].brains[cursor_brain_index].genepool[cursor_conn_index].status = True
-            else:
-                self.species[cursor_species_index].brains[cursor_brain_index].genepool[cursor_conn_index].status = False
+                index_last = index
+                #get end of the brain info
+                while lines[index_last].find("<SPECIE>") == -1:
+                    index_last += 1
+                    if index_last >= len(lines):
+                        break
+                    
+                #load brain from the 2 limiting indexes
+                lines_brain = lines[index: index_last]
+                self.species[cursor_species_index].brains[cursor_brain_index].load_mental_connections(filename=None, filedata = lines_brain)
                 
-            #get in_index and out_index
-            i_in_out_start = line.find("Connection")+11
-            i_in_out_middle = line.find("->")
-            i_out_final = line.find(":",i_in_out_middle)
-            self.species[cursor_species_index].brains[cursor_brain_index].genepool[cursor_conn_index].in_index = int(line[i_in_out_start:i_in_out_middle-1])
-            self.species[cursor_species_index].brains[cursor_brain_index].genepool[cursor_conn_index].out_index = int(line[i_in_out_middle+2:i_out_final])
-            
-            #get weight
-            i_weight_start=line.find("Weight")+9
-            i_weight_end = line.find(":",i_weight_start)
-            self.species[cursor_species_index].brains[cursor_brain_index].genepool[cursor_conn_index].weight = float(line[i_weight_start:i_weight_end])
-            
-            #get inovation number
-            i_inov_start = line.find("Inovation")+12
-            i_inov_end = line.find("\n",i_inov_start)
-            self.species[cursor_species_index].brains[cursor_brain_index].genepool[cursor_conn_index].inov = int(line[i_inov_start:i_inov_end])
-            
-            #update line search index and conn index
-            index += 1
-            cursor_conn_index +=1
+                #update index
+                index = index_last
         
         #Before leaving, update counts
         self.update_species_brain_count()
@@ -981,51 +956,66 @@ class brain_fenotype:
     
     #prints to file all the connections in the brain
     #includes details
-    def save_mental_connections(self,filename, overwrite = False):
+    def save_mental_connections(self,filename, dir = "NeatAI/brain_saves/", overwrite = False, mode = "w"):
         #standard path
-        path = "NeatAI/brain_saves/" + filename
+        path = dir + filename
         
         #check if file exists
         #if it does, change the path name
         i=1
-        while os.path.isfile(path) and not overwrite:
-            extension_index = path.find(".txt")
-            path = path[:extension_index-2] + "_" + str(i) + ".txt"
-            i+=1
-        
-        #open file
-        file = open(path, "w")
+        if mode == "w": 
+            while os.path.isfile(path) and not overwrite:
+                extension_index = path.find(".txt")
+                path = path[:extension_index-2] + "_" + str(i) + ".txt"
+                i+=1
+                
+            #open file
+            file = open(path, "w")
+        elif mode == "a":
+            file = open(path, "a")
         
         #write to file
-        file.write(f"<NOI> = {self.NOI}, <NOO> = {self.NOO}, <NodeCount> = {self.NodeCount}, <LastNodeIndex> = {self.LastNodeIndex}\n")  
+        file.write(f"<NOI> = {self.NOI}, <NOO> = {self.NOO}, <NodeCount> = {self.NodeCount}, <LastNodeIndex> = {self.LastNodeIndex}, <ID> = {self.brain_unique_ID}, <score> = {self.score}\n")  
         for i,con in enumerate(self.genepool):
             file.write(f"[{con.status}] <{i}> Connection: {con.in_index} -> {con.out_index}: Weight = {con.weight}: Inovation = {con.inov}\n")
         
         #close file
         file.close()      
-        pass
+        
+        #return actual path in which the file was saved
+        #remove dir first
+        path = path.replace(dir,"")
+        return path
+        
+        
       
     #loads connections from a file
     #wipes all previous connections, copies brain from file
-    def load_mental_connections(self,filename):
-        #standard path
-        path = "NeatAI/brain_saves/" + filename
+    #if filedata is given, it will skip loading the file and use the data given
+    def load_mental_connections(self,filename , filedata = None, dir = "NeatAI/brain_saves/"):
         
-        #check if file exists
-        if not os.path.isfile(path):
-            exit(f"FAIL, could not load brain from file ({path})")
-        
-        #open file, read lines and close file
-        file = open(path, "r")
-        lines = file.readlines()
-        file.close()
+        if filedata == None:
+            #standard path
+            path = dir + filename
+            
+            #check if file exists
+            if not os.path.isfile(path):
+                exit(f"FAIL, could not load brain from file ({path})")
+            
+            #open file, read lines and close file
+            file = open(path, "r")
+            lines = file.readlines()
+            file.close()
+        else:
+            lines = filedata
         
         #get info on the brain
         self.NOI = int(lines[0][7:lines[0].find(",",7)])
         self.NOO = int(lines[0][lines[0].find("<NOO>")+7 : lines[0].find(",",lines[0].find("<NOO>")+7)])
         self.NodeCount = int(lines[0][lines[0].find("<NodeCount>")+13 : lines[0].find(",",lines[0].find("<NodeCount>")+13)])
-        self.NodeCount = int(lines[0][lines[0].find("<LastNodeIndex>")+17:-1])
-        
+        self.LastNodeIndex = int(lines[0][lines[0].find("<LastNodeIndex>")+17:lines[0].find(",",lines[0].find("<LastNodeIndex>")+17)])
+        self.brain_unique_ID = int(lines[0][lines[0].find("<ID>")+6:lines[0].find(",",lines[0].find("<ID>")+6)])
+        self.score = float(lines[0][lines[0].find("<score>")+9:-1])
         
         #remove that information line
         lines.pop(0)

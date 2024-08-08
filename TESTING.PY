@@ -33,49 +33,48 @@ def objective_function_calculator(main_body_positions, inputs):
                
         #WALKING TRAINING
         #add contribution of y value
-        #obj_value.append(math.exp(main_body_positions[robot_ID][1]))
+        obj_value.append(math.exp(main_body_positions[robot_ID][1]))
         
         #STANDING TRAINING
-        obj_value.append(0)
+        #obj_value.append(0)
               
         #add contribution of the inputs
         #first for every robot, a list is created with the joint positions of the 2 upper legs at every step
         L_leg_integral = 0
         R_leg_integral = 0
         rot_integral = 0
-        y_vel_integral = 0
+        z_pos_integral = 0
         for entry in inputs[robot_ID]:
-            #get the first value (L leg) and the third value (R leg)
-            current_robot_input.append([entry[0],entry[2]])  
-            
+                  
             #integrate the input values over the step for the L leg
-            L_leg_integral += abs(current_robot_input[-1][0])
+            L_leg_integral += abs(entry[0])
             #integrate the input values over the step for the R leg
-            R_leg_integral += abs(current_robot_input[-1][1])
+            R_leg_integral += abs(entry[2])
             
-            #integrate the velocity y velocity over the step
-            y_vel_integral += abs(entry[4])
+            #integrate the position z over the step
+            z_pos_integral += abs(entry[4])
             
             #integrate the rotation values over the step for the x,y,z values
             #this is done by summing the absolute values of the rotation values
-            rot_integral += sum([abs(x) for x in entry[4:-1]])
+            rot_integral += abs(entry[5])
             
 
 
         #scale objective value by the z-1.11 (height) value of the body position
         #if final height is 0.24, the obj value is set to ~0
-        obj_value[robot_index] -= abs((main_body_positions[robot_ID][2])-0.25) * 100
-            
+        #obj_value[robot_index] -= abs((main_body_positions[robot_ID][2])-0.25) * 100
+        obj_value[robot_index] *= abs(1-(z_pos_integral/(1*step_count))) 
+        
         #update the objective value for a penalty related to the integrals
         #the integral should be scaled by the max value of the integral (2 (legs) *  area of the rectangle with height 1.5 and width step_count)
-        obj_value[robot_index] -= ( 1- (abs(L_leg_integral+R_leg_integral)/(2*1.5*step_count)) )* 0.25 * 100
+        obj_value[robot_index] *= abs(1-((L_leg_integral+R_leg_integral)/(2*1.5*step_count))) * 0.25 
         
         #update the objective value for a penalty related to the rotation integral
         #the integral should be scaled by the max value of the integral (3 (rotation values) *  area of the rectangle with height 1 and width step_count)
-        obj_value[robot_index] -= ( 1- (abs(rot_integral)/(3*1*step_count)) )* 0.25 * 100
+        obj_value[robot_index] *= abs(1-((rot_integral)/(1*step_count))) * 0.25 
         
         #add bonus points for time survived
-        obj_value[robot_index] += step_count/max(step_count_list) * 0.25 * 100
+        obj_value[robot_index] *= abs(step_count/(sum(step_count_list)/len(step_count_list))) * 0.25 
           
         plt.figure()  
         plt.plot([x[0] for x in current_robot_input], label = "L leg")
@@ -83,8 +82,9 @@ def objective_function_calculator(main_body_positions, inputs):
         plt.legend()
         plt.title(f"Robot {robot_ID}")
         
+        
         plt.figure()
-        plt.plot([inputs["S0:B0"][step][4] for step in range(step_count)])
+        plt.plot([inputs["S0:B0"][step][5] for step in range(step_count)],label = "x_rot")
         plt.legend()
         plt.title(f"Robot {robot_ID}")
         
@@ -96,8 +96,16 @@ def objective_function_calculator(main_body_positions, inputs):
 
 
 #7 NOI (3 robot position + 4 robot joint positions) and 8 NOO (4 robot joint torques)
-NeatAI_pop = cl.population(NOI = 14, NOO = 4, 
-                            Starting_brain_count= 1, 
+NeatAI_pop = cl.population(NOI = 11, NOO = 4, 
+                            Starting_brain_count= 4, 
+                            MaxSpecialDist= 0.15,
+                            max_offspring= 5,
+                            max_pop_brains= 30,
+                            max_mutations_per_gen=2,
+                            import_brains_from_file=None)
+
+NeatAI_pop2 = cl.population(NOI = 11, NOO = 4, 
+                            Starting_brain_count= 4, 
                             MaxSpecialDist= 0.15,
                             max_offspring= 5,
                             max_pop_brains= 30,
@@ -105,24 +113,37 @@ NeatAI_pop = cl.population(NOI = 14, NOO = 4,
                             import_brains_from_file=None)
 maxlist = []
 
+NeatAI_pop.mutate_all()
+NeatAI_pop.print()
+path=NeatAI_pop.save_population("test_pop.txt")
+NeatAI_pop.print()
+NeatAI_pop2.print()
+NeatAI_pop2.load_population(path)
+NeatAI_pop2.print()
+
+#sim = mpb.sim_client(robot_type= "biped_2d_simple.urdf")
+#sim.add_robot("S0:B0")
+#for i in range(sim.Client.getNumJoints(1)):
+#    print(sim.Client.getJointInfo(1, i))
+
 plt.figure()
 gen = 0
 for gen in range(1000000):
     positions, inputs, sim_data = mpb.simulate(NeatAI_pop, 
-                    robot_type= "biped_freeman_abs.urdf",
+                    robot_type= "biped_2d_simple.urdf",
                     joint_friction=10,
-                    torque_multiplier=100,
+                    torque_multiplier=50,
                     max_single_process_brains=70,
                     GUI=True,
                     time_controlled = False, 
                     step_limit = 600,
                     time_limit = 100,
-                    max_TPS= 40,
+                    max_TPS= None,
                     debug= False,
-                    show_IDs=True,
+                    show_IDs=False,
                     show_timer=False,
                     show_coords=False,
-                    show_axis=False,
+                    show_axis=True,
                     cam_focus_ID=None)
     
     #calculate objective value

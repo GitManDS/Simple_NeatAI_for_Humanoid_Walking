@@ -27,6 +27,7 @@ class population:
             
         
         self.innovation = 1                          #innovation counter  
+        self.generation = 1
         self.inov_database = {}                      #database of all the innovations (hidden nodes and connections only)    
         self.species_count = 1                       #number of species
         self.brain_count = Starting_brain_count      #number of brains
@@ -237,6 +238,8 @@ class population:
             self.species.pop()
             self.update_species_brain_count()
         
+        #update generation counter
+        self.generation += 1
         
         pass
            
@@ -293,14 +296,14 @@ class population:
         file = open(path, "w")
         
         #write to file
-        file.write(f"<Inov> = {self.innovation}\n")  
+        file.write(f"<Inov> = {self.innovation}, <Generation> = {self.generation}\n")  
         file.close()
         for specie in self.species:
             for brain in specie.brains: 
                 file = open(path, "a")
                 file.write(f"<SPECIE> = {self.species.index(specie)} : <BRAIN> = {specie.brains.index(brain)}\n")
                 file.close()   
-                brain.save_mental_connections(path, dir = "", mode="a")
+                brain.save_brain(path, dir = "", mode="a")
             
             
                 '''
@@ -317,7 +320,6 @@ class population:
         path = path.replace(dir,"")
         return path
 
-
     #load from file the entire population
     def load_population(self, filename, dir = "NeatAI/brain_saves/"):
         #standard path
@@ -333,7 +335,9 @@ class population:
         file.close()
         
         #get info on the pop
-        self.innovation = int(lines[0][9:lines[0].find(":",9)])
+        self.innovation = int(lines[0][9:lines[0].find(",",9)])
+        self.generation = int(lines[0][lines[0].find("<Generation>")+14:-1])
+        
         
         #get rid of the first line
         lines.pop(0)
@@ -383,7 +387,7 @@ class population:
                     
                 #load brain from the 2 limiting indexes
                 lines_brain = lines[index: index_last]
-                self.species[cursor_species_index].brains[cursor_brain_index].load_mental_connections(filename=None, filedata = lines_brain)
+                self.species[cursor_species_index].brains[cursor_brain_index].load_brain(filename=None, filedata = lines_brain)
                 
                 #update index
                 index = index_last
@@ -564,7 +568,7 @@ class brain_fenotype:
         
         #if import from file is specified, load the brain from the file
         if import_from_file != None:
-            self.load_mental_connections(import_from_file)
+            self.load_brain(import_from_file)
         else:
             #else, a random simple brain is created
             for i in range(NOO):
@@ -921,7 +925,7 @@ class brain_fenotype:
         pass
     
     #saves a diagram of the brain to a path
-    def save_mental_picture(self, filename, overwrite = False):
+    def save_mental_map(self, filename, overwrite = False):
         #standard path
         path = "NeatAI/brain_saves/" + filename
         
@@ -956,7 +960,7 @@ class brain_fenotype:
     
     #prints to file all the connections in the brain
     #includes details
-    def save_mental_connections(self,filename, dir = "NeatAI/brain_saves/", overwrite = False, mode = "w"):
+    def save_brain(self,filename, dir = "NeatAI/brain_saves/", overwrite = False, mode = "w"):
         #standard path
         path = dir + filename
         
@@ -970,7 +974,8 @@ class brain_fenotype:
                 i+=1
                 
             #open file
-            file = open(path, "w")
+            print(path)
+            file = open(path, "w+")
         elif mode == "a":
             file = open(path, "a")
         
@@ -986,13 +991,11 @@ class brain_fenotype:
         #remove dir first
         path = path.replace(dir,"")
         return path
-        
-        
-      
+         
     #loads connections from a file
     #wipes all previous connections, copies brain from file
     #if filedata is given, it will skip loading the file and use the data given
-    def load_mental_connections(self,filename , filedata = None, dir = "NeatAI/brain_saves/"):
+    def load_brain(self,filename , filedata = None, dir = "NeatAI/brain_saves/"):
         
         if filedata == None:
             #standard path

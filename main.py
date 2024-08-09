@@ -103,6 +103,11 @@ def objective_function_calculator(sim_results):
 
 #this helps catch the error of the mulltiprocesses getting into a recursive loading loop
 if __name__ == "__main__":
+    
+    #get storage directory
+    dir = f"NeatAI/pop_saves/sim{int(time.time())}/"
+    if not os.path.exists(dir):
+        os.makedirs(dir[0:-1])
 
     ################### AI SETUP ###################
     #initialize AI population
@@ -120,12 +125,12 @@ if __name__ == "__main__":
 
     ################### SETUP AND RUN ###################
 
-    max_generations = 1000
+    max_generations = 50
     max_y = 0
     maxlist = []
-    mindist = []
-    avgdist = []
-    maxdist = []
+    minlist = []
+    avglist = []
+    target_list = []
     
     #options
     options = {"robot_type" : "biped_freeman_abs.urdf",
@@ -207,7 +212,9 @@ if __name__ == "__main__":
         #update the population with the results
         #results of interest are y positions
         res = objective_function_calculator(sim_results)
-        positions = [sim_results[id][-1][8:11] for id in sim_results]
+        
+        #target score
+        target_score = 0
         
         if NeatAI_pop.preserve_top_brain:
             max_index = res.index(max(res))
@@ -215,20 +222,19 @@ if __name__ == "__main__":
             NeatAI_pop.species[specie_index].brains[brain_index].preserve = True
         NeatAI_pop.update_results(results=res)
         
-        #save best brain
+        #save best brain every generation
         maxlist.append(max(res))
-        maxdist.append(max([positions[i][1] for i in range(len(positions))]))
-        mindist.append(min([positions[i][1] for i in range(len(positions))]))
-        avgdist.append(sum([positions[i][1] for i in range(len(positions))])/len([positions[i][1] for i in range(len(positions))]))
-        if maxlist[-1] > max_y:
-            maxi = maxlist[-1]
-            max_y=maxi
-            print("new max y",maxi)
-            ind = res.index(maxi)
-            specie_index, brain_index = NAIsf.get_species_brain_index_from_single_index(NeatAI_pop,ind)
-            NeatAI_pop.species[specie_index].brains[brain_index].save_mental_connections(f"best_brain.txt",overwrite=True)
-            NeatAI_pop.species[specie_index].brains[brain_index].save_mental_picture(f"best_brain_pic.png",overwrite=True)
+        minlist.append(min(res))
+        avglist.append(sum(res)/len(res))
+        target_list.append(target_score)
         
+
+        ind = res.index(max(res))
+        specie_index, brain_index = NAIsf.get_species_brain_index_from_single_index(NeatAI_pop,ind)
+        NeatAI_pop.species[specie_index].brains[brain_index].save_brain(f"best_brain_gen{NeatAI_pop.generation}.txt",
+                                                                                     overwrite=True,
+                                                                                     dir = dir)
+      
         #print results and other data
         NeatAI_pop.print(include_results=True, ordered_by_score=True, simplified=True)
         print(f"max diff distance : {NeatAI_pop.get_max_speciation_difference_per_species()[0]}")   
@@ -236,14 +242,17 @@ if __name__ == "__main__":
         #prepare new gen with the best brains
         NeatAI_pop.create_new_generation()
         
+
+        
         #plot if debug is on
-        plt.plot(maxdist, color='green')
-        plt.plot(mindist, color='red')
-        plt.plot(avgdist, color='blue')
+        plt.plot(maxlist, color='green')
+        plt.plot(minlist, color='red')
+        plt.plot(avglist, color='blue')
+        plt.plot(target_list, linestyle='dashed', color='red')
         plt.legend(["max","min","avg"])
         plt.xlabel("Generation")
         plt.ylabel("max_score")
-        plt.title(f"last sim time = {round(elapsed_time,2)}, number of brains = {NeatAI_pop.brain_count}")
+        plt.title(f"last sim time = {round(elapsed_time,2)} [s], number of brains = {NeatAI_pop.brain_count}")
         
         if gen < max_generations-1 and os.path.exists("show_score_graph"):
             plt.pause(1)
@@ -256,8 +265,7 @@ if __name__ == "__main__":
         
     #save population
     plt.savefig("max_score.png")
-    NeatAI_pop.save_population("final_pop.txt")
-    NeatAI_pop.save_population(f"final_pop_{time.time()}.txt")
+    NeatAI_pop.save_population("final_pop.txt", dir = dir)
 
 
 

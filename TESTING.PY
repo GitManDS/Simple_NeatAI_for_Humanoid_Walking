@@ -136,6 +136,9 @@ NeatAI_pop = cl.population(NOI = 11, NOO = 4,
 
 maxlist = []
 
+NeatAI_pop.save_population("test_pop")
+NeatAI_pop.load_population("test_pop")
+
 
 sim = mpb.sim_client(robot_type= "biped_2d_simple.urdf")
 sim.add_robot("S0:B0")

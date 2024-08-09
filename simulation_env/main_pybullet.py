@@ -21,20 +21,23 @@ class sim_client:
             
         #options and other parameters
         self.Client.setGravity(0,0,gravity)             #set gravity
+        
         self.robot_list = {}                            #dictionary of robots used
         self.robot_type = robot_type                    #type of robot to be used
         self.joint_friction = 10                        #friction of the robot  
         self.joint_torque_multiplier = 100              #torque multiplier for the robot
         self.target_joint_velocity = 2                #target joint velocity for the robot
+        
         self.clock_start = 0                            #start time of the simulation
         self.step   = 0                                 #current/last step of the simulation
         self.timer_id = None                            #timer id for the timer function (if called/used)
         self.step_id = None                             #step id for the step count function (if called/used)
         self.nametag_id = None                          #nametag id for the identify robot function (if called/used)
+        
         self.robot_sim_results = {}                     #any sim results data that needs to be exported
         self.sim_data = []                              #simulation data
         self.robot_joint_count = 0                      #joint count of the robot (to be updated)
-        self.relevant_joints = [5,6,8,9]                       #joints to search info for and apply forces to
+        self.relevant_joints = [5,6,8,9]                #joints to search info for and apply forces to
         
         #add assets folder
         assets_folder = "C:/Users/diogo serra/Desktop/trabalhos, documentose afixos de programas/TUDelft-MEaer/een/even semester/AI/Bipedal agent project/simulation_env/assets"

@@ -1,0 +1,11 @@
+[NOTES]
+- increasing the number of offspring while reducing the number of max brains puts a higher dependancy on the top brain to lead the genetic evolution path
+- likewise, it allows for more stability as the top performing brain will have higher number of offspring, allowing for higher preservation of sucessfull innovations
+- likewise, it also means the population evolution is less unstable as the top brain is allowed to have more brains
+
+- increasing the population count allows for a higher number of mutations per generation whilst keeping stable
+- this results in faster convergence
+- keeping the first low means a very unstable evolution and keeping the second low means a very slow/inneficient evolution
+
+- a high number of starting individuals ensures a rich environment for the top brain to evolve
+- ensure a sufficient number of first gen individuals controls to some extent how fast and how long the population will evolve

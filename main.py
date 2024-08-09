@@ -37,8 +37,8 @@ def objective_function_calculator(sim_results):
         #first for every robot, a list is created with the joint positions of the 2 upper legs at every step
         L_leg_integral = 0
         R_leg_integral = 0
-        L_leg_pos = []
-        R_leg_pos = []
+        L_leg_vel = []
+        R_leg_vel = []
         alternating_leg_integral = 0
         rot_integral = 0
         z_pos_integral = 0
@@ -49,14 +49,16 @@ def objective_function_calculator(sim_results):
             [stored_inputs[i].append(step_result[i]) for i in range(len(step_result)-1)]
                   
             #integrate the input values over the step for the L leg
-            L_leg_pos.append(step_result[0])
+            #L_leg_pos.append(step_result[0])
             L_leg_integral += abs(step_result[0])
+            L_leg_vel.append(step_result[4])
             #integrate the input values over the step for the R leg
-            R_leg_pos.append(step_result[2])
+            #R_leg_pos.append(step_result[2])
             R_leg_integral += abs(step_result[2])
+            R_leg_vel.append(step_result[6])
             
             #get the alternating leg integral
-            alternating_leg_integral += abs(step_result[0]+step_result[2])
+            alternating_leg_integral += step_result[4]+step_result[6]
             
             #integrate the position z over the step
             z_pos_integral += abs(step_result[10])
@@ -75,24 +77,26 @@ def objective_function_calculator(sim_results):
 
         #[!]
         obj_value.append(0)
-        obj_value[robot_index] += abs(1-(z_pos_integral/(1*step_count))) * 1
+        obj_value[robot_index] -= abs(((z_pos_integral-(1*step_count))/(1*step_count))) * 1
         
         #update the objective value for a penalty related to the rotation integral
         #the integral should be scaled by the max value of the integral (3 (rotation values) *  area of the rectangle with height 1 and width step_count)
-        obj_value[robot_index] += abs(1-((rot_integral)/(0.75*step_count))) * 1
+        obj_value[robot_index] -= abs(((rot_integral)/(0.75*step_count))) * 1
+        
+        #take points away for using leg muscles
+        #the integral should be scaled by the max value of the integral (2 (legs) *  area of the rectangle with height 1.5 and width step_count)
+        obj_value[robot_index] -= abs(((L_leg_integral+R_leg_integral)/(2*1.5*step_count))) * 1
+             
         
         '''WALKING TRAINING'''
         '''
-        #update the objective value for a penalty related to the integrals
-        #the integral should be scaled by the max value of the integral (2 (legs) *  area of the rectangle with height 1.5 and width step_count)
-        obj_value[robot_index] += abs(1-((L_leg_integral+R_leg_integral)/(2*1.5*step_count))) * 0.25 * distance_travelled
-         
         #add bonus points for time survived
         obj_value[robot_index] += abs(step_count/(sum(step_count_list)/len(step_count_list))) * 0.25 * distance_travelled
         
-        #add bonus points for alternating legs
+        #add bonus points for balancing one leg movement with the opposite movement of the other leg
         #2 now means the area created when the 2 legs are at the same position
-        obj_value[robot_index] += abs(1-((alternating_leg_integral)/(2*1.5*step_count))) * 0.1 * distance_travelled
+        obj_value[robot_index] += abs(1-((abs(alternating_leg_integral))/(2*1*step_count))) * 1
+        
         '''
 
     return obj_value

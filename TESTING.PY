@@ -15,25 +15,26 @@ import sim_AI_connection_functions as sim_AI
 
 #main function to calculate objective value
 #does so for all the robots in the dictionary of main body positions
-def objective_function_calculator(main_body_positions, inputs):
+def objective_function_calculator(sim_results):
     
     #main obj value
     obj_value = []
     current_robot_input = []
-    robot_count = len(main_body_positions.keys())
+    robot_count = len(sim_results.keys())
     step_count_list = []
-    
-    for robot_index in inputs:
-        step_count_list.append(inputs[robot_index][-1][-1])
-    
-    for robot_index, robot_ID in enumerate(main_body_positions):
+
+    #go robot by robot
+    for robot_index, robot_ID in enumerate(sim_results):
         
         #last values of a inputs entry is the last step
-        step_count = inputs[robot_ID][-1][-1]
+        step_count = sim_results[robot_ID][-1][-1]
+        step_count_list.append(step_count)
                
         #WALKING TRAINING
         #add contribution of y value
-        obj_value.append(math.exp(main_body_positions[robot_ID][1]))
+        #final value
+        distance_travelled = sim_results[robot_ID][-1][9]
+        obj_value.append(math.exp(distance_travelled))
         
         #STANDING TRAINING
         #obj_value.append(0)
@@ -42,40 +43,65 @@ def objective_function_calculator(main_body_positions, inputs):
         #first for every robot, a list is created with the joint positions of the 2 upper legs at every step
         L_leg_integral = 0
         R_leg_integral = 0
+        L_leg_pos = []
+        R_leg_pos = []
+        alternating_leg_integral = 0
         rot_integral = 0
         z_pos_integral = 0
-        for entry in inputs[robot_ID]:
+        stored_inputs = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
+        for entry_ind, step_result in enumerate(sim_results[robot_ID]):
+            
+            ##DEBUG
+            [stored_inputs[i].append(step_result[i]) for i in range(len(step_result)-1)]
                   
             #integrate the input values over the step for the L leg
-            L_leg_integral += abs(entry[0])
+            L_leg_pos.append(step_result[0])
+            L_leg_integral += abs(step_result[0])
             #integrate the input values over the step for the R leg
-            R_leg_integral += abs(entry[2])
+            R_leg_pos.append(step_result[2])
+            R_leg_integral += abs(step_result[2])
+            
+            #get the alternating leg integral
+            alternating_leg_integral += abs(step_result[0]+step_result[2])
             
             #integrate the position z over the step
-            z_pos_integral += abs(entry[4])
+            z_pos_integral += abs(step_result[10])
             
             #integrate the rotation values over the step for the x,y,z values
             #this is done by summing the absolute values of the rotation values
-            rot_integral += abs(entry[5])
+            rot_integral += abs(step_result[11])
             
 
 
         #scale objective value by the z-1.11 (height) value of the body position
         #if final height is 0.24, the obj value is set to ~0
         #obj_value[robot_index] -= abs((main_body_positions[robot_ID][2])-0.25) * 100
-        obj_value[robot_index] *= abs(1-(z_pos_integral/(1*step_count))) 
+        obj_value[robot_index] += abs(1-(z_pos_integral/(1*step_count))) * distance_travelled
         
         #update the objective value for a penalty related to the integrals
         #the integral should be scaled by the max value of the integral (2 (legs) *  area of the rectangle with height 1.5 and width step_count)
-        obj_value[robot_index] *= abs(1-((L_leg_integral+R_leg_integral)/(2*1.5*step_count))) * 0.25 
+        obj_value[robot_index] += abs(1-((L_leg_integral+R_leg_integral)/(2*1.5*step_count))) * 0.25 * distance_travelled
         
         #update the objective value for a penalty related to the rotation integral
         #the integral should be scaled by the max value of the integral (3 (rotation values) *  area of the rectangle with height 1 and width step_count)
-        obj_value[robot_index] *= abs(1-((rot_integral)/(1*step_count))) * 0.25 
+        obj_value[robot_index] += abs(1-((rot_integral)/(1*step_count))) * 0.25 * distance_travelled
         
         #add bonus points for time survived
-        obj_value[robot_index] *= abs(step_count/(sum(step_count_list)/len(step_count_list))) * 0.25 
+        obj_value[robot_index] += abs(step_count/(sum(step_count_list)/len(step_count_list))) * 0.25 * distance_travelled
+        
+        #add bonus points for alternating legs
+        #2 now means the area created when the 2 legs are at the same position
+        obj_value[robot_index] += abs(1-((alternating_leg_integral)/(2*1.5*step_count))) * 0.1 * distance_travelled
           
+        #plot all the inputs
+        plt.figure()
+        for stored_index in [0,2,10,11]:
+            plt.plot(stored_inputs[stored_index], label = f"input {stored_index}")
+        plt.legend()
+        plt.grid()
+        plt.title("all inputs")
+        
+        '''  
         plt.figure()  
         plt.plot([x[0] for x in current_robot_input], label = "L leg")
         plt.plot([x[1] for x in current_robot_input], label = "R leg")
@@ -87,8 +113,8 @@ def objective_function_calculator(main_body_positions, inputs):
         plt.plot([inputs["S0:B0"][step][5] for step in range(step_count)],label = "x_rot")
         plt.legend()
         plt.title(f"Robot {robot_ID}")
-        
-        plt.pause(1)
+        '''
+        plt.pause(4)
             
     
     
@@ -97,39 +123,25 @@ def objective_function_calculator(main_body_positions, inputs):
 
 #7 NOI (3 robot position + 4 robot joint positions) and 8 NOO (4 robot joint torques)
 NeatAI_pop = cl.population(NOI = 11, NOO = 4, 
-                            Starting_brain_count= 4, 
+                            Starting_brain_count= 1, 
                             MaxSpecialDist= 0.15,
                             max_offspring= 5,
                             max_pop_brains= 30,
                             max_mutations_per_gen=2,
-                            import_brains_from_file=None)
+                            import_brains_from_file="best_brain.txt")
 
-NeatAI_pop2 = cl.population(NOI = 11, NOO = 4, 
-                            Starting_brain_count= 4, 
-                            MaxSpecialDist= 0.15,
-                            max_offspring= 5,
-                            max_pop_brains= 30,
-                            max_mutations_per_gen=2,
-                            import_brains_from_file=None)
 maxlist = []
 
-NeatAI_pop.mutate_all()
-NeatAI_pop.print()
-path=NeatAI_pop.save_population("test_pop.txt")
-NeatAI_pop.print()
-NeatAI_pop2.print()
-NeatAI_pop2.load_population(path)
-NeatAI_pop2.print()
 
-#sim = mpb.sim_client(robot_type= "biped_2d_simple.urdf")
-#sim.add_robot("S0:B0")
-#for i in range(sim.Client.getNumJoints(1)):
-#    print(sim.Client.getJointInfo(1, i))
+sim = mpb.sim_client(robot_type= "biped_2d_simple.urdf")
+sim.add_robot("S0:B0")
+for i in range(sim.Client.getNumJoints(1)):
+    print(sim.Client.getJointInfo(1, i))
 
 plt.figure()
 gen = 0
 for gen in range(1000000):
-    positions, inputs, sim_data = mpb.simulate(NeatAI_pop, 
+    sim_results, sim_data = mpb.simulate(NeatAI_pop, 
                     robot_type= "biped_2d_simple.urdf",
                     joint_friction=10,
                     torque_multiplier=50,
@@ -139,16 +151,16 @@ for gen in range(1000000):
                     step_limit = 600,
                     time_limit = 100,
                     max_TPS= None,
-                    debug= False,
+                    debug= True,
                     show_IDs=False,
                     show_timer=False,
-                    show_coords=False,
-                    show_axis=True,
+                    show_coords=True,
+                    show_axis=False,
                     cam_focus_ID=None)
     
     #calculate objective value
     if gen == 0:
-        res = objective_function_calculator(positions, inputs)
+        res = objective_function_calculator(sim_results)
         maxlist.append(max(res))
         plt.plot(maxlist)
         plt.pause(1)

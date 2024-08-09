@@ -31,8 +31,7 @@ class sim_client:
         self.timer_id = None                            #timer id for the timer function (if called/used)
         self.step_id = None                             #step id for the step count function (if called/used)
         self.nametag_id = None                          #nametag id for the identify robot function (if called/used)
-        self.position_results = {}                      #results of the simulation
-        self.inputs = {}                                #inputs of the simulation
+        self.robot_sim_results = {}                     #any sim results data that needs to be exported
         self.sim_data = []                              #simulation data
         self.robot_joint_count = 0                      #joint count of the robot (to be updated)
         self.relevant_joints = [5,6,8,9]                       #joints to search info for and apply forces to
@@ -77,10 +76,9 @@ class sim_client:
         
         #for the storage of any input and the position of the robots
         #need to initialize it here to avoid errors
-        self.inputs = {}
+        self.robot_sim_results = {}
         for robot_ID in self.robot_list:
-            self.inputs.update({robot_ID: []})  
-            self.position_results.update({robot_ID: []}) 
+            self.robot_sim_results.update({robot_ID: []})  
             
         #copy the robot list to avoid issues with the dictionary changing size during iteration
         robot_list_copy = self.robot_list.copy() 
@@ -115,8 +113,6 @@ class sim_client:
                         
                 #WRITE FUNCTIONS TO RUN IN CODE HERE!!!
                 #
-                   
-                self.apply_position_input_to_robot(position=[1.5], robot = None, robot_ID = "S0:B0", joint_list = [5])
                 
                 #
                 #check if time limit has been reached
@@ -203,13 +199,13 @@ class sim_client:
                     '''REMOVE THIS LATER'''
                     #input_debug.append(input)
                             
-                    #save the inputs for this robot
+                    #save the results for this robot
                     #include step count as a way to measure time
-                    self.inputs[robot_ID].append(joint_pos + [main_body_rotation[0]]  + [self.step])
+                    self.robot_sim_results[robot_ID].append(joint_pos +  joint_vel+ list(main_body_position)+ 
+                                                            main_body_rotation+ velocity+ [self.step])
                     
                     #if the robot fell, delete it
                     if main_body_position[2] < 0.25:
-                        self.position_results[robot_ID] = main_body_position
                         self.Client.removeBody(robot_list_copy[robot_ID])
                         robot_list_copy.pop(robot_ID)
                         robot_ID_list.pop(i)
@@ -237,14 +233,8 @@ class sim_client:
                 #step simulation
                 self.Client.stepSimulation()
                             
-                
-        #get simulation results
-        #1- get the robot info for every robot that wasn't deleted
-        for robot_ID in robot_list_copy:
-            main_body_position, main_body_rotation, joint_pos, joint_vel = self.get_robot_and_joints_position_rotation(self.robot_list[robot_ID])
-            self.position_results[robot_ID] = main_body_position
-            
-        #2- get simulation data
+                      
+        #1- get simulation data
         sim_time = self.clock_start - time.time()
         avg_tps = step_limit/sim_time
         self.sim_data = [sim_time, avg_tps]
@@ -268,7 +258,7 @@ class sim_client:
         '''    
         
         #return for immediate post processing
-        return self.position_results, self.inputs, self.sim_data
+        return self.robot_sim_results, self.sim_data
 
     #################### ROBOT CONTROL ####################
 
@@ -531,7 +521,7 @@ class sim_client:
             #-0.5 to help it be more centered
             #+1 to bring it up
             self.Client.addUserDebugText(f"x:{round(torso_pos[0],2)} y:{round(torso_pos[1],2)} z:{round(torso_pos[2],2)}" ,
-                                [head_pos[0] - 0.5 , head_pos[1] , head_pos[2] + 1 ],
+                                torso_pos,
                                 textColorRGB=[0,0,0], 
                                 textSize=1, 
                                 lifeTime=Ltime)
@@ -662,7 +652,7 @@ def simulate(pop,
         keys_list = pbsf.create_robot_list_keys(pop)
         
         #run sim and get results
-        positions, inputs, sim_data = single_process_simulation(brains_list,keys_list,
+        sim_results, sim_data = single_process_simulation(brains_list,keys_list,
              robot_type=robot_type,
              joint_friction=joint_friction,
              torque_multiplier=torque_multiplier,
@@ -680,7 +670,7 @@ def simulate(pop,
     
     #if the number of brains is more than the max_processes, then run a multi process
     else: 
-        positions, inputs, sim_data = multiprocess_simulations(pop,
+        sim_results, sim_data = multiprocess_simulations(pop,
                                 robot_type=robot_type,
                                 joint_friction=joint_friction,
                                 torque_multiplier=torque_multiplier,
@@ -699,7 +689,7 @@ def simulate(pop,
         
         
         
-    return positions, inputs, sim_data
+    return sim_results, sim_data
 
 #will create a simulation client and run it with the specified parameters
 #MAIN FUNCTION TO RUN THE SIMULATION
@@ -749,10 +739,10 @@ def single_process_simulation(brains_list,keys_list,
     
     #update if multithread
     if multiprocess_id != None:
-        multiprocess_data[multiprocess_id] = [sim.position_results,sim.inputs,sim.sim_data]
+        multiprocess_data[multiprocess_id] = [sim.robot_sim_results,sim.sim_data]
     
     #return sim data
-    return sim.position_results, sim.inputs , sim.sim_data
+    return sim.robot_sim_results , sim.sim_data
 
 #creates the simulations and runs them in parallel
 def multiprocess_simulations(pop,
@@ -773,8 +763,7 @@ def multiprocess_simulations(pop,
                             cam_focus_ID = None):  
     
     #storage
-    positions = {}
-    inputs = {}
+    sim_results = {}
     sim_data = []
     
     #max number of processs
@@ -868,9 +857,8 @@ def multiprocess_simulations(pop,
         process_id.join()
 
     #get data
-    positions_dict_list = multiprocess_data.values()
-    for i in range(len(positions_dict_list)):
-        positions.update(positions_dict_list[i][0])
-        inputs.update(positions_dict_list[i][1])
+    sim_results_dict_list = multiprocess_data.values()
+    for i in range(len(sim_results_dict_list)):
+        sim_results.update(sim_results_dict_list[i][0])
     
-    return positions, inputs, sim_data
+    return sim_results, sim_data

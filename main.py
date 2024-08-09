@@ -17,29 +17,21 @@ import sim_AI_connection_functions as sim_AI
 
 #main function to calculate objective value
 #does so for all the robots in the dictionary of main body positions
-def objective_function_calculator(main_body_positions, inputs):
+def objective_function_calculator(sim_results):
     
     #main obj value
     obj_value = []
     current_robot_input = []
-    robot_count = len(main_body_positions.keys())
+    robot_count = len(sim_results.keys())
     step_count_list = []
-    
-    for robot_index in inputs:
-        step_count_list.append(inputs[robot_index][-1][-1])
-    
-    for robot_index, robot_ID in enumerate(main_body_positions):
+
+    #go robot by robot
+    for robot_index, robot_ID in enumerate(sim_results):
         
         #last values of a inputs entry is the last step
-        step_count = inputs[robot_ID][-1][-1]
-               
-        #WALKING TRAINING
-        #add contribution of y value
-        distance_travelled = main_body_positions[robot_ID][1]
-        obj_value.append(math.exp(distance_travelled))
-        
-        #STANDING TRAINING
-        #obj_value.append(0)
+        step_count = sim_results[robot_ID][-1][-1]
+        step_count_list.append(step_count)
+            
               
         #add contribution of the inputs
         #first for every robot, a list is created with the joint positions of the 2 upper legs at every step
@@ -50,48 +42,59 @@ def objective_function_calculator(main_body_positions, inputs):
         alternating_leg_integral = 0
         rot_integral = 0
         z_pos_integral = 0
-        for entry in inputs[robot_ID]:
+        stored_inputs = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
+        for entry_ind, step_result in enumerate(sim_results[robot_ID]):
+            
+            ##DEBUG
+            [stored_inputs[i].append(step_result[i]) for i in range(len(step_result)-1)]
                   
             #integrate the input values over the step for the L leg
-            L_leg_pos.append(entry[0])
-            L_leg_integral += abs(entry[0])
+            L_leg_pos.append(step_result[0])
+            L_leg_integral += abs(step_result[0])
             #integrate the input values over the step for the R leg
-            R_leg_pos.append(entry[2])
-            R_leg_integral += abs(entry[2])
+            R_leg_pos.append(step_result[2])
+            R_leg_integral += abs(step_result[2])
             
             #get the alternating leg integral
-            alternating_leg_integral += abs(entry[0]+entry[2])
+            alternating_leg_integral += abs(step_result[0]+step_result[2])
             
             #integrate the position z over the step
-            z_pos_integral += abs(main_body_positions[robot_ID][2])
+            z_pos_integral += abs(step_result[10])
             
             #integrate the rotation values over the step for the x,y,z values
             #this is done by summing the absolute values of the rotation values
-            rot_integral += abs(entry[4])
+            rot_integral += abs(step_result[11])
             
+        #get the final distance travelled 
+        distance_travelled = sim_results[robot_ID][-1][9]
 
+        '''STANDING TRAINING'''
 
         #scale objective value by the z-1.11 (height) value of the body position
         #if final height is 0.24, the obj value is set to ~0
-        #obj_value[robot_index] -= abs((main_body_positions[robot_ID][2])-0.25) * 100
-        obj_value[robot_index] += abs(1-(z_pos_integral/(1*step_count))) * distance_travelled
-        
-        #update the objective value for a penalty related to the integrals
-        #the integral should be scaled by the max value of the integral (2 (legs) *  area of the rectangle with height 1.5 and width step_count)
-        obj_value[robot_index] += abs(1-((L_leg_integral+R_leg_integral)/(2*1.5*step_count))) * 0.25 * distance_travelled
+
+        #[!]
+        obj_value.append(0)
+        obj_value[robot_index] += abs(1-(z_pos_integral/(1*step_count))) * 1
         
         #update the objective value for a penalty related to the rotation integral
         #the integral should be scaled by the max value of the integral (3 (rotation values) *  area of the rectangle with height 1 and width step_count)
-        obj_value[robot_index] += abs(1-((rot_integral)/(1*step_count))) * 0.25 * distance_travelled
+        obj_value[robot_index] += abs(1-((rot_integral)/(0.75*step_count))) * 1
         
+        '''WALKING TRAINING'''
+        '''
+        #update the objective value for a penalty related to the integrals
+        #the integral should be scaled by the max value of the integral (2 (legs) *  area of the rectangle with height 1.5 and width step_count)
+        obj_value[robot_index] += abs(1-((L_leg_integral+R_leg_integral)/(2*1.5*step_count))) * 0.25 * distance_travelled
+         
         #add bonus points for time survived
         obj_value[robot_index] += abs(step_count/(sum(step_count_list)/len(step_count_list))) * 0.25 * distance_travelled
         
         #add bonus points for alternating legs
         #2 now means the area created when the 2 legs are at the same position
         obj_value[robot_index] += abs(1-((alternating_leg_integral)/(2*1.5*step_count))) * 0.1 * distance_travelled
-           
-    
+        '''
+
     return obj_value
 
 #this helps catch the error of the mulltiprocesses getting into a recursive loading loop
@@ -102,24 +105,23 @@ if __name__ == "__main__":
     #11 NOI (2 robot velocities) + 4 (robot joint positions) + 4 (robot joint velocities) + 1 (robot rotation)  
     #4 NOO (4 robot joint torques)
     NeatAI_pop = cl.population(NOI = 11, NOO = 4, 
-                            Starting_brain_count= 4, 
+                            Starting_brain_count= 8, 
                             MaxSpecialDist= 0.25,
-                            max_offspring= 8,
-                            max_pop_brains= 50,
-                            max_mutations_per_gen=2,
-                            preserve_top_brain=False,
-                            import_population_from_file="final_pop.txt")
+                            max_offspring= 10,
+                            max_pop_brains= 30,
+                            max_mutations_per_gen=4,
+                            preserve_top_brain=True)
 
 
 
     ################### SETUP AND RUN ###################
 
-    max_generations = 100
+    max_generations = 1000
     max_y = 0
     maxlist = []
+    mindist = []
+    avgdist = []
     maxdist = []
-    minlist = []
-    avglist = []
     
     #options
     options = {"robot_type" : "biped_freeman_abs.urdf",
@@ -175,7 +177,7 @@ if __name__ == "__main__":
 
         #simulate the brains/robots in parallel
         clock_start = time.time()
-        positions, inputs, sim_data = mpb.simulate(NeatAI_pop, 
+        sim_results, sim_data = mpb.simulate(NeatAI_pop, 
                                 max_single_process_brains = max_single_process_brains,
                                 robot_type= robot_type,
                                 joint_friction=joint_friction,
@@ -191,7 +193,8 @@ if __name__ == "__main__":
                                 show_timer=show_timer,
                                 show_coords=show_coords)
         
-        print("[!] sim time",time.time()-clock_start)
+        elapsed_time = time.time()-clock_start
+        print("[!] sim time",round(elapsed_time,2))
     
         
         #debug
@@ -199,7 +202,8 @@ if __name__ == "__main__":
         ################### RESULTS AND AI UPDATE ###################
         #update the population with the results
         #results of interest are y positions
-        res = objective_function_calculator(positions, inputs)
+        res = objective_function_calculator(sim_results)
+        positions = [sim_results[id][-1][8:11] for id in sim_results]
         
         if NeatAI_pop.preserve_top_brain:
             max_index = res.index(max(res))
@@ -208,10 +212,10 @@ if __name__ == "__main__":
         NeatAI_pop.update_results(results=res)
         
         #save best brain
-        maxdist.append(max(positions.values(), key=lambda x: x[1])[1])
         maxlist.append(max(res))
-        minlist.append(min(res))
-        avglist.append(sum(res)/len(res))
+        maxdist.append(max([positions[i][1] for i in range(len(positions))]))
+        mindist.append(min([positions[i][1] for i in range(len(positions))]))
+        avgdist.append(sum([positions[i][1] for i in range(len(positions))])/len([positions[i][1] for i in range(len(positions))]))
         if maxlist[-1] > max_y:
             maxi = maxlist[-1]
             max_y=maxi
@@ -230,11 +234,14 @@ if __name__ == "__main__":
         
         #plot if debug is on
         plt.plot(maxdist, color='green')
+        plt.plot(mindist, color='red')
+        plt.plot(avgdist, color='blue')
         plt.legend(["max","min","avg"])
         plt.xlabel("Generation")
         plt.ylabel("max_score")
+        plt.title(f"last sim time = {round(elapsed_time,2)}, number of brains = {NeatAI_pop.brain_count}")
         
-        if gen < max_generations-1:
+        if gen < max_generations-1 and os.path.exists("show_score_graph"):
             plt.pause(1)
             plt.clf()
             

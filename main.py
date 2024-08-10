@@ -37,7 +37,7 @@ def objective_function_calculator(sim_results):
         R_leg_integral = 0
         L_leg_vel = []
         R_leg_vel = []
-        alternating_leg_integral = 0
+        y_vel_integral = 0
         rot_integral = 0
         z_pos_integral = 0
         stored_inputs = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
@@ -55,11 +55,12 @@ def objective_function_calculator(sim_results):
             R_leg_integral += abs(step_result[3])
             R_leg_vel.append(step_result[9])
             
-            #get the alternating leg integral
-            alternating_leg_integral += step_result[6]+step_result[9]
-            
             #integrate the position z over the step
             z_pos_integral += abs(step_result[14])
+            
+            #integrate the y velocity values over the step
+            #target velocity is 1
+            y_vel_integral += abs(step_result[19] - 1)
             
             #integrate the rotation values over the step for the x,y,z values
             #this is done by summing the absolute values of the rotation values
@@ -72,14 +73,13 @@ def objective_function_calculator(sim_results):
 
         #scale objective value by the z-1.11 (height) value of the body position
         #if final height is 0.24, the obj value is set to ~0
-
         #[!]
-        obj_value.append(10)
-        obj_value[robot_index] -= abs(((z_pos_integral-(1*step_count))/(1*step_count))) * 1 * scale
+        obj_value.append(target_score)
+        obj_value[robot_index] -= abs(((z_pos_integral-(1*step_count))/(1*step_count))) * 1.25 * scale
         
         #update the objective value for a penalty related to the rotation integral
-        #the integral should be scaled by the max value of the integral (3 (rotation values) *  area of the rectangle with height 1 and width step_count)
-        obj_value[robot_index] -= abs(((rot_integral)/(0.75*step_count))) * 1 * scale
+        #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
+        obj_value[robot_index] -= abs(((rot_integral)/(0.75*step_count))) * 1.75 * scale
         
         #take points away for using leg muscles
         #the integral should be scaled by the max value of the integral (2 (legs) *  area of the rectangle with height 1.5 and width step_count)
@@ -90,15 +90,17 @@ def objective_function_calculator(sim_results):
         
         
         '''WALKING TRAINING'''
-        '''
-        #add bonus points for time survived
-        obj_value[robot_index] += abs(step_count/(sum(step_count_list)/len(step_count_list))) * 0.25 * distance_travelled * scale
         
-        #add bonus points for balancing one leg movement with the opposite movement of the other leg
-        #2 now means the area created when the 2 legs are at the same position
-        obj_value[robot_index] += abs(1-((abs(alternating_leg_integral))/(2*1*step_count))) * 1 * scale
+        #add bonus points for distance travelled
+        #0.5 points per unit travelled
+        #obj_value[robot_index] += abs(distance_travelled/1) * 0.5 * scale
         
-        '''
+        #add bonus points for velocity matched
+        #divide by the integral of the desired velocity
+        obj_value[robot_index] -= abs((y_vel_integral)/(2*step_count)) * 1 * scale
+        
+        
+     
 
     return obj_value
 
@@ -109,7 +111,7 @@ if __name__ == "__main__":
     #################################### TRAINING PARAMETERS ####################################
 
     #simulation specific
-    max_generations = 50
+    max_generations = 5000
     load_from_sim_options_file = True
     options = {"robot_type" : "biped_freeman_abs.urdf",
                 "joint_friction" : 10,
@@ -135,16 +137,21 @@ if __name__ == "__main__":
     Number_of_inputs = 15
     Number_of_outputs = 6
     save_pop_dir = f"NeatAI/pop_saves/sim{int(time.time())}/"
-    Starting_brain_count= 8 
+    Starting_brain_count= 12 
     MaxSpecialDist= 0.25
     max_offspring= 8
     min_offspring= 1
     max_pop_brains= 30
-    max_mutations_per_gen=4
+    max_mutations_per_gen=6
     preserve_top_brain = True
     dynamic_mutation_rate = True
     do_explicit_fitness_sharing = False
-    target_score = 10
+    import_pop_dir = None
+    import_pop_file = None
+    target_score = 50
+    fitness_sharing_c1 = 1.5
+    fitness_sharing_c2 = 1.5
+    fitness_sharing_c3 = 0.4
     
 
 
@@ -180,7 +187,13 @@ if __name__ == "__main__":
                             preserve_top_brain=preserve_top_brain,
                             dynamic_mutation_rate=dynamic_mutation_rate,
                             target_score=target_score,
-                            do_explicit_fitness_sharing=do_explicit_fitness_sharing)
+                            do_explicit_fitness_sharing=do_explicit_fitness_sharing,
+                            import_population_from_file=import_pop_file,
+                            dir=import_pop_dir)
+
+    NeatAI_pop.compatability_c1 = fitness_sharing_c1
+    NeatAI_pop.compatability_c2 = fitness_sharing_c2
+    NeatAI_pop.compatability_c3 = fitness_sharing_c3
 
     ################### SETUP AND RUN ###################
     
@@ -268,20 +281,22 @@ if __name__ == "__main__":
         print(f"max diff distance : {NeatAI_pop.get_max_speciation_difference_per_species()[0]}") 
         print(f"next max mutations : {NeatAI_pop.maxmutations} mutations per gen") 
         
-        #6 - (optional) save best brain every generation
+        #6 - (optional) save best brain (connections) every generation
+        #also save the brain_map of the current best brain as a .png
         maxlist.append(max(res))
         minlist.append(min(res))
         avglist.append(sum(res)/len(res))
         target_list.append(target_score)
-        specie_index, brain_index = NeatAI_pop.get_highest_score_brain()
+        specie_index, brain_index = NeatAI_pop.get_highest_score_brain()   
         NeatAI_pop.species[specie_index].brains[brain_index].save_brain(f"best_brain_gen{NeatAI_pop.generation}.txt",
                                                                                      overwrite=True,
                                                                                      dir = save_pop_dir)
-      
+        
+        
         #7 - prepare new gen with the best brains
         #this is the crossover step
         NeatAI_pop.create_new_generation()
-        
+                    
         #debug plot
         if os.path.exists("show_score_graph") or gen == max_generations-1 or os.path.exists("stop_sim_now"):
             plt.plot(maxlist, color='green')
@@ -293,14 +308,13 @@ if __name__ == "__main__":
             plt.ylabel("max_score")
             plt.grid()
             plt.title(f"last sim time = {round(elapsed_time,2)} [s], number of brains = {NeatAI_pop.brain_count}")
-            
-            if gen == max_generations-1 or os.path.exists("stop_sim_now"):                
-                plt.savefig(save_pop_dir+"max_score.png")
-                
-            plt.pause(1)
-            plt.clf()
-        else:
-            plt.close()
+                         
+            plt.savefig(save_pop_dir+"max_score.png")
+
+        #only if the score goes up
+        if len(maxlist)>2 and max(res) >= maxlist[-2]:
+            NeatAI_pop.species[specie_index].brains[brain_index].save_mental_map("best_brain_current_gen.png",dir = save_pop_dir)
+      
             
         #CHECK FOR IMMEDIATE TERMINATION FILE
         if os.path.exists("stop_sim_now"):

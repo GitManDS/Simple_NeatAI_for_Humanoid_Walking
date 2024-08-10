@@ -15,3 +15,10 @@
 - doing the fitness sharing thing saves new innovations too well and destroys incremental improvements of existing inovations
 - this is likelly because the max special distance was kept high in order to avoid a high number of species which would slow progress down
 - TRY REDUCING THE MAX SPECIAL DIST or INCREASING THE WEIGHT OF DISJOINT/EXCESS GENES
+- using my method, newer species will be time limited in their growth as if they continue to get bigger without getting better they will be deleted
+
+- one problem with the preserve brain thing is that the top brain might eventually be isolated by all other species, eaving it at risk of being deleted to assure the brain limit
+- solving this is essentially just ncreasing the max brain limit and decreasing the special distance
+
+- - TRAINING
+- between the velocity and rotation penalties, the weights need to be fixed or else the robot will just throw itself forward to match the speed

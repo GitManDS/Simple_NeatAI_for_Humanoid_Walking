@@ -97,7 +97,7 @@ def objective_function_calculator(sim_results):
              
         #plot all the inputs
         plt.figure()
-        for stored_index in [0,3,6,9,14,15]:
+        for stored_index in [0,3,6,9,14,15,19]:
             plt.plot(stored_inputs[stored_index], label = f"input {stored_index}")
         plt.legend()
         plt.grid()

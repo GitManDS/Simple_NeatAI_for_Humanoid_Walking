@@ -253,7 +253,7 @@ class population:
         self.update_species_brain_count()
         while self.brain_count > self.MaxBrains:
             #remove the last brains
-            self.species.pop()
+            self.species.pop(-1)
             self.update_species_brain_count()
         
         #update generation counter
@@ -1007,9 +1007,9 @@ class brain_fenotype:
         pass
     
     #saves a diagram of the brain to a path
-    def save_mental_map(self, filename, overwrite = False):
+    def save_mental_map(self, filename, dir = "NeatAI/brain_saves/" , overwrite = False):
         #standard path
-        path = "NeatAI/brain_saves/" + filename
+        path = dir + filename
         
         #save the brain's state
         vz.draw_genepool(self)

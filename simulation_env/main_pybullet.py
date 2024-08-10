@@ -37,7 +37,7 @@ class sim_client:
         self.robot_sim_results = {}                     #any sim results data that needs to be exported
         self.sim_data = []                              #simulation data
         self.robot_joint_count = 0                      #joint count of the robot (to be updated)
-        self.relevant_joints = [5,6,8,9]                #joints to search info for and apply forces to
+        self.relevant_joints = [5,6,7,8,9,10]                #joints to search info for and apply forces to
         
         #add assets folder
         assets_folder = "C:/Users/diogo serra/Desktop/trabalhos, documentose afixos de programas/TUDelft-MEaer/een/even semester/AI/Bipedal agent project/simulation_env/assets"
@@ -258,7 +258,7 @@ class sim_client:
                     
         print(input_debug_max)
         print(max_index)
-        '''    
+        '''   
         
         #return for immediate post processing
         return self.robot_sim_results, self.sim_data
@@ -370,11 +370,17 @@ class sim_client:
             
         index = 0
         for joint_index in joint_list:
+            if joint_index in [5,8]:
+                target_torque = self.joint_torque_multiplier    
+            elif joint_index in [6,9]:
+                target_torque = self.joint_torque_multiplier/2
+            elif joint_index in [7,10]:
+                target_torque = self.joint_torque_multiplier/4
             self.Client.setJointMotorControl2(robot, joint_index, 
                                               self.Client.POSITION_CONTROL, 
                                               targetPosition = position[index], 
                                               targetVelocity = self.target_joint_velocity,
-                                              force=self.joint_torque_multiplier)
+                                              force=target_torque)
             index += 1
         
         pass
@@ -630,6 +636,7 @@ def simulate(pop,
             robot_type = "biped_freeman.urdf",
             joint_friction = 10,
             torque_multiplier = 100,
+            target_joint_velocity = 2,
             GUI = False,
             max_single_process_brains = 7,
             max_processes = 4,
@@ -659,6 +666,7 @@ def simulate(pop,
              robot_type=robot_type,
              joint_friction=joint_friction,
              torque_multiplier=torque_multiplier,
+             target_joint_velocity=target_joint_velocity,
              GUI = GUI,
              time_controlled=time_controlled, 
              time_limit = time_limit,
@@ -677,6 +685,7 @@ def simulate(pop,
                                 robot_type=robot_type,
                                 joint_friction=joint_friction,
                                 torque_multiplier=torque_multiplier,
+                                target_joint_velocity=target_joint_velocity,
                                 GUI = GUI,
                                 time_controlled=time_controlled, 
                                 time_limit = time_limit,
@@ -703,6 +712,7 @@ def single_process_simulation(brains_list,keys_list,
              robot_type = "biped_freeman.urdf",
              joint_friction = 10,
              torque_multiplier = 100,
+             target_joint_velocity = 2,
              GUI = False,
              time_controlled=False, 
              time_limit = 5,
@@ -722,6 +732,7 @@ def single_process_simulation(brains_list,keys_list,
     #update joint friction and torque multiplier
     sim.joint_friction = joint_friction
     sim.joint_torque_multiplier = torque_multiplier
+    sim.target_joint_velocity = target_joint_velocity
     
     #setup sim client
     #includes creation of robots matching the given brain and keys list
@@ -752,6 +763,7 @@ def multiprocess_simulations(pop,
                             robot_type = "biped_freeman.urdf",
                             joint_friction = 10,
                             torque_multiplier = 100,
+                            target_joint_velocity = 2,
                             GUI = False,
                             time_controlled=False, 
                             time_limit = 5,
@@ -830,6 +842,7 @@ def multiprocess_simulations(pop,
                                                                 robot_type,
                                                                 joint_friction,
                                                                 torque_multiplier,
+                                                                target_joint_velocity,
                                                                 GUI,
                                                                 time_controlled, 
                                                                 time_limit,

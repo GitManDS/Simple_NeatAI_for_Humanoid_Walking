@@ -19,11 +19,12 @@ def create_robot_list_keys(pop):
 #used for position control
 def convert_input_to_joint_ranges(inputs):
     
+    #EDIT THESE LINES AND UPDATE THEM WITH THE CORRECT LIMITS IF THE ERROR IS LOCATED INSIDE THIS FUNCTION
+    #limit ranges in the correct order
     limit_range_torso_upperleg = [-1.5, 1.5]
     limit_range_torso_lowerleg = [-1.5, 0.2]
-    
-    #limit ranges in the correct order
-    limit_ranges = [limit_range_torso_upperleg, limit_range_torso_lowerleg, limit_range_torso_upperleg, limit_range_torso_lowerleg]
+    limit_range_torso_lowerleg = [-0.7,0.7]
+    limit_ranges = [limit_range_torso_upperleg, limit_range_torso_lowerleg, limit_range_torso_lowerleg, limit_range_torso_upperleg, limit_range_torso_lowerleg,limit_range_torso_lowerleg]
     
     positions = []
     #[!] Joint index is not the same as the one in the client robot
@@ -55,6 +56,7 @@ def load_options_from_file():
     expected_keys = {"robot_type": str,
                      "joint_friction": float,
                      "torque_multiplier": float,
+                     "target_joint_velocity" : float,
                      "GUI": bool , 
                      "max_single_process_brains": int,
                      "max_processes": int,

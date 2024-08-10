@@ -328,11 +328,11 @@
     </inertial>
   </link>
 
-  <joint name="l_ankle" type="fixed">
+  <joint name="l_ankle" type="revolute">
     <parent link="l_lowerleg"/>
     <child link="l_foot"/>
     <axis xyz="1 0 0"/>
-    <limit effort="10.0" lower="-2" upper="2" velocity="1000.0"/>
+    <limit effort="10.0" lower="-0.7" upper="0.7" velocity="1000.0"/>
     <origin rpy="0 0 0" xyz="-0.05 -0.03 -.43"/>
   </joint>
 
@@ -359,11 +359,11 @@
     </inertial>
   </link>
 
-  <joint name="r_ankle" type="fixed">
+  <joint name="r_ankle" type="revolute">
     <parent link="r_lowerleg"/>
     <child link="r_foot"/>
     <axis xyz="1 0 0"/>
-    <limit effort="10.0" lower="-2." upper="2" velocity="1000.0"/>
+    <limit effort="10.0" lower="-0.7" upper="0.7" velocity="1000.0"/>
     <origin rpy="0 0 0" xyz="0.05 -0.03 -.43"/>
   </joint>
 

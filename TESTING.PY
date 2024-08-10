@@ -38,7 +38,7 @@ def objective_function_calculator(sim_results):
         alternating_leg_integral = 0
         rot_integral = 0
         z_pos_integral = 0
-        stored_inputs = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
+        stored_inputs = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
         for entry_ind, step_result in enumerate(sim_results[robot_ID]):
             
             ##DEBUG
@@ -47,24 +47,24 @@ def objective_function_calculator(sim_results):
             #integrate the input values over the step for the L leg
             #L_leg_pos.append(step_result[0])
             L_leg_integral += abs(step_result[0])
-            L_leg_vel.append(step_result[4])
+            L_leg_vel.append(step_result[6])
             #integrate the input values over the step for the R leg
             #R_leg_pos.append(step_result[2])
-            R_leg_integral += abs(step_result[2])
-            R_leg_vel.append(step_result[6])
+            R_leg_integral += abs(step_result[3])
+            R_leg_vel.append(step_result[9])
             
             #get the alternating leg integral
-            alternating_leg_integral += step_result[4]+step_result[6]
+            alternating_leg_integral += step_result[6]+step_result[9]
             
             #integrate the position z over the step
-            z_pos_integral += abs(step_result[10])
+            z_pos_integral += abs(step_result[14])
             
             #integrate the rotation values over the step for the x,y,z values
             #this is done by summing the absolute values of the rotation values
-            rot_integral += abs(step_result[11])
+            rot_integral += abs(step_result[15])
             
         #get the final distance travelled 
-        distance_travelled = sim_results[robot_ID][-1][9]
+        distance_travelled = sim_results[robot_ID][-1][13]
 
         '''STANDING TRAINING'''
 
@@ -97,7 +97,7 @@ def objective_function_calculator(sim_results):
              
         #plot all the inputs
         plt.figure()
-        for stored_index in [0,2,4,6,10,11]:
+        for stored_index in [0,3,6,9,14,15]:
             plt.plot(stored_inputs[stored_index], label = f"input {stored_index}")
         plt.legend()
         plt.grid()
@@ -124,18 +124,24 @@ def objective_function_calculator(sim_results):
 
 
 #7 NOI (3 robot position + 4 robot joint positions) and 8 NOO (4 robot joint torques)
-NeatAI_pop = cl.population(NOI = 11, NOO = 4, 
+NeatAI_pop = cl.population(NOI = 15, NOO = 6, 
                             Starting_brain_count= 1, 
                             MaxSpecialDist= 0.15,
                             max_offspring= 5,
                             max_pop_brains= 30,
                             max_mutations_per_gen=2,
-                            import_brains_from_file=None)
+                            import_brains_from_file=None,
+                            import_population_from_file=None,
+                            dir="NeatAI/pop_saves/")
 
 maxlist = []
 
-NeatAI_pop.save_population("test_pop")
-NeatAI_pop.load_population("test_pop")
+#load only best brain
+#NeatAI_pop=NAIsf.order_by_score(NeatAI_pop)
+#brain=NeatAI_pop.species[0].brains[0]
+#NeatAI_pop.species[0].brains = []
+#NeatAI_pop.species = [NeatAI_pop.species[0]]
+#NeatAI_pop.species[0].add_brain(brain)
 
 
 sim = mpb.sim_client(robot_type= "biped_2d_simple.urdf")

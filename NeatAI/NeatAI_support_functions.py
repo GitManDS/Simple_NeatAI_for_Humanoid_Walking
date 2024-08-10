@@ -262,10 +262,14 @@ def order_by_score(element, reverse = True):
                         sorted = False
                         
                         #correct main list
-                        temp_holder = specie.brains[brain_i]                   #store current
-                        specie.brains[brain_i] = specie.brains[brain_i-1]     #replace current with previous
-                        specie.brains[brain_i-1] = temp_holder                 #replace previous with current (temp)
-        
+                        #.copy is meant to avoid reference errors
+                        temp_holder = specie.brains[brain_i].copy()              #store current
+                        specie.brains[brain_i] = specie.brains[brain_i-1].copy() #replace current with previous
+                        specie.brains[brain_i-1] = temp_holder                   #replace previous with current (temp)
+
+                        #also meant to avoid reference errors
+                        del temp_holder
+                        
         #order species
         sorted = False
         while not sorted:   
@@ -277,10 +281,14 @@ def order_by_score(element, reverse = True):
                     sorted = False
                     
                     #correct main list
-                    temp_holder = element.species[specie_i]                     #store current
-                    element.species[specie_i] = element.species[specie_i-1]     #replace current with previous
+                    #.copy is meant to avoid reference errors
+                    temp_holder = element.species[specie_i].copy()                     #store current
+                    element.species[specie_i] = element.species[specie_i-1].copy()     #replace current with previous
                     element.species[specie_i-1] = temp_holder                 #replace previous with current (temp)
-    
+
+                    #also meant to avoid reference errors
+                    del temp_holder
+                    
     elif type(element) == classes.species:    #specie was defined, order brains of that species
         
         sorted = False
@@ -293,36 +301,19 @@ def order_by_score(element, reverse = True):
                     sorted = False
                     
                     #correct main list
-                    temp_holder = element.brains[brain_i]                   #store current
-                    element.brains[brain_i] = element.brains[brain_i-1]     #replace current with previous
+                    #.copy is meant to avoid reference errors
+                    temp_holder = element.brains[brain_i].copy()                   #store current
+                    element.brains[brain_i] = element.brains[brain_i-1].copy()     #replace current with previous
                     element.brains[brain_i-1] = temp_holder                 #replace previous with current (temp)
-        
+
+                    #also meant to avoid reference errors
+                    del temp_holder
 
     else:
         exit("ERROR: element passed to order_by_score is not of type population or species")
     
     return element
-
-#for when a single index exists, this will get the species and the brain index corresponding
-#to the given index, this assumes that the brains are ordered by index in their species
-#and the species are ordered by index in the population
-#will return None, None if the index is out of bounds
-def get_species_brain_index_from_single_index(pop, index):
-    cursor=0
-    species_index = 0
-    brain_index = 0
-    
-    for specie in pop.species:
-        for brain in specie.brains:
-            if cursor == index:
-                return species_index, brain_index
-            cursor += 1
-            brain_index += 1
-        species_index += 1
-        brain_index = 0
-
-    return None, None
-    
+ 
     
 '''
 #helpfull function to sort lists according to the main list

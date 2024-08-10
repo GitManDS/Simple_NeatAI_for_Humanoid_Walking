@@ -10,7 +10,7 @@ class population:
     def __init__(self, NOI, NOO, Starting_brain_count=2, MaxSpecialDist=2.5, 
                  max_offspring = 3, min_offspring = 1, max_pop_brains = 10, max_mutations_per_gen = 3, 
                  import_brains_from_file = None, preserve_top_brain = False, dynamic_mutation_rate = False,
-                 import_population_from_file = None, target_score = None,
+                 import_population_from_file = None,  dir = None, target_score = None,
                  do_explicit_fitness_sharing = True) -> None:
         
         self.species = []                       #list of all the brains in the species
@@ -18,13 +18,13 @@ class population:
         #if import_population_from_file is given, load the population from the file
         if import_population_from_file != None:
             self.add_new_species()                  #create first species and append to species list  
-            self.load_population(import_population_from_file)
+            self.load_population(import_population_from_file, dir=dir)
         else:
             #create a population from scratch using random brains or imported brains
             #if import_brains_from_file is given, load the brain from the file         
             for i in range(Starting_brain_count):   
                 self.add_new_species()                  #create first species and append to species list   
-                self.species[i].add_brain(brain_fenotype(NOI,NOO, import_from_file=import_brains_from_file))
+                self.species[i].add_brain(brain_fenotype(NOI,NOO, import_from_file=import_brains_from_file, dir = dir))
             
         
         #storage
@@ -38,6 +38,7 @@ class population:
         self.compatability_c1 = 1                    #compatability distance coefficient 1
         self.compatability_c2 = 1                    #compatability distance coefficient 2
         self.compatability_c3 = 0.4                  #compatability distance coefficient 3
+    
         
         #optional parameters
         self.max_offspring = max_offspring                      #max number of offspring per species
@@ -527,6 +528,39 @@ class population:
                     self.maxmutations *= 0.8
                     self.dynamic_adjust_counter += 1
 
+    #for when a single index exists, this will get the species and the brain index corresponding
+    #to the given index, this assumes that the brains are ordered by index in their species
+    #and the species are ordered by index in the population
+    #will return None, None if the index is out of bounds
+    def get_species_brain_index_from_single_index(self,index):
+        cursor=0
+        species_index = 0
+        brain_index = 0
+        
+        for specie in self.species:
+            for brain in specie.brains:
+                if cursor == index:
+                    return species_index, brain_index
+                cursor += 1
+                brain_index += 1
+            species_index += 1
+            brain_index = 0
+
+        return None, None
+
+    #returns specie and brain index of the highest scoring brain
+    def get_highest_score_brain(self):
+        mscore = 0
+        mspecie = 0
+        mbrain = 0
+        for specie_i, specie in enumerate(self.species):
+            for brain_i, brain in enumerate(specie.brains):
+                if brain.score > mscore:
+                    mscore = brain.score
+                    mspecie = specie_i
+                    mbrain = brain_i
+        
+        return mspecie, mbrain
     pass
            
 class species:
@@ -573,6 +607,13 @@ class species:
         
         pass
     
+    def copy(self):
+        new_specie = species()
+        new_specie.brains = [brain.copy() for brain in self.brains]
+        new_specie.max_offspring = self.max_offspring
+        new_specie.brain_count = self.brain_count
+        return new_specie
+    
     #################### INFORMATION ####################
     def update_brain_count(self):
         self.brain_count = len(self.brains)
@@ -592,7 +633,7 @@ class species:
         return scores
       
 class brain_fenotype:
-    def __init__(self,NOI,NOO, import_from_file = None):
+    def __init__(self,NOI,NOO, import_from_file = None, dir = None):
         #initiliaze the brain with the minimum number of connections/nodes
         self.brain_unique_ID = rnd.randint(0,1000)
         self.NOI = NOI                #number of input nodes
@@ -608,7 +649,7 @@ class brain_fenotype:
         
         #if import from file is specified, load the brain from the file
         if import_from_file != None:
-            self.load_brain(import_from_file)
+            self.load_brain(import_from_file, dir = dir)
         else:
             #else, a random simple brain is created
             for i in range(NOO):
@@ -629,6 +670,7 @@ class brain_fenotype:
         new_brain.LastNodeIndex = self.LastNodeIndex
         new_brain.score = self.score
         new_brain.AF_method = self.AF_method
+        new_brain.preserve = self.preserve
         return new_brain
     
     #creates a copy of the genepool only and returns it
@@ -940,8 +982,8 @@ class brain_fenotype:
                 index = rnd.randint(0, len(self.genepool)-1)
                 old_weight = self.genepool[index].weight
                 
-                #update weight by +/- 20% max
-                amplitude = rnd.uniform(-1,1) * 0.2 
+                #update weight by +/- 50% max
+                amplitude = rnd.uniform(-1,1) * 0.5 
                 new_weight = old_weight + amplitude * old_weight
                 
                 #update weight

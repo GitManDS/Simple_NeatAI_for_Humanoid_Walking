@@ -10,8 +10,6 @@ from NeatAI import NeatAI_support_functions as NAIsf
 from simulation_env import main_pybullet as mpb
 from NeatAI import classes as cl
 
-#main dir files
-import sim_AI_connection_functions as sim_AI
 
 #main function to calculate objective value
 #does so for all the robots in the dictionary of main body positions

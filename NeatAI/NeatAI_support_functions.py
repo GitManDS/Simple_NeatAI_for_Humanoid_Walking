@@ -90,13 +90,13 @@ def combine_fenotypes(dominant_fenotype, recessive_fenotype):
 #compares 2 fenotypes for disjoint and excess genes
 #also measure the average connection weight difference
 #returns the compatibility distance
-def compare_fenotypes(fenotype1,fenotype2):
+def compare_fenotypes(fenotype1,fenotype2, weights = [1,1,0.4]):
     #Weights
     #delta = c1 *  excess/gene_larger_genome + c2 * disjoint/gene_bigger_genome + c3 * AWD
     #excess and disjoint genes are more critical than weight differences
-    c1 = 1               
-    c2 = 1
-    c3 = 0.4
+    c1 = weights[0]               
+    c2 = weights[1]
+    c3 = weights[2]
     
     #get data for the final calculation
     bigger_fenotype_conn_count = max(len(fenotype1.genepool),len(fenotype2.genepool))

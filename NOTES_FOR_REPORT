@@ -9,3 +9,9 @@
 
 - a high number of starting individuals ensures a rich environment for the top brain to evolve
 - ensure a sufficient number of first gen individuals controls to some extent how fast and how long the population will evolve
+
+- because of the way the scores are divided by the specie brain count, the scores must be above 0
+
+- doing the fitness sharing thing saves new innovations too well and destroys incremental improvements of existing inovations
+- this is likelly because the max special distance was kept high in order to avoid a high number of species which would slow progress down
+- TRY REDUCING THE MAX SPECIAL DIST or INCREASING THE WEIGHT OF DISJOINT/EXCESS GENES

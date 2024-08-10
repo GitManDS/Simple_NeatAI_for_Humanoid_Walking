@@ -8,9 +8,10 @@ import os
 
 class population:
     def __init__(self, NOI, NOO, Starting_brain_count=2, MaxSpecialDist=2.5, 
-                 max_offspring = 3, max_pop_brains = 10, max_mutations_per_gen = 3, 
-                 import_brains_from_file = None, preserve_top_brain = False,
-                 import_population_from_file = None) -> None:
+                 max_offspring = 3, min_offspring = 1, max_pop_brains = 10, max_mutations_per_gen = 3, 
+                 import_brains_from_file = None, preserve_top_brain = False, dynamic_mutation_rate = False,
+                 import_population_from_file = None, target_score = None,
+                 do_explicit_fitness_sharing = True) -> None:
         
         self.species = []                       #list of all the brains in the species
 
@@ -26,17 +27,28 @@ class population:
                 self.species[i].add_brain(brain_fenotype(NOI,NOO, import_from_file=import_brains_from_file))
             
         
+        #storage
         self.innovation = 1                          #innovation counter  
-        self.generation = 1
+        self.generation = 1                          #current generation
         self.inov_database = {}                      #database of all the innovations (hidden nodes and connections only)    
         self.species_count = 1                       #number of species
         self.brain_count = Starting_brain_count      #number of brains
-        self.max_offspring = max_offspring           #max number of offspring per species
-        self.min_offspring = 1                       #min number of offspring per species
-        self.MaxSpecialDist = MaxSpecialDist         #max distance for compatibility between species
-        self.MaxBrains = max_pop_brains              #max number of brains in the population at any given time 
-        self.maxmutations = max_mutations_per_gen    #max number of mutations per generation
-        self.preserve_top_brain = preserve_top_brain #If true, best brain of every generation is preserved / does not mutate
+        self.dynamic_adjust_counter = 0              #counter for number of times the dynamic mutation rate has been adjusted
+        self.initial_max_score = None                #initial max score of the population
+        self.compatability_c1 = 1                    #compatability distance coefficient 1
+        self.compatability_c2 = 1                    #compatability distance coefficient 2
+        self.compatability_c3 = 0.4                  #compatability distance coefficient 3
+        
+        #optional parameters
+        self.max_offspring = max_offspring                      #max number of offspring per species
+        self.min_offspring = min_offspring                      #min number of offspring per species
+        self.MaxSpecialDist = MaxSpecialDist                    #max distance for compatibility between species
+        self.MaxBrains = max_pop_brains                         #max number of brains in the population at any given time 
+        self.maxmutations = max_mutations_per_gen               #max number of mutations per generation
+        self.preserve_top_brain = preserve_top_brain            #If true, best brain of every generation is preserved / does not mutate
+        self.dynamic_mutation_rate = dynamic_mutation_rate      #if true, mutation rate is dynamic and depends on distance to target value
+        self.target_value = target_score                        #target value for dynamic mutation rate
+        self.do_explicit_fitness_sharing = do_explicit_fitness_sharing #if true, fitness is divided by the number of brains in the species 
         
         pass
     
@@ -77,16 +89,20 @@ class population:
     #if only specie_index is specified, its assumed that there's results for all brains in that specie
     #if booth indexes are specified, its assumed that there's only one result for one brain  
     def update_results(self, results, specie_index = -1, brain_index = -1):
+        
+        if self.dynamic_adjust_counter:
+            self.dynamic_update_max_offspring_count(results)
+        
         if specie_index != -1:
             #specific species was identified
             specie = self.species[specie_index]
-            specie.update_results(results, brain_index)
+            specie.update_results(results, brain_index, do_explicit_fitness_sharing = self.do_explicit_fitness_sharing)
                 
         elif brain_index == -1:     #supplying a brain index but not a specie index is not allowed
             #results for all species in all brains
             cursor = 0
             for specie in self.species:
-                specie.update_results(results[cursor:cursor+len(specie.brains)], brain_index)
+                specie.update_results(results[cursor:cursor+len(specie.brains)], brain_index, do_explicit_fitness_sharing = self.do_explicit_fitness_sharing)
                 cursor += len(specie.brains)
                 
         pass
@@ -114,7 +130,8 @@ class population:
                 compat = True
                 for brain_to_compare in species.brains:
                     #compare current brain with every brain in the population
-                    SpecialDist, debug_info = NAIsf.compare_fenotypes(brain, brain_to_compare)
+                    SpecialDist, debug_info = NAIsf.compare_fenotypes(brain, brain_to_compare,
+                                                                      weights=[self.compatability_c1,self.compatability_c2,self.compatability_c3])
                     
                     if SpecialDist > self.MaxSpecialDist:
                         #if the brain is not compatible with the species, break the loop
@@ -425,7 +442,9 @@ class population:
                 #index_row+1 to avoid checking a pair of the same brain
                 #doing it this way avoids checking the same brains more than once
                 for index_col in range(index_row+1,len(self.species[specie_index].brains)):
-                    diff = NAIsf.compare_fenotypes(self.species[specie_index].brains[index_row],self.species[specie_index].brains[index_col])
+                    diff = NAIsf.compare_fenotypes(self.species[specie_index].brains[index_row],
+                                                   self.species[specie_index].brains[index_col],
+                                                   weights=[self.compatability_c1,self.compatability_c2,self.compatability_c3])
                     if diff[0] > max_diff[specie_index]:
                         max_diff[specie_index] = diff[0]
                                
@@ -488,7 +507,26 @@ class population:
                 scores.append(brain.score)
             
         return scores
-             
+       
+    #will dynamically evaluate the mutation rate according to the distance to the target value of the max result
+    #if the res is within 20% of the target value, the mutation rate will be reduced by 20%
+    #if the res is within 10% of the target value, the mutation rate will be reduced by another 20%
+    #if the res is within 5% of the target value, the mutation rate will be reduced by another 20%
+    def dynamic_update_max_mutation_rate_count(self, res):
+        
+        if self.target_value == None or self.initial_max_score == None:
+            print("########################################\n WARNING: DYNAMIC MUTATION RATE NOT ENABLED DUE TO INSUFICIENT DATA\n########################################")
+            return
+            
+        counter = self.dynamic_adjust_counter
+        #im not 100% happy with this implementation but it works well enough for the simple calculation that it is
+
+        if abs((max(res)-self.target_value)/self.initial_max_score) < 0.2 and counter < 3:
+            if abs((max(res)-self.target_value)/self.initial_max_score) < 0.1 and counter < 2:
+                if abs((max(res)-self.target_value)/self.initial_max_score) < 0.05 and counter < 1:
+                    self.maxmutations *= 0.8
+                    self.dynamic_adjust_counter += 1
+
     pass
            
 class species:
@@ -516,7 +554,7 @@ class species:
             self.brain_count -= 1
         pass
     
-    def update_results(self,results, index = -1):
+    def update_results(self,results, index = -1, do_explicit_fitness_sharing = True):
         #udpate brain count
         self.update_brain_count()
         
@@ -526,9 +564,11 @@ class species:
         #self.adjus_results = [i/len(self.brains) for i in self.adjus_results]
         if index == -1:                             #all brain results
             for brain_index, brain in enumerate(self.brains):
-                brain.score = results[brain_index] / self.brain_count
+                brain.score = results[brain_index]
+                if do_explicit_fitness_sharing: brain.score /= self.brain_count
         else:                                       #individual brian results
             self.brains[index].score = results/self.brain_count
+            if do_explicit_fitness_sharing: brain.score /= self.brain_count
             
         
         pass
@@ -974,7 +1014,6 @@ class brain_fenotype:
                 i+=1
                 
             #open file
-            print(path)
             file = open(path, "w+")
         elif mode == "a":
             file = open(path, "a")

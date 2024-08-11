@@ -65,7 +65,9 @@ def objective_function_calculator(sim_results):
             #integrate the rotation values over the step for the x,y,z values
             #this is done by summing the absolute values of the rotation values
             rot_integral += abs(step_result[15])
-            
+          
+        contributions = []  
+        
         #get the final distance travelled 
         distance_travelled = sim_results[robot_ID][-1][13]
 
@@ -74,16 +76,23 @@ def objective_function_calculator(sim_results):
         #scale objective value by the z-1.11 (height) value of the body position
         #if final height is 0.24, the obj value is set to ~0
         #[!]
-        obj_value.append(target_score)
-        obj_value[robot_index] -= abs(((z_pos_integral-(1*step_count))/(1*step_count))) * 1.25 * scale
+        contributions.append(target_score)
+        #contributions.append(-abs(((z_pos_integral-(1*step_count))/(1*step_count))) * 2.5 * scale)
+        
+        #add bonus points for velocity matched
+        #divide by the integral of the desired velocity
+        contributions.append(+abs((y_vel_integral)/(2*step_count)) * 1 * scale)
+        
+        #blend z pos and y vel penalties together
+        contributions[-1] *= abs(z_pos_integral/(1.1*step_count)) * 2.5 * scale
         
         #update the objective value for a penalty related to the rotation integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        obj_value[robot_index] -= abs(((rot_integral)/(0.75*step_count))) * 1.75 * scale
+        contributions.append(- abs(((rot_integral)/(0.75*step_count))) * 1.25 * scale)
         
         #take points away for using leg muscles
         #the integral should be scaled by the max value of the integral (2 (legs) *  area of the rectangle with height 1.5 and width step_count)
-        obj_value[robot_index] -= abs(((L_leg_integral+R_leg_integral)/(2*1.5*step_count))) * 1 * scale
+        #contributions.append(- abs(((L_leg_integral+R_leg_integral)/(2*1.5*step_count))) * 1 * scale)
         
         #add bonus points for time survived
         #obj_value[robot_index] -= (1 - step_count/300) * 0.25 * scale
@@ -95,13 +104,14 @@ def objective_function_calculator(sim_results):
         #0.5 points per unit travelled
         #obj_value[robot_index] += abs(distance_travelled/1) * 0.5 * scale
         
-        #add bonus points for velocity matched
-        #divide by the integral of the desired velocity
-        obj_value[robot_index] -= abs((y_vel_integral)/(2*step_count)) * 1 * scale
         
+        #get objective value
+        obj_value.append(sum(contributions))
         
-     
-
+        if robot_ID == "S0:B0":
+            print(contributions)
+        
+    
     return obj_value
 
 
@@ -231,7 +241,7 @@ if __name__ == "__main__":
         #2 - do general mutations and reorganization round
         #THIS HAS TO BE DONE BEFORE THE ROBOTS ARE CREATED SINCE IT SCREWS AROUND WITH THE BRAIN ORDER
         NeatAI_pop.mutate_all()
-
+    
         #3 - simulate the brains/robots in parallel
         clock_start = time.time()
         sim_results, sim_data = mpb.simulate(NeatAI_pop, 
@@ -277,7 +287,7 @@ if __name__ == "__main__":
             
         
         #(debug) print results and other data
-        NeatAI_pop.print(include_results=True, ordered_by_score=True, simplified=True)
+        NeatAI_pop.print(include_results=True, ordered_by_score=True, simplified=False)
         print(f"max diff distance : {NeatAI_pop.get_max_speciation_difference_per_species()[0]}") 
         print(f"next max mutations : {NeatAI_pop.maxmutations} mutations per gen") 
         
@@ -295,7 +305,7 @@ if __name__ == "__main__":
         
         #7 - prepare new gen with the best brains
         #this is the crossover step
-        NeatAI_pop.create_new_generation()
+        '''NeatAI_pop.create_new_generation()'''
                     
         #debug plot
         if os.path.exists("show_score_graph") or gen == max_generations-1 or os.path.exists("stop_sim_now"):

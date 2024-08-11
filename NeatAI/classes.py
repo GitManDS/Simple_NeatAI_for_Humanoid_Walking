@@ -158,8 +158,8 @@ class population:
     def mutate_all(self):       
         #start mutation for all brains  in population
         #go one by one and mutate them
-        for specie in self.species:
-            for brain in specie.brains:
+        for specie_i, specie in enumerate(self.species):
+            for brain_i, brain in enumerate(specie.brains):
                 #preserve top brain
                 if brain.preserve:
                     brain.preserve = False
@@ -253,6 +253,9 @@ class population:
         self.update_species_brain_count()
         while self.brain_count > self.MaxBrains:
             #remove the last brains
+            for brain in self.species[-1].brains:
+                if brain.preserve:
+                    exit("found it")
             self.species.pop(-1)
             self.update_species_brain_count()
         
@@ -276,7 +279,7 @@ class population:
         self.update_species_brain_count()
         
         print("------------ Population Print ------------")
-        print(f"Number of species: {len(self.species)}, Number of brains: {self.brain_count}")
+        print(f"Number of species: {len(self.species)}, Number of brains: {self.brain_count}, gen = {self.generation}")
         for i,specie in enumerate(self.species):
             print(f"<SPECIE> = {i}:")
             if simplified:
@@ -561,6 +564,7 @@ class population:
                     mbrain = brain_i
         
         return mspecie, mbrain
+    
     pass
            
 class species:
@@ -660,7 +664,7 @@ class brain_fenotype:
         pass
     
     #creates copy of the brain and returns it
-    def copy(self):
+    def copy(self, exact_copy = False):
         new_brain = brain_fenotype(self.NOI,self.NOO)
         
         new_brain.genepool = self.copy_genepool()
@@ -668,9 +672,16 @@ class brain_fenotype:
         new_brain.inov_counter = self.inov_counter
         new_brain.NodeCount = self.NodeCount
         new_brain.LastNodeIndex = self.LastNodeIndex
-        new_brain.score = self.score
         new_brain.AF_method = self.AF_method
-        new_brain.preserve = self.preserve
+        
+        #score and preserve are reference specific and should not be copied
+        if exact_copy:
+            new_brain.score = self.score
+            new_brain.brain_unique_ID = self.brain_unique_ID
+        else:
+            new_brain.score = 0    
+        
+        new_brain.preserve = False
         return new_brain
     
     #creates a copy of the genepool only and returns it
@@ -1022,7 +1033,7 @@ class brain_fenotype:
     #in_index, out_index and inov can be used to filter results
     def print(self, in_index = -1 , out_index = -1, inov = -1, active_only = False):
         #first print NOI, NOO and NodeCount
-        print(f"<NOI> = {self.NOI}, <NOO> = {self.NOO}, <NodeCount> = {self.NodeCount}")
+        print(f"<NOI> = {self.NOI}, <NOO> = {self.NOO}, <NodeCount> = {self.NodeCount}, <ID> = {self.brain_unique_ID}" )
         
         #then all the connections
         for i,con in enumerate(self.genepool):

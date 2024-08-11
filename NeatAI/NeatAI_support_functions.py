@@ -263,8 +263,8 @@ def order_by_score(element, reverse = True):
                         
                         #correct main list
                         #.copy is meant to avoid reference errors
-                        temp_holder = specie.brains[brain_i].copy()              #store current
-                        specie.brains[brain_i] = specie.brains[brain_i-1].copy() #replace current with previous
+                        temp_holder = specie.brains[brain_i]             #store current
+                        specie.brains[brain_i] = specie.brains[brain_i-1] #replace current with previous
                         specie.brains[brain_i-1] = temp_holder                   #replace previous with current (temp)
 
                         #also meant to avoid reference errors
@@ -282,8 +282,8 @@ def order_by_score(element, reverse = True):
                     
                     #correct main list
                     #.copy is meant to avoid reference errors
-                    temp_holder = element.species[specie_i].copy()                     #store current
-                    element.species[specie_i] = element.species[specie_i-1].copy()     #replace current with previous
+                    temp_holder = element.species[specie_i]                     #store current
+                    element.species[specie_i] = element.species[specie_i-1]     #replace current with previous
                     element.species[specie_i-1] = temp_holder                 #replace previous with current (temp)
 
                     #also meant to avoid reference errors

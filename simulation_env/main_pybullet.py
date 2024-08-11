@@ -80,7 +80,9 @@ class sim_client:
         #for the storage of any input and the position of the robots
         #need to initialize it here to avoid errors
         self.robot_sim_results = {}
+        main_body_position_old = {}
         for robot_ID in self.robot_list:
+            main_body_position_old.update({robot_ID: []})
             self.robot_sim_results.update({robot_ID: []})  
             
         #copy the robot list to avoid issues with the dictionary changing size during iteration
@@ -135,10 +137,12 @@ class sim_client:
             self.Client.stepSimulation()
             
             #get initial robot positions
-            main_body_position_old = []
             for robot_ID in self.robot_list:
-                main_body_position, main_body_rotation, joint_pos, joint_vel = self.get_robot_and_joints_position_rotation(self.robot_list[robot_ID])
-                main_body_position_old.append(main_body_position)
+                main_body_position, main_body_rotation, joint_pos, joint_vel = self.get_robot_and_joints_position_rotation(robot_ID=robot_ID, joint_list=self.relevant_joints)
+                main_body_position_old[robot_ID] = main_body_position
+            
+            #set time step
+            #self.Client.setTimeStep(timeStep = 1/2400)
             
             for self.step in range(step_limit):
                 
@@ -186,16 +190,15 @@ class sim_client:
                     main_body_rotation = [i/math.pi for i in main_body_rotation]     
                     
                     #get velocity from the last step (units/step) and update old pos
-                    velocity = [main_body_position[j] - main_body_position_old[i][j] for j in range(3)]
-                    main_body_position_old[i] = main_body_position
+                    velocity = [main_body_position[j] - main_body_position_old[robot_ID][j] for j in range(3)]
+                    main_body_position_old[robot_ID] = main_body_position
                     
                     #normalize the joint and pos inputs
                     #rotation goes from -1 to 1
                     velocity = [i*100 for i in velocity]
                     joint_pos = joint_pos
                     joint_vel = [i/10 for i in joint_vel]
-                    
-                    
+                     
                     #create input
                     input = [velocity[1]] + [velocity[2]] + [main_body_rotation[0]] + joint_pos + joint_vel   
                     
@@ -208,11 +211,14 @@ class sim_client:
                                                             main_body_rotation+ velocity+ [self.step])
                     
                     #if the robot fell, delete it
-                    if main_body_position[2] < 0.25:
+                    if main_body_position[2] > 100000:
                         self.Client.removeBody(robot_list_copy[robot_ID])
+                        
+                        #delete robot, robot ID and brain
                         robot_list_copy.pop(robot_ID)
                         robot_ID_list.pop(i)
-                        
+                        brains_list.pop(i)
+                           
                         #dont iterate to next robot since this one was deleted from the list
                     
                     else:
@@ -273,8 +279,8 @@ class sim_client:
           
         #manage collisions
         for robot_ID in self.robot_list:
-            last_link_index = 13
-            for link_id in range(0,last_link_index+1):
+            Number_of_links = 12
+            for link_id in range(0,Number_of_links):
                 #disable the robot collisions between each other
                 self.Client.setCollisionFilterGroupMask(self.robot_list[robot_ID], link_id, 0, 0)
                 #enable the robot collisions with the plane
@@ -317,8 +323,6 @@ class sim_client:
         for i in joint_list:
             joint_pos.append(self.Client.getJointState(robot,i)[0])
             joint_vel.append(self.Client.getJointState(robot,i)[1])
-            pass
-
 
         return main_body_position, main_body_rotation, joint_pos, joint_vel
 
@@ -651,13 +655,41 @@ def simulate(pop,
             show_coords = False,
             cam_focus_ID = None):
     
-    positions = {}
+    sim_results = {}
     sim_data = []
     
     brains_list = pop.get_brains()  
     
+    keys_list = pbsf.create_robot_list_keys(pop)
+    for index, brain in enumerate(brains_list):
+        sim_results_i, sim_data_i = single_process_simulation([brain],[keys_list[index]],
+                                robot_type=robot_type,
+                                joint_friction=joint_friction,
+                                torque_multiplier=torque_multiplier,
+                                target_joint_velocity=target_joint_velocity,
+                                GUI = GUI,
+                                time_controlled=time_controlled, 
+                                time_limit = time_limit,
+                                step_limit = step_limit, 
+                                max_TPS = max_TPS,
+                                debug = debug,
+                                show_timer = show_timer, 
+                                show_axis = show_axis, 
+                                show_IDs = show_IDs,
+                                show_coords = show_coords,
+                                cam_focus_ID = cam_focus_ID)
+        
+        sim_results.update(sim_results_i)
+            
+    '''
+    FACT OF THE DAY
+    [>>>] Did you know the existence of a second body in the simulation influences the physics calculations of the first body?
+    [>>>] I didn't, pybullet does not warn you of this and guessing the physics simulator is in the wrong here certaintly wasn't my first or second or third guess
+    [>>>] I'm not mad, I'm just disappointed
+    Commented is the code for multithreading and multibody loading i was using....
+    
     #if the number of brains is less than the max_processes, then run a single process
-    if len(brains_list) < max_single_process_brains:
+    elif len(brains_list) < max_single_process_brains:
         #create the necessary keys for the robot list
         keys_list = pbsf.create_robot_list_keys(pop)
         
@@ -700,6 +732,7 @@ def simulate(pop,
                                 cam_focus_ID = cam_focus_ID)
         
         
+    '''
         
     return sim_results, sim_data
 

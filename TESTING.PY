@@ -20,6 +20,7 @@ def objective_function_calculator(sim_results):
     current_robot_input = []
     robot_count = len(sim_results.keys())
     step_count_list = []
+    scale = 3
 
     #go robot by robot
     for robot_index, robot_ID in enumerate(sim_results):
@@ -27,6 +28,7 @@ def objective_function_calculator(sim_results):
         #last values of a inputs entry is the last step
         step_count = sim_results[robot_ID][-1][-1]
         step_count_list.append(step_count)
+        target_score = 50
             
               
         #add contribution of the inputs
@@ -35,7 +37,7 @@ def objective_function_calculator(sim_results):
         R_leg_integral = 0
         L_leg_vel = []
         R_leg_vel = []
-        alternating_leg_integral = 0
+        y_vel_integral = 0
         rot_integral = 0
         z_pos_integral = 0
         stored_inputs = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
@@ -53,16 +55,19 @@ def objective_function_calculator(sim_results):
             R_leg_integral += abs(step_result[3])
             R_leg_vel.append(step_result[9])
             
-            #get the alternating leg integral
-            alternating_leg_integral += step_result[6]+step_result[9]
-            
             #integrate the position z over the step
             z_pos_integral += abs(step_result[14])
+            
+            #integrate the y velocity values over the step
+            #target velocity is 1
+            y_vel_integral += abs(step_result[19] - 1)
             
             #integrate the rotation values over the step for the x,y,z values
             #this is done by summing the absolute values of the rotation values
             rot_integral += abs(step_result[15])
-            
+          
+        contributions = []  
+        
         #get the final distance travelled 
         distance_travelled = sim_results[robot_ID][-1][13]
 
@@ -70,31 +75,41 @@ def objective_function_calculator(sim_results):
 
         #scale objective value by the z-1.11 (height) value of the body position
         #if final height is 0.24, the obj value is set to ~0
-
         #[!]
-        obj_value.append(0)
-        obj_value[robot_index] += abs(1-(z_pos_integral/(1*step_count))) * 1
+        contributions.append(target_score)
+        #contributions.append(-abs(((z_pos_integral-(1*step_count))/(1*step_count))) * 2.5 * scale)
+        
+        #add bonus points for velocity matched
+        #divide by the integral of the desired velocity
+        contributions.append(+abs((y_vel_integral)/(2*step_count)) * 1 * scale)
+        
+        #blend z pos and y vel penalties together
+        contributions[-1] *= abs(z_pos_integral/(1.1*step_count)) * 2.5 * scale
         
         #update the objective value for a penalty related to the rotation integral
-        #the integral should be scaled by the max value of the integral (3 (rotation values) *  area of the rectangle with height 1 and width step_count)
-        obj_value[robot_index] += abs(1-((rot_integral)/(0.75*step_count))) * 1
+        #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
+        contributions.append(- abs(((rot_integral)/(0.75*step_count))) * 1.25 * scale)
         
         #take points away for using leg muscles
         #the integral should be scaled by the max value of the integral (2 (legs) *  area of the rectangle with height 1.5 and width step_count)
-        obj_value[robot_index] -= abs(1-((L_leg_integral+R_leg_integral)/(2*1.5*step_count))) * 1
-             
+        #contributions.append(- abs(((L_leg_integral+R_leg_integral)/(2*1.5*step_count))) * 1 * scale)
+        
+        #add bonus points for time survived
+        #obj_value[robot_index] -= (1 - step_count/300) * 0.25 * scale
+        
         
         '''WALKING TRAINING'''
-        '''
-        #add bonus points for time survived
-        obj_value[robot_index] += abs(step_count/(sum(step_count_list)/len(step_count_list))) * 0.25 * distance_travelled
         
-        #add bonus points for balancing one leg movement with the opposite movement of the other leg
-        #2 now means the area created when the 2 legs are at the same position
-        obj_value[robot_index] += abs(1-((abs(alternating_leg_integral))/(2*1*step_count))) * 1
+        #add bonus points for distance travelled
+        #0.5 points per unit travelled
+        #obj_value[robot_index] += abs(distance_travelled/1) * 0.5 * scale
         
-        '''
-             
+        
+        #get objective value
+        obj_value.append(sum(contributions))
+        
+           
+        '''   
         #plot all the inputs
         plt.figure()
         for stored_index in [0,3,6,9,14,15,19]:
@@ -103,7 +118,7 @@ def objective_function_calculator(sim_results):
         plt.grid()
         plt.title("all inputs")
         
-        '''  
+         
         plt.figure()  
         plt.plot([x[0] for x in current_robot_input], label = "L leg")
         plt.plot([x[1] for x in current_robot_input], label = "R leg")
@@ -115,8 +130,9 @@ def objective_function_calculator(sim_results):
         plt.plot([inputs["S0:B0"][step][5] for step in range(step_count)],label = "x_rot")
         plt.legend()
         plt.title(f"Robot {robot_ID}")
-        '''
+        
         plt.pause(4)
+        '''
             
     
     
@@ -125,12 +141,12 @@ def objective_function_calculator(sim_results):
 
 #7 NOI (3 robot position + 4 robot joint positions) and 8 NOO (4 robot joint torques)
 NeatAI_pop = cl.population(NOI = 15, NOO = 6, 
-                            Starting_brain_count= 1, 
+                            Starting_brain_count= 12, 
                             MaxSpecialDist= 0.15,
                             max_offspring= 5,
                             max_pop_brains= 30,
                             max_mutations_per_gen=2,
-                            import_brains_from_file=None,
+                            import_brains_from_file="sim1723398193/best_brain_gen1.txt",
                             import_population_from_file=None,
                             dir="NeatAI/pop_saves/")
 
@@ -170,9 +186,17 @@ for gen in range(1000000):
                     cam_focus_ID=None)
     
     #calculate objective value
-    if gen == 0:
-        res = objective_function_calculator(sim_results)
-        maxlist.append(max(res))
-        plt.plot(maxlist)
-        plt.pause(1)
-        plt.clf()
+    res = objective_function_calculator(sim_results)
+    print(res)
+    maxlist.append(max(res))
+    plt.figure()
+    plt.plot(maxlist)
+    plt.pause(1)
+    plt.clf()
+    
+    NeatAI_pop.update_results(results=res)
+    NeatAI_pop.print(include_results=True)
+    specie, brain = NeatAI_pop.get_highest_score_brain()
+    NeatAI_pop.species[specie].brains[brain].preserve = True
+    
+    

@@ -146,24 +146,11 @@ NeatAI_pop = cl.population(NOI = 15, NOO = 6,
                             max_offspring= 5,
                             max_pop_brains= 30,
                             max_mutations_per_gen=2,
-                            import_brains_from_file="sim1723398193/best_brain_gen1.txt",
-                            import_population_from_file=None,
+                            import_brains_from_file=None,
+                            import_population_from_file="sim1723454886/final_pop.txt",
                             dir="NeatAI/pop_saves/")
 
 maxlist = []
-
-#load only best brain
-#NeatAI_pop=NAIsf.order_by_score(NeatAI_pop)
-#brain=NeatAI_pop.species[0].brains[0]
-#NeatAI_pop.species[0].brains = []
-#NeatAI_pop.species = [NeatAI_pop.species[0]]
-#NeatAI_pop.species[0].add_brain(brain)
-
-
-sim = mpb.sim_client(robot_type= "biped_2d_simple.urdf")
-sim.add_robot("S0:B0")
-for i in range(sim.Client.getNumJoints(1)):
-    print(sim.Client.getJointInfo(1, i))
 
 plt.figure()
 gen = 0
@@ -178,10 +165,10 @@ for gen in range(1000000):
                     step_limit = 600,
                     time_limit = 100,
                     max_TPS= None,
-                    debug= False,
+                    debug= True,
                     show_IDs=False,
                     show_timer=False,
-                    show_coords=True,
+                    show_coords=False,
                     show_axis=False,
                     cam_focus_ID=None)
     

@@ -33,8 +33,10 @@ def objective_function_calculator(sim_results):
               
         #add contribution of the inputs
         #first for every robot, a list is created with the joint positions of the 2 upper legs at every step
-        L_leg_integral = 0
-        R_leg_integral = 0
+        L_leg_vel_integral = 0
+        R_leg_vel_integral = 0
+        L_leg_pos_integral = 0
+        R_leg_pos_integral = 0
         L_leg_vel = []
         R_leg_vel = []
         y_vel_integral = 0
@@ -48,19 +50,19 @@ def objective_function_calculator(sim_results):
                   
             #integrate the input values over the step for the L leg
             #L_leg_pos.append(step_result[0])
-            L_leg_integral += abs(step_result[0])
-            L_leg_vel.append(step_result[6])
+            L_leg_pos_integral += step_result[0]
+            L_leg_vel_integral += step_result[6]
             #integrate the input values over the step for the R leg
             #R_leg_pos.append(step_result[2])
-            R_leg_integral += abs(step_result[3])
-            R_leg_vel.append(step_result[9])
+            R_leg_pos_integral += step_result[3]
+            L_leg_vel_integral += step_result[9]
             
             #integrate the position z over the step
-            z_pos_integral += abs(step_result[14])
+            z_pos_integral += abs(step_result[14]-1)
             
             #integrate the y velocity values over the step
             #target velocity is 1
-            y_vel_integral += abs(step_result[19] - 1)
+            y_vel_integral += (step_result[19])
             
             #integrate the rotation values over the step for the x,y,z values
             #this is done by summing the absolute values of the rotation values
@@ -81,14 +83,29 @@ def objective_function_calculator(sim_results):
         
         #add bonus points for velocity matched
         #divide by the integral of the desired velocity
-        contributions.append(+abs((y_vel_integral)/(2*step_count)) * 1 * scale)
+        contributions.append((y_vel_integral)/(2*step_count) * 0.25 * scale)
         
         #blend z pos and y vel penalties together
-        contributions[-1] *= abs(z_pos_integral/(1.1*step_count)) * 2.5 * scale
+        #however if the velocity is 0, its not penalized for falling, an extra deduction is made down below
+        #contributions[-1] *= abs(z_pos_integral/(1.1*step_count)) * 1.25 * scale
+        
+        #deduct points for the z position integral
+        #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
+        contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 1.5 * scale)
+        
+        #deduct points for not keeping legs in upright position
+        #contributions.append(-abs(((L_leg_pos_integral+R_leg_pos_integral)/(2*1.5*step_count))) * 2 * scale)
+        
+        #deduct points for extending legs but not retracting them back to the original position
+        contributions.append(-((abs(L_leg_pos_integral)+abs(R_leg_pos_integral))/(2*1.5*step_count)) * 1.25 * scale)
+        
+        #add points for using leg muscles
+        #the integral should be scaled by the max value of the integral (2 (legs) *  area of the rectangle with target vel 1 and width step_count)
+        contributions.append(1-abs(((abs(L_leg_vel_integral)+abs(R_leg_vel_integral))/(2*1*step_count))) * 1 * scale)
         
         #update the objective value for a penalty related to the rotation integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append(- abs(((rot_integral)/(0.75*step_count))) * 1.25 * scale)
+        contributions.append(-abs(((rot_integral)/(0.75*step_count))) * 1.5 * scale)
         
         #take points away for using leg muscles
         #the integral should be scaled by the max value of the integral (2 (legs) *  area of the rectangle with height 1.5 and width step_count)
@@ -147,13 +164,14 @@ if __name__ == "__main__":
     Number_of_inputs = 15
     Number_of_outputs = 6
     save_pop_dir = f"NeatAI/pop_saves/sim{int(time.time())}/"
-    Starting_brain_count= 12 
+    #Starting_brain_count= 12 
+    starting_brain_count = 40
     MaxSpecialDist= 0.25
-    max_offspring= 8
+    max_offspring= 4
     min_offspring= 1
-    max_pop_brains= 30
-    max_mutations_per_gen=6
-    preserve_top_brain = True
+    max_pop_brains= 40
+    max_mutations_per_gen=8
+    preserve_top_brain = False
     dynamic_mutation_rate = True
     do_explicit_fitness_sharing = False
     import_pop_dir = None
@@ -287,7 +305,7 @@ if __name__ == "__main__":
             
         
         #(debug) print results and other data
-        NeatAI_pop.print(include_results=True, ordered_by_score=True, simplified=False)
+        NeatAI_pop.print(include_results=True, ordered_by_score=True, simplified=True)
         print(f"max diff distance : {NeatAI_pop.get_max_speciation_difference_per_species()[0]}") 
         print(f"next max mutations : {NeatAI_pop.maxmutations} mutations per gen") 
         
@@ -305,7 +323,7 @@ if __name__ == "__main__":
         
         #7 - prepare new gen with the best brains
         #this is the crossover step
-        '''NeatAI_pop.create_new_generation()'''
+        NeatAI_pop.create_new_generation()
                     
         #debug plot
         if os.path.exists("show_score_graph") or gen == max_generations-1 or os.path.exists("stop_sim_now"):
@@ -323,6 +341,7 @@ if __name__ == "__main__":
 
         #only if the score goes up
         if len(maxlist)>2 and max(res) >= maxlist[-2]:
+            plt.close()
             NeatAI_pop.species[specie_index].brains[brain_index].save_mental_map("best_brain_current_gen.png",dir = save_pop_dir)
       
             

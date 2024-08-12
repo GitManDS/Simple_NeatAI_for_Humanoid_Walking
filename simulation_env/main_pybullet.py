@@ -211,7 +211,7 @@ class sim_client:
                                                             main_body_rotation+ velocity+ [self.step])
                     
                     #if the robot fell, delete it
-                    if main_body_position[2] > 100000:
+                    if main_body_position[2] < 0.24:
                         self.Client.removeBody(robot_list_copy[robot_ID])
                         
                         #delete robot, robot ID and brain
@@ -680,6 +680,13 @@ def simulate(pop,
                                 cam_focus_ID = cam_focus_ID)
         
         sim_results.update(sim_results_i)
+        
+        #make sure only the first sim actually runs custum data
+        #only if debug is off
+        if not debug:
+            GUI = False
+            cam_focus_ID = None
+            max_TPS = None
             
     '''
     FACT OF THE DAY

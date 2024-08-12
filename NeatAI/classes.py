@@ -286,7 +286,7 @@ class population:
                 #print simplified version
                 print(f"-->     <BRAIN COUNT> = {specie.brain_count}", end='')  
                 if include_results:
-                        print(f"        max score: {max(specie.specie_retrieve_scores_from_brains())}",end='')
+                        print(f"        max score: {round(max(specie.specie_retrieve_scores_from_brains()),4)}",end='')
                 print("")
             else:
                 #print complete version

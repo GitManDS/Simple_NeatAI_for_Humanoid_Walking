@@ -1,13 +1,13 @@
 robot_type = biped_2d_simple.urdf
 joint_friction = 5
-torque_multiplier = 200
+torque_multiplier = 300
 target_joint_velocity = 1
-GUI = False
+GUI = True
 max_single_process_brains = 7
 max_processes = 4
 time_controlled=False 
 time_limit = 10
-step_limit = 600 
+step_limit = 2000 
 max_TPS = None
 debug = False
 show_timer = False

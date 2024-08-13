@@ -24,3 +24,5 @@
 - between the velocity and rotation penalties, the weights need to be fixed or else the robot will just throw itself forward to match the speed
 
 - the preserve brain option, while it is intended to introduce stability, it actually introduces stagnation
+
+- there needs to be a clear priority in the way goals for the bot, setting equally balanced priorities makes it such that a robot that is trying to improve one aspect might end up switching goals with every mutation

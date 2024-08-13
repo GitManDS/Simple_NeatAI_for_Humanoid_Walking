@@ -97,7 +97,7 @@ def objective_function_calculator(sim_results):
         #contributions.append(-abs(((L_leg_pos_integral+R_leg_pos_integral)/(2*1.5*step_count))) * 2 * scale)
         
         #deduct points for extending legs but not retracting them back to the original position
-        contributions.append(-((abs(L_leg_pos_integral)+abs(R_leg_pos_integral))/(2*1.5*step_count)) * 1.25 * scale)
+        contributions.append(-((abs(L_leg_pos_integral)+abs(R_leg_pos_integral))/(2*1.5*step_count)) * 0.85 * scale)
         
         #add points for using leg muscles
         #the integral should be scaled by the max value of the integral (2 (legs) *  area of the rectangle with target vel 1 and width step_count)
@@ -105,7 +105,7 @@ def objective_function_calculator(sim_results):
         
         #update the objective value for a penalty related to the rotation integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append(-abs(((rot_integral)/(0.75*step_count))) * 1.5 * scale)
+        contributions.append(-abs(((rot_integral)/(1*step_count))) * 8 * scale)
         
         #take points away for using leg muscles
         #the integral should be scaled by the max value of the integral (2 (legs) *  area of the rectangle with height 1.5 and width step_count)
@@ -138,7 +138,7 @@ if __name__ == "__main__":
     #################################### TRAINING PARAMETERS ####################################
 
     #simulation specific
-    max_generations = 5000
+    max_generations = 30
     load_from_sim_options_file = True
     options = {"robot_type" : "biped_freeman_abs.urdf",
                 "joint_friction" : 10,
@@ -164,8 +164,7 @@ if __name__ == "__main__":
     Number_of_inputs = 15
     Number_of_outputs = 6
     save_pop_dir = f"NeatAI/pop_saves/sim{int(time.time())}/"
-    #Starting_brain_count= 12 
-    starting_brain_count = 40
+    Starting_brain_count= 40 
     MaxSpecialDist= 0.25
     max_offspring= 4
     min_offspring= 1

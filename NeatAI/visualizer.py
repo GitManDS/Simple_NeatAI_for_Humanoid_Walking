@@ -160,7 +160,7 @@ def draw_genepool(fenotype, hide_direct_connections = False):
             #set the alpha
             
     
-    cmap = plt.cm.Reds
+    cmap = plt.cm.RdYlGn
     
     #reorganize layers if hidden nodes are connected to eachother
     changed = True

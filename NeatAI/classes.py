@@ -466,6 +466,11 @@ class population:
         for specie in self.species:
             summed_adjusted_fitness.append(sum(specie.specie_retrieve_scores_from_brains()))
             
+            #with explicit fitness sharing, this sum is the average of the original score without the explicit fitness sharing
+            #if that feature is not on then it must be compensated here
+            if self.do_explicit_fitness_sharing == False:
+                summed_adjusted_fitness[-1] /= len(specie.brains)
+            
         #calculate the number of offspring for each species by linear interpolation
         if len(self.species) != 1 and max(summed_adjusted_fitness) != min(summed_adjusted_fitness):
             offspring_slope = (self.max_offspring - self.min_offspring)/(max(summed_adjusted_fitness)-min(summed_adjusted_fitness))
@@ -918,7 +923,7 @@ class brain_fenotype:
                 else:
                     #add connection
                     mutations.update({self.inov_counter : [len(self.genepool), in_index, out_index]})
-                    self.mutation_addconnection(in_index, out_index, rnd.uniform(0,1))
+                    self.mutation_addconnection(in_index, out_index, rnd.uniform(-1,1))
                     
                 #DEBUG
                 if debug:
@@ -940,7 +945,7 @@ class brain_fenotype:
                     
                 #add node
                 #check if it was successful (its possible it didnt add a node due to loops)
-                if self.mutation_addnode(in_index, out_index, rnd.uniform(0,1)) == 0:
+                if self.mutation_addnode(in_index, out_index, rnd.uniform(-1,1)) == 0:
                     mutations.update({self.inov_counter-2: [len(self.genepool)-2,in_index,self.genepool[-1].in_index]})
                     mutations.update({self.inov_counter-1: [len(self.genepool)-1,self.genepool[-1].in_index,out_index]})
                 

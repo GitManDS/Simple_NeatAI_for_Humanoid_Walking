@@ -153,7 +153,7 @@ NeatAI_pop = cl.population(NOI = 15, NOO = 6,
 maxlist = []
 
 #load all robots in a dir
-dir = "NeatAI/pop_saves/sim1723820925/"
+dir = "NeatAI/pop_saves/sim_standing_best/"
 NeatAI_pop.add_new_species()
 
 allfiles=os.listdir(dir)
@@ -170,6 +170,10 @@ for file_index,filename in enumerate(allfiles):
     NeatAI_pop.species[0].add_brain(new_brain)
     id = f"S0:B{file_index}"
     custum_id_list.update({id : filename})
+
+NeatAI_pop.species[0].brains[0].save_mental_map(filename="mental_map.pdf", 
+                                                dir='',
+                                                hide_direct_connections = True)
     
 
 plt.figure()

@@ -26,3 +26,6 @@
 - the preserve brain option, while it is intended to introduce stability, it actually introduces stagnation
 
 - there needs to be a clear priority in the way goals for the bot, setting equally balanced priorities makes it such that a robot that is trying to improve one aspect might end up switching goals with every mutation
+
+- starting with a bigger initial population means the first solution is likelly closer to the final solution
+- paired with a greater max brain count it means the solution converges faster as there is higher diversity

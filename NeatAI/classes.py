@@ -1018,12 +1018,13 @@ class brain_fenotype:
         pass
     
     #saves a diagram of the brain to a path
-    def save_mental_map(self, filename, dir = "NeatAI/brain_saves/" , overwrite = False):
+    #if hide_direct_connections is True, the direct connections between input and ouput will not be shown
+    def save_mental_map(self, filename, dir = "NeatAI/brain_saves/" , overwrite = False, hide_direct_connections = False):
         #standard path
         path = dir + filename
         
         #save the brain's state
-        vz.draw_genepool(self)
+        vz.draw_genepool(self, hide_direct_connections=hide_direct_connections)
         plt.savefig(path)
         plt.close()
         pass

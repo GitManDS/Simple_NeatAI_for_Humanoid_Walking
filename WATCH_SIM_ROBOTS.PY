@@ -153,7 +153,7 @@ NeatAI_pop = cl.population(NOI = 15, NOO = 6,
 maxlist = []
 
 #load all robots in a dir
-dir = "NeatAI/pop_saves/sim1723749470/"
+dir = "NeatAI/pop_saves/sim1723820925/"
 NeatAI_pop.add_new_species()
 
 allfiles=os.listdir(dir)

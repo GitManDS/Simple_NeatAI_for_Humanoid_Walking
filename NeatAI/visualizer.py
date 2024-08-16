@@ -121,7 +121,8 @@ def reorganize_node_spacing(node_pos_list):
     return node_pos_list  
 
 #plot the fenotype of a brain
-def draw_genepool(fenotype):
+#with hide direct connections, you can hide the direct connections between input and output nodes
+def draw_genepool(fenotype, hide_direct_connections = False):
     
     genepool_active_conns = nx.Graph()
     genepool_disabled_conns = nx.Graph()
@@ -145,11 +146,19 @@ def draw_genepool(fenotype):
             node_pos_list.update(new_node)
         
         #add the connection to the graph and manage colors/labels
+        #if the connection is between input and output nodes and the hide_direct_connections is set to True, set the alpha to 0      
+        alpha = 1
+        if hide_direct_connections and con.in_index < fenotype.NOI and con.out_index >= fenotype.NOI and con.out_index < (fenotype.NOI+fenotype.NOO):
+            alpha = 0
         if con.status == True:
-            genepool_active_conns.add_edge(con.in_index,con.out_index, color = con.weight)
+            genepool_active_conns.add_edge(con.in_index,con.out_index, color = con.weight, alpha = alpha)
             edges_enabled_colors.append(con.weight)
+            #set the alpha
+            
         else:
-            genepool_disabled_conns.add_edge(con.in_index,con.out_index)
+            genepool_disabled_conns.add_edge(con.in_index,con.out_index, alpha = alpha)
+            #set the alpha
+            
     
     cmap = plt.cm.Reds
     
@@ -161,9 +170,12 @@ def draw_genepool(fenotype):
     node_pos_list = reorganize_node_spacing(node_pos_list)
 
     #intermediate steps to order the colors
-    edges = genepool_active_conns.edges()
-    edges_enabled_colors = [genepool_active_conns[u][v]['color'] for u,v in edges]
-
+    edges_enabled = genepool_active_conns.edges()
+    edges_disabled = genepool_disabled_conns.edges()
+    edges_enabled_colors = [genepool_active_conns[u][v]['color'] for u,v in edges_enabled]
+    alpha_list_enabled = [genepool_active_conns[u][v]['alpha'] for u,v in edges_enabled]
+    alpha_list_disabled = [genepool_disabled_conns[u][v]['alpha'] for u,v in edges_disabled]
+    
     #draw graphs
 
     nodes_enabled = nx.draw_networkx_nodes(
@@ -176,6 +188,7 @@ def draw_genepool(fenotype):
         node_pos_list,
         edge_color=edges_enabled_colors,
         edge_cmap=cmap,
+        alpha=alpha_list_enabled,
         width=2
     )
 
@@ -184,6 +197,7 @@ def draw_genepool(fenotype):
         node_pos_list,
         style='dashed',
         edge_color='black',
+        alpha=alpha_list_disabled,
         width=2
     )
 
@@ -195,7 +209,7 @@ def draw_genepool(fenotype):
         font_color="whitesmoke"
         )
 
-    plt.colorbar(edges_enabled)
+    plt.colorbar(edges_enabled, label = "Weight")
     plt.axis('off')
             
     #plt.pause(0.2)

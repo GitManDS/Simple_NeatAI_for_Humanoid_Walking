@@ -21,7 +21,7 @@ def objective_function_calculator(sim_results):
     current_robot_input = []
     robot_count = len(sim_results.keys())
     step_count_list = []
-    scale = 3
+    scale = 30
 
     #go robot by robot
     for robot_index, robot_ID in enumerate(sim_results):
@@ -58,7 +58,7 @@ def objective_function_calculator(sim_results):
             L_leg_vel_integral += step_result[9]
             
             #integrate the position z over the step
-            z_pos_integral += abs(step_result[14]-1)
+            z_pos_integral += abs(step_result[14]-1.1)
             
             #integrate the y velocity values over the step
             #target velocity is 1
@@ -74,7 +74,22 @@ def objective_function_calculator(sim_results):
         distance_travelled = sim_results[robot_ID][-1][13]
 
         '''STANDING TRAINING'''
-
+        #initial value is 0
+        contributions.append(50)
+        
+        #deduct points for the z position integral
+        #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
+        contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 2 * scale)
+        
+        #update the objective value for a penalty related to the rotation integral
+        #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
+        contributions.append(-abs(((rot_integral)/(1*step_count))) * 1 * scale)
+        
+        #also remove points for velocity
+        #contributions.append(-abs((y_vel_integral)/(2*step_count)) * 1 * scale)
+        
+        '''WALKING TRAINING'''
+        '''
         #scale objective value by the z-1.11 (height) value of the body position
         #if final height is 0.24, the obj value is set to ~0
         #[!]
@@ -113,13 +128,7 @@ def objective_function_calculator(sim_results):
         
         #add bonus points for time survived
         #obj_value[robot_index] -= (1 - step_count/300) * 0.25 * scale
-        
-        
-        '''WALKING TRAINING'''
-        
-        #add bonus points for distance travelled
-        #0.5 points per unit travelled
-        #obj_value[robot_index] += abs(distance_travelled/1) * 0.5 * scale
+        '''
         
         
         #get objective value
@@ -164,7 +173,7 @@ if __name__ == "__main__":
     Number_of_inputs = 15
     Number_of_outputs = 6
     save_pop_dir = f"NeatAI/pop_saves/sim{int(time.time())}/"
-    Starting_brain_count= 40 
+    Starting_brain_count= 2 
     MaxSpecialDist= 0.25
     max_offspring= 4
     min_offspring= 1
@@ -172,7 +181,7 @@ if __name__ == "__main__":
     max_mutations_per_gen=8
     preserve_top_brain = False
     dynamic_mutation_rate = True
-    do_explicit_fitness_sharing = False
+    do_explicit_fitness_sharing = True
     import_pop_dir = "NeatAI/pop_saves/"
     import_pop_file = None
     target_score = 50
@@ -341,7 +350,9 @@ if __name__ == "__main__":
         #only if the score goes up
         if len(maxlist)>2 and max(res) >= maxlist[-2]:
             plt.close()
-            NeatAI_pop.species[specie_index].brains[brain_index].save_mental_map("best_brain_current_gen.png",dir = save_pop_dir)
+            NeatAI_pop.species[specie_index].brains[brain_index].save_mental_map("best_brain_current_gen.png",
+                                                                                 dir = save_pop_dir,
+                                                                                 hide_direct_connections = True)
       
             
         #CHECK FOR IMMEDIATE TERMINATION FILE

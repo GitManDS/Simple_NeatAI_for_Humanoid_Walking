@@ -141,37 +141,58 @@ def objective_function_calculator(sim_results):
 
 #7 NOI (3 robot position + 4 robot joint positions) and 8 NOO (4 robot joint torques)
 NeatAI_pop = cl.population(NOI = 15, NOO = 6, 
-                            Starting_brain_count= 12, 
+                            Starting_brain_count= 0, 
                             MaxSpecialDist= 0.15,
                             max_offspring= 5,
                             max_pop_brains= 30,
                             max_mutations_per_gen=2,
                             import_brains_from_file=None,
-                            import_population_from_file="sim1723745648/final_pop.txt",
-                            dir="NeatAI/pop_saves/")
+                            import_population_from_file=None,
+                            dir=None)
 
 maxlist = []
-NeatAI_pop=NAIsf.order_by_score(NeatAI_pop)
+
+#load all robots in a dir
+dir = "NeatAI/pop_saves/sim1723749470/"
+NeatAI_pop.add_new_species()
+
+allfiles=os.listdir(dir)
+allfiles.sort()
+allfiles = [file_name for file_name in allfiles if (file_name.find("best_brain")!=-1) and (file_name.find("txt") != -1)]
+allfiles_numbers = [int(filename[14:filename.find(".txt")]) for filename in allfiles]
+allfiles_numbers, allfiles = zip(*sorted(zip(allfiles_numbers, allfiles),reverse=True))
+allfiles = list(allfiles)
+allnames = [name.strip(".txt") for name in allfiles]
+custum_id_list = {}
+
+for file_index,filename in enumerate(allfiles):
+    new_brain = cl.brain_fenotype(15,6, import_from_file=filename, dir=dir)
+    NeatAI_pop.species[0].add_brain(new_brain)
+    id = f"S0:B{file_index}"
+    custum_id_list.update({id : filename})
+    
 
 plt.figure()
 gen = 0
 for gen in range(1000000):
     sim_results, sim_data = mpb.simulate(NeatAI_pop, 
                     robot_type= "biped_2d_simple.urdf",
-                    joint_friction=10,
-                    torque_multiplier=50,
+                    joint_friction=5,
+                    torque_multiplier=400,
                     max_single_process_brains=70,
+                    target_joint_velocity=2.5,
                     GUI=True,
                     time_controlled = False, 
-                    step_limit = 600,
+                    step_limit = 2000,
                     time_limit = 100,
                     max_TPS= None,
                     debug= True,
-                    show_IDs=False,
+                    show_IDs=True,
                     show_timer=False,
                     show_coords=False,
                     show_axis=False,
-                    cam_focus_ID=None)
+                    cam_focus_ID=None,
+                    custum_id_list = custum_id_list)
     
     #calculate objective value
     res = objective_function_calculator(sim_results)
@@ -182,9 +203,5 @@ for gen in range(1000000):
     plt.pause(1)
     plt.clf()
     
-    NeatAI_pop.update_results(results=res)
-    NeatAI_pop.print(include_results=True)
-    specie, brain = NeatAI_pop.get_highest_score_brain()
-    NeatAI_pop.species[specie].brains[brain].preserve = True
     
     

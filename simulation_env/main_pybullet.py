@@ -23,6 +23,7 @@ class sim_client:
         self.Client.setGravity(0,0,gravity)             #set gravity
         
         self.robot_list = {}                            #dictionary of robots used
+        self.custum_id = {}                             #custum id (list) for the identify robot function (if called/used)
         self.robot_type = robot_type                    #type of robot to be used
         self.joint_friction = 10                        #friction of the robot  
         self.joint_torque_multiplier = 100              #torque multiplier for the robot
@@ -433,8 +434,8 @@ class sim_client:
             self.nametag_id=[]
             
             #place debug text
-            self.nametag_id.append(self.Client.addUserDebugText(robot,[head_pos[0] - 0.25 , head_pos[1], head_pos[2] + 0.5 ],textColorRGB=[0,0,0], textSize=1))
-        
+            self.nametag_id.append(self.Client.addUserDebugText(self.custum_id[robot],[head_pos[0] - 0.25 , head_pos[1], head_pos[2] + 0.5 ],textColorRGB=[0,0,0], textSize=1))
+     
         pass
 
     #when given a start date (time lib), this function will display a clock on the topright corner
@@ -629,6 +630,7 @@ class sim_client:
             
         #append to dictionary
         self.robot_list.update({robot_ID: robot})
+        self.custum_id.update({robot_ID: robot_ID})
         
         pass
 
@@ -653,7 +655,8 @@ def simulate(pop,
             show_axis = False, 
             show_IDs = False,
             show_coords = False,
-            cam_focus_ID = None):
+            cam_focus_ID = None,
+            custum_id_list = None):
     
     sim_results = {}
     sim_data = []
@@ -662,6 +665,9 @@ def simulate(pop,
     
     keys_list = pbsf.create_robot_list_keys(pop)
     for index, brain in enumerate(brains_list):
+        custum_id = {keys_list[index] : custum_id_list[keys_list[index]]} if custum_id_list != None else None
+        
+        print(f"brain {index}/{len(brains_list)} [{round(index/len(brains_list)*100)}%]    -> ", end = "")
         sim_results_i, sim_data_i = single_process_simulation([brain],[keys_list[index]],
                                 robot_type=robot_type,
                                 joint_friction=joint_friction,
@@ -677,7 +683,8 @@ def simulate(pop,
                                 show_axis = show_axis, 
                                 show_IDs = show_IDs,
                                 show_coords = show_coords,
-                                cam_focus_ID = cam_focus_ID)
+                                cam_focus_ID = cam_focus_ID,
+                                custum_id_list = custum_id)
         
         sim_results.update(sim_results_i)
         
@@ -763,7 +770,8 @@ def single_process_simulation(brains_list,keys_list,
              show_axis = False, 
              show_IDs = False,
              show_coords = False,
-             cam_focus_ID = None):
+             cam_focus_ID = None,
+             custum_id_list = None):
     
     #create sim client
     #includes creation of environment and gravity setting
@@ -777,6 +785,9 @@ def single_process_simulation(brains_list,keys_list,
     #setup sim client
     #includes creation of robots matching the given brain and keys list
     sim.match_brains_to_robots(brains_list, keys_list)
+    
+    #assign custum ids
+    sim.custum_id = custum_id_list
     
     #run the simulation to get results
     sim.sim_loop(brains_list,

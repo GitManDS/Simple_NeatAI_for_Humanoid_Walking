@@ -151,7 +151,7 @@ def draw_genepool(fenotype):
         else:
             genepool_disabled_conns.add_edge(con.in_index,con.out_index)
     
-    cmap = plt.cm.viridis
+    cmap = plt.cm.Reds
     
     #reorganize layers if hidden nodes are connected to eachother
     changed = True

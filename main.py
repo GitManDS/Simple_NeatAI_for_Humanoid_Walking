@@ -83,7 +83,7 @@ def objective_function_calculator(sim_results):
         
         #add bonus points for velocity matched
         #divide by the integral of the desired velocity
-        contributions.append((y_vel_integral)/(2*step_count) * 0.25 * scale)
+        contributions.append((y_vel_integral)/(2*step_count) * 1 * scale)
         
         #blend z pos and y vel penalties together
         #however if the velocity is 0, its not penalized for falling, an extra deduction is made down below
@@ -91,7 +91,7 @@ def objective_function_calculator(sim_results):
         
         #deduct points for the z position integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 1.5 * scale)
+        contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 5 * scale)
         
         #deduct points for not keeping legs in upright position
         #contributions.append(-abs(((L_leg_pos_integral+R_leg_pos_integral)/(2*1.5*step_count))) * 2 * scale)
@@ -105,7 +105,7 @@ def objective_function_calculator(sim_results):
         
         #update the objective value for a penalty related to the rotation integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append(-abs(((rot_integral)/(1*step_count))) * 8 * scale)
+        contributions.append(-abs(((rot_integral)/(1*step_count))) * 10 * scale)
         
         #take points away for using leg muscles
         #the integral should be scaled by the max value of the integral (2 (legs) *  area of the rectangle with height 1.5 and width step_count)
@@ -138,7 +138,7 @@ if __name__ == "__main__":
     #################################### TRAINING PARAMETERS ####################################
 
     #simulation specific
-    max_generations = 30
+    max_generations = 50
     load_from_sim_options_file = True
     options = {"robot_type" : "biped_freeman_abs.urdf",
                 "joint_friction" : 10,
@@ -173,7 +173,7 @@ if __name__ == "__main__":
     preserve_top_brain = False
     dynamic_mutation_rate = True
     do_explicit_fitness_sharing = False
-    import_pop_dir = None
+    import_pop_dir = "NeatAI/pop_saves/"
     import_pop_file = None
     target_score = 50
     fitness_sharing_c1 = 1.5
@@ -254,12 +254,8 @@ if __name__ == "__main__":
         show_IDs=options["show_IDs"]
         show_timer=options["show_timer"]
         show_coords=options["show_coords"]
-        
-        #2 - do general mutations and reorganization round
-        #THIS HAS TO BE DONE BEFORE THE ROBOTS ARE CREATED SINCE IT SCREWS AROUND WITH THE BRAIN ORDER
-        NeatAI_pop.mutate_all()
     
-        #3 - simulate the brains/robots in parallel
+        #1 - simulate the brains/robots in parallel
         clock_start = time.time()
         sim_results, sim_data = mpb.simulate(NeatAI_pop, 
                                 max_single_process_brains = max_single_process_brains,
@@ -284,11 +280,11 @@ if __name__ == "__main__":
     
     
         ################### RESULTS AND AI UPDATE ###################
-        #4 - update the population with the results
+        #2 - update the population with the results
         #results of interest are y positions
         res = objective_function_calculator(sim_results)
         
-        #5 - update the results of the population
+        #3 - update the results of the population
         #also give the initial max score
         if gen == 0: NeatAI_pop.initial_max_score = max(res)
         NeatAI_pop.update_results(results=res)
@@ -308,7 +304,7 @@ if __name__ == "__main__":
         print(f"max diff distance : {NeatAI_pop.get_max_speciation_difference_per_species()[0]}") 
         print(f"next max mutations : {NeatAI_pop.maxmutations} mutations per gen") 
         
-        #6 - (optional) save best brain (connections) every generation
+        #4 - (optional) save best brain (connections) every generation
         #also save the brain_map of the current best brain as a .png
         maxlist.append(max(res))
         minlist.append(min(res))
@@ -320,7 +316,7 @@ if __name__ == "__main__":
                                                                                      dir = save_pop_dir)
         
         
-        #7 - prepare new gen with the best brains
+        #5 - prepare new gen with the best brains
         #this is the crossover step
         NeatAI_pop.create_new_generation()
                     
@@ -337,6 +333,10 @@ if __name__ == "__main__":
             plt.title(f"last sim time = {round(elapsed_time,2)} [s], number of brains = {NeatAI_pop.brain_count}")
                          
             plt.savefig(save_pop_dir+"max_score.png")
+            
+            #save population at the end of the training
+            if gen == max_generations-1 or os.path.exists("stop_sim_now"):
+                NeatAI_pop.save_population("final_pop.txt", dir = save_pop_dir, overwrite=True)
 
         #only if the score goes up
         if len(maxlist)>2 and max(res) >= maxlist[-2]:
@@ -347,10 +347,13 @@ if __name__ == "__main__":
         #CHECK FOR IMMEDIATE TERMINATION FILE
         if os.path.exists("stop_sim_now"):
             break
+        
+        #6 - do general mutations and reorganization round
+        #THIS HAS TO BE DONE BEFORE THE ROBOTS ARE CREATED SINCE IT SCREWS AROUND WITH THE BRAIN ORDER
+        NeatAI_pop.mutate_all()
             
         
-    #save population at the end of the training
-    NeatAI_pop.save_population("final_pop.txt", dir = save_pop_dir)
+    
 
 
 

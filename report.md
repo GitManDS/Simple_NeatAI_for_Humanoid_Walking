@@ -9,6 +9,7 @@ In order to verify the NeatAI is capable of correctly achieving neuroevolution a
   - Rotation restriction: The network is **penalized** for the rotation of the torso in relation to the uppright position (x axis)
   - Velocity restriction: The network is **penalized** for any torso velocity
 
-###results:
+### results:
 - gen 1 through 3
+![Gif of the physics simulation of the first few networks](gifs/standing_60_firstgens.gif)
 

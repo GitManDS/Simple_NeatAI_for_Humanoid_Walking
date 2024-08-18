@@ -109,7 +109,7 @@ def objective_function_calculator(sim_results):
         obj_value.append(sum(contributions))
         
            
-        '''   
+           
         #plot all the inputs
         plt.figure()
         for stored_index in [0,3,6,9,14,15,19]:
@@ -117,9 +117,9 @@ def objective_function_calculator(sim_results):
         plt.legend()
         plt.grid()
         plt.title("all inputs")
-        
+        '''
          
-        plt.figure()  
+        plt.figure() 
         plt.plot([x[0] for x in current_robot_input], label = "L leg")
         plt.plot([x[1] for x in current_robot_input], label = "R leg")
         plt.legend()
@@ -153,14 +153,14 @@ NeatAI_pop = cl.population(NOI = 15, NOO = 6,
 maxlist = []
 
 #load all robots in a dir
-dir = "NeatAI/pop_saves/sim_standing_best/"
+dir = "NeatAI/pop_saves/sim_standing_60/"
 NeatAI_pop.add_new_species()
 
 allfiles=os.listdir(dir)
 allfiles.sort()
 allfiles = [file_name for file_name in allfiles if (file_name.find("best_brain")!=-1) and (file_name.find("txt") != -1)]
 allfiles_numbers = [int(filename[14:filename.find(".txt")]) for filename in allfiles]
-allfiles_numbers, allfiles = zip(*sorted(zip(allfiles_numbers, allfiles),reverse=True))
+allfiles_numbers, allfiles = zip(*sorted(zip(allfiles_numbers, allfiles),reverse=False))
 allfiles = list(allfiles)
 allnames = [name.strip(".txt") for name in allfiles]
 custum_id_list = {}
@@ -169,13 +169,63 @@ for file_index,filename in enumerate(allfiles):
     new_brain = cl.brain_fenotype(15,6, import_from_file=filename, dir=dir)
     NeatAI_pop.species[0].add_brain(new_brain)
     id = f"S0:B{file_index}"
-    custum_id_list.update({id : filename})
+    custum_id_list.update({id : allnames[file_index]})
 
-NeatAI_pop.species[0].brains[0].save_mental_map(filename="mental_map.pdf", 
-                                                dir='',
-                                                hide_direct_connections = True)
+#save the mental brain
+#NeatAI_pop.species[0].brains[0].save_mental_map(filename="mental_map.pdf", 
+#                                                dir='',
+#                                                hide_direct_connections = True)
+
+
+#read from sim_data_file
+sim_file = open(dir + "sim_data.txt", "r")
+sim_data_lines = sim_file.readlines()
+sim_file.close()
+
+sim_data_lines = [dataline.replace(","," ").split() for dataline in sim_data_lines]
+max = [float(dataline[1]) for dataline in sim_data_lines]
+avg = [float(dataline[3]) for dataline in sim_data_lines]
+min = [float(dataline[2]) for dataline in sim_data_lines]
+time = [float(dataline[4]) for dataline in sim_data_lines]
+target_score = [50]*len(max)
+
+#plot score plot
+plt.figure()
+plt.plot(max,color='green')
+plt.plot(avg,color='blue')
+plt.plot(min,color='red')
+plt.plot(target_score, linestyle='dashed', color='red')
+plt.legend(["max","min","avg","neutral score line"])
+plt.xlabel("Generation [-]")
+plt.ylabel("max score [-]")
+plt.grid()
+plt.savefig(dir + "score_plot_post.pdf")
+plt.close()
+            
+            
+#plot time plot
+total_time = sum(time)
+h = total_time//3600
+m = (total_time - h*3600)//60
+s = total_time - h*3600 - m*60
+plt.figure()
+plt.plot(time)
+plt.xlabel("Generation [-]")
+plt.ylabel("time [s]")
+plt.title(f"Total simulation time: {h}h {m}m {s}s")
+plt.grid()
+plt.savefig(dir + "time_plot_post.pdf")
+plt.close()
+
+#NeatAI_pop.species[0].brains.pop(0)
+#NeatAI_pop.species[0].brains.pop(0)
+#custum_id_list.pop("S0:B0")
+custum_id_list.update({"S0:B0" : "best score (gen=1)"})
+custum_id_list.update({"S0:B1" : "best score (gen=2)"})
+custum_id_list.update({"S0:B2" : "best score (gen=3)"})
+custum_id_list.update({"S0:B22" : "best score (gen=22)"})
+custum_id_list.update({"S0:B23" : "best score (gen=23)"})
     
-
 plt.figure()
 gen = 0
 for gen in range(1000000):
@@ -206,6 +256,8 @@ for gen in range(1000000):
     plt.plot(maxlist)
     plt.pause(1)
     plt.clf()
+    
+    
     
     
     

@@ -29,3 +29,6 @@
 
 - starting with a bigger initial population means the first solution is likelly closer to the final solution
 - paired with a greater max brain count it means the solution converges faster as there is higher diversity
+
+-extra simulation time will add random noise, this is due to improvements around the equilibrium point that increase the score in one way or the other (most likelly increasing the number of steps survived)
+-locally there's also always noise, thus the final solution might not be the last generation

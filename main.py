@@ -51,11 +51,11 @@ def objective_function_calculator(sim_results):
             #integrate the input values over the step for the L leg
             #L_leg_pos.append(step_result[0])
             L_leg_pos_integral += step_result[0]
-            L_leg_vel_integral += abs(abs(step_result[6])-1)
+            L_leg_vel_integral += abs(abs(step_result[6])-1.5)
             #integrate the input values over the step for the R leg
             #R_leg_pos.append(step_result[2])
             R_leg_pos_integral += step_result[3]
-            R_leg_vel_integral += abs(abs(step_result[9])-1)
+            R_leg_vel_integral += abs(abs(step_result[9])-1.5)
             
             #integrate the position z over the step
             z_pos_integral += abs(step_result[14]-1.1)
@@ -98,11 +98,11 @@ def objective_function_calculator(sim_results):
         
         #deduct points for the z position integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 3.5 * scale)
+        contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 4 * scale)
         
         #update the objective value for a penalty related to the rotation integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append(-abs(((rot_integral)/(1*step_count))) * 1 * scale)
+        contributions.append(-abs(((rot_integral)/(1*step_count))) * 2 * scale)
         
         #add bonus points for velocity matched
         #divide by the integral of the desired velocity

@@ -112,11 +112,13 @@ def objective_function_calculator(sim_results):
            
         #plot all the inputs
         plt.figure()
-        for stored_index in [0,3,6,9,14,15,19]:
+        for stored_index in [9,6]:
             plt.plot(stored_inputs[stored_index], label = f"input {stored_index}")
         plt.legend()
         plt.grid()
         plt.title("all inputs")
+        plt.show()
+        
         '''
          
         plt.figure() 
@@ -153,14 +155,14 @@ NeatAI_pop = cl.population(NOI = 15, NOO = 6,
 maxlist = []
 
 #load all robots in a dir
-dir = "NeatAI/pop_saves/sim_standing_60/"
+dir = "NeatAI/pop_saves/sim_walking_wip/"
 NeatAI_pop.add_new_species()
 
 allfiles=os.listdir(dir)
 allfiles.sort()
 allfiles = [file_name for file_name in allfiles if (file_name.find("best_brain")!=-1) and (file_name.find("txt") != -1)]
 allfiles_numbers = [int(filename[14:filename.find(".txt")]) for filename in allfiles]
-allfiles_numbers, allfiles = zip(*sorted(zip(allfiles_numbers, allfiles),reverse=False))
+allfiles_numbers, allfiles = zip(*sorted(zip(allfiles_numbers, allfiles),reverse=True))
 allfiles = list(allfiles)
 allnames = [name.strip(".txt") for name in allfiles]
 custum_id_list = {}
@@ -217,14 +219,8 @@ plt.grid()
 plt.savefig(dir + "time_plot_post.pdf")
 plt.close()
 
-#NeatAI_pop.species[0].brains.pop(0)
-#NeatAI_pop.species[0].brains.pop(0)
-#custum_id_list.pop("S0:B0")
-custum_id_list.update({"S0:B0" : "best score (gen=1)"})
-custum_id_list.update({"S0:B1" : "best score (gen=2)"})
-custum_id_list.update({"S0:B2" : "best score (gen=3)"})
-custum_id_list.update({"S0:B22" : "best score (gen=22)"})
-custum_id_list.update({"S0:B23" : "best score (gen=23)"})
+NeatAI_pop.species[0].brains = [NeatAI_pop.species[0].brains[0]]
+
     
 plt.figure()
 gen = 0

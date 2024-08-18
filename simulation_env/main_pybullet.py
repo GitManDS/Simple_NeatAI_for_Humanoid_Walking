@@ -208,7 +208,7 @@ class sim_client:
                             
                     #save the results for this robot
                     #include step count as a way to measure time
-                    self.robot_sim_results[robot_ID].append(joint_pos +  joint_vel+ list(main_body_position)+ 
+                    self.robot_sim_results[robot_ID].append(joint_pos +  joint_vel + list(main_body_position)+ 
                                                             main_body_rotation+ velocity+ [self.step])
                     
                     #if the robot fell, delete it

@@ -25,6 +25,6 @@ In order to verify the NeatAI is capable of correctly achieving neuroevolution a
 - other results
 score graph over the generations, showing max, min and average score for the entire population and phenotype of the last network
 <p float="left">
-  <img src="report_files/score_standing.png" width="100" />
-  <img src="report_files/network_standing.png" width="100" /> 
+  <img src="report_files/score_standing.png" width="500" />
+  <img src="report_files/network_standing.png" width="500" /> 
 </p>

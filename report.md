@@ -12,15 +12,19 @@ In order to verify the NeatAI is capable of correctly achieving neuroevolution a
 ### results:
 - gen 1 through 3
 
-![Gif of the physics simulation of the first few networks](gifs/standing_60_firstgens.gif)
+![Gif of the physics simulation of the first few networks](report_files/standing_60_firstgens.gif)
 
 -gen 22 and 23 (mid training)
 
-![Gif of the physics simulation of the middle few networks](gifs/standing_60_midgens.gif)
+![Gif of the physics simulation of the middle few networks](report_files/standing_60_midgens.gif)
 
 -last/best gen (gen = 57)
 
-![Gif of the physics simulation of last gen](gifs/standing_60_gen57.gif)
+![Gif of the physics simulation of last gen](report_files/standing_60_gen57.gif)
 
 - other results
-
+score graph over the generations, showing max, min and average score for the entire population and phenotype of the last network
+<p float="left">
+  <img src="report_files/score_standing.png" width="100" />
+  <img src="report_files/network_standing.png" width="100" /> 
+</p>

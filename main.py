@@ -340,7 +340,7 @@ for gen in range(max_generations):
         plt.plot(target_list, linestyle='dashed', color='red')
         plt.legend(["max","min","avg","neutral score line"])
         plt.xlabel("Generation [-]")
-        plt.ylabel("max score [-]")
+        plt.ylabel("score [-]")
         plt.grid()
         hours = math.floor(accumulated_time/3600)
         minutes = math.floor((accumulated_time%3600)/60)

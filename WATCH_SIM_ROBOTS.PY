@@ -172,8 +172,8 @@ for file_index,filename in enumerate(allfiles):
     custum_id_list.update({id : allnames[file_index]})
 
 #save the mental brain
-#NeatAI_pop.species[0].brains[0].save_mental_map(filename="mental_map.pdf", 
-#                                                dir='',
+#NeatAI_pop.species[0].brains[0].save_mental_map(filename="best_brain_mental_map.pdf", 
+#                                                dir=dir,
 #                                                hide_direct_connections = True)
 
 
@@ -197,7 +197,7 @@ plt.plot(min,color='red')
 plt.plot(target_score, linestyle='dashed', color='red')
 plt.legend(["max","min","avg","neutral score line"])
 plt.xlabel("Generation [-]")
-plt.ylabel("max score [-]")
+plt.ylabel("score [-]")
 plt.grid()
 plt.savefig(dir + "score_plot_post.pdf")
 plt.close()

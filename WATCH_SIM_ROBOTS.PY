@@ -155,7 +155,7 @@ NeatAI_pop = cl.population(NOI = 15, NOO = 6,
 maxlist = []
 
 #load all robots in a dir
-dir = "NeatAI/pop_saves/sim_walking_wip/"
+dir = "NeatAI/pop_saves/sim1724098268/"
 NeatAI_pop.add_new_species()
 
 allfiles=os.listdir(dir)
@@ -218,8 +218,6 @@ plt.title(f"Total simulation time: {h}h {m}m {s}s")
 plt.grid()
 plt.savefig(dir + "time_plot_post.pdf")
 plt.close()
-
-NeatAI_pop.species[0].brains = [NeatAI_pop.species[0].brains[0]]
 
     
 plt.figure()

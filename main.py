@@ -37,8 +37,19 @@ def objective_function_calculator(sim_results):
         R_leg_vel_integral = 0
         L_leg_pos_integral = 0
         R_leg_pos_integral = 0
-        L_leg_vel = []
-        R_leg_vel = []
+        
+        L_Uleg_vel_parity = 0.2
+        R_Uleg_vel_parity = 0.2
+        
+        L_Lleg_vel_parity = 1
+        L_ankle_vel_parity = 1
+        R_Lleg_vel_parity = 1
+        R_ankle_vel_parity = 1
+        L_Uleg_pos_parity = 1
+        R_Uleg_pos_parity = 1
+        
+        frequency_penalty_counter = 0
+        frequency_bonus_counter = 0
         y_vel_integral = 0
         rot_integral = 0
         z_pos_integral = 0
@@ -51,11 +62,11 @@ def objective_function_calculator(sim_results):
             #integrate the input values over the step for the L leg
             #L_leg_pos.append(step_result[0])
             L_leg_pos_integral += step_result[0]
-            L_leg_vel_integral += abs(abs(step_result[6])-1.5)
+            L_leg_vel_integral += abs(step_result[6])
             #integrate the input values over the step for the R leg
             #R_leg_pos.append(step_result[2])
             R_leg_pos_integral += step_result[3]
-            R_leg_vel_integral += abs(abs(step_result[9])-1.5)
+            R_leg_vel_integral += abs(step_result[9])
             
             #integrate the position z over the step
             z_pos_integral += abs(step_result[14]-1.1)
@@ -66,7 +77,41 @@ def objective_function_calculator(sim_results):
             
             #integrate the rotation values over the step for the x,y,z values
             #this is done by summing the absolute values of the rotation values
-            rot_integral += abs(step_result[15])
+            rot_integral += abs(step_result[15]-(-0.1))
+            
+            #get the frequency of the leg movement
+            #the leg parity is positive and set at 0.2
+            if step_result[0] > L_Uleg_vel_parity and L_Uleg_vel_parity > 0:
+                frequency_bonus_counter += 1
+                L_Uleg_pos_parity *= -1
+            #the leg parity is negative and set at -0.2
+            elif step_result[0] < L_Uleg_vel_parity and L_Uleg_vel_parity < 0:
+                frequency_bonus_counter += 1
+                L_Uleg_pos_parity *= -1
+                
+            #get the frequency of the leg movement
+            #the leg parity is positive and set at 0.2
+            if step_result[3] > R_Uleg_vel_parity and R_Uleg_vel_parity > 0:
+                frequency_bonus_counter += 1
+                R_Uleg_pos_parity *= -1
+            #the leg parity is negative and set at -0.2
+            elif step_result[3] < R_Uleg_vel_parity and R_Uleg_vel_parity < 0:
+                frequency_bonus_counter += 1
+                R_Uleg_pos_parity *= -1
+            
+            
+            if step_result[7] * L_Lleg_vel_parity < 0:
+                frequency_penalty_counter += 1
+                L_Lleg_vel_parity *= -1
+            if step_result[8] * L_ankle_vel_parity < 0:
+                frequency_penalty_counter += 1
+                L_ankle_vel_parity *= -1
+            if step_result[10] * R_Lleg_vel_parity < 0:
+                frequency_penalty_counter += 1
+                R_Lleg_vel_parity *= -1
+            if step_result[11] * R_ankle_vel_parity < 0:
+                frequency_penalty_counter += 1
+                R_ankle_vel_parity *= -1
           
         contributions = []  
         
@@ -98,7 +143,7 @@ def objective_function_calculator(sim_results):
         
         #deduct points for the z position integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 4 * scale)
+        contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 6 * scale)
         
         #update the objective value for a penalty related to the rotation integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
@@ -106,7 +151,21 @@ def objective_function_calculator(sim_results):
         
         #add bonus points for velocity matched
         #divide by the integral of the desired velocity
-        contributions.append((y_vel_integral)/(2*step_count) * 0.5 * scale)
+        contributions.append((y_vel_integral)/(2*step_count) * 1 * scale)
+        
+        #add points for using leg muscles
+        #the integral should be scaled by the max value of the integral (2 (legs) *  area of the rectangle with target vel 1 and width step_count)
+        #contributions.append(((L_leg_vel_integral+R_leg_vel_integral)/(2*1*step_count))  * 0.1 * scale)
+        
+        #penalize for twitching
+        #normalized by the number of steps which would correspond to full twitching behaviour
+        #times 4 due to all the joints being studied
+        contributions.append(-abs(frequency_penalty_counter/(step_count*4)) * 1 * scale)
+        
+        #add bonus for alternating legs
+        #normalized by the number of steps which would correspond to full alternating behaviour
+        #times 2 due to all the joints being studied
+        contributions.append(abs(frequency_bonus_counter/(step_count*2)) * 0.5 * scale)
         
         #blend z pos and y vel penalties together
         #however if the velocity is 0, its not penalized for falling, an extra deduction is made down below
@@ -118,9 +177,6 @@ def objective_function_calculator(sim_results):
         #deduct points for extending legs but not retracting them back to the original position
         #contributions.append(-((abs(L_leg_pos_integral)+abs(R_leg_pos_integral))/(2*1.5*step_count)) * 0.85 * scale)
         
-        #add points for using leg muscles
-        #the integral should be scaled by the max value of the integral (2 (legs) *  area of the rectangle with target vel 1 and width step_count)
-        contributions.append((-(L_leg_vel_integral+R_leg_vel_integral)/(2*1*step_count))  * 0.1 * scale)
         
         #take points away for using leg muscles
         #the integral should be scaled by the max value of the integral (2 (legs) *  area of the rectangle with height 1.5 and width step_count)
@@ -355,8 +411,7 @@ for gen in range(max_generations):
         file.close()
         
         #save population at the end of the training
-        if gen == max_generations-1 or os.path.exists("stop_sim_now"):
-            NeatAI_pop.save_population("final_pop.txt", dir = save_pop_dir, overwrite=True)
+        NeatAI_pop.save_population("final_pop.txt", dir = save_pop_dir, overwrite=True)
 
     #only if the score goes up
     if len(maxlist)>2 and max(res) >= maxlist[-2]:

@@ -157,7 +157,7 @@ def objective_function_calculator(sim_results):
         distance_travelled = sim_results[robot_ID][-1][13]
 
         '''STANDING TRAINING'''
-        '''
+        
         #initial value is target_score
         contributions.append(target_score)
         
@@ -171,11 +171,11 @@ def objective_function_calculator(sim_results):
         
         #also remove points for velocity
         contributions.append(-abs((y_vel_integral)/(2*step_count)) * 1 * scale)
-        '''
+        
         
         
         '''WALKING TRAINING'''
-        
+        '''
         #initial value is target_score
         contributions.append(target_score)
         
@@ -207,7 +207,7 @@ def objective_function_calculator(sim_results):
         #normalized by the number of steps which would correspond to full alternating behaviour
         #times 2 due to all the joints being studied
         contributions.append(abs(Leg_correct_vel_counter/(step_count*4)) * 3 * scale)  
-        
+        '''
         #get objective value
         obj_value.append(sum(contributions))
         
@@ -222,7 +222,7 @@ def objective_function_calculator(sim_results):
 #################################### TRAINING PARAMETERS ####################################
 
 #simulation specific
-max_generations = 100
+max_generations = 30
 load_from_sim_options_file = True
 options = {"robot_type" : "biped_freeman_abs.urdf",
             "joint_friction" : 10,
@@ -283,14 +283,14 @@ Starting_brain_count_list = [10,20,30]
 max_offspring_list = [5,15,30]
 max_mutations_per_gen_list = [2,10,20]
 MaxSpecialDist_list = [0.1,0.5,1.5]
-filenames = ["sim_bc_10.txt","sim_bc_20.txt","sim_bc_30.txt",
-             "sim_off_5.txt","sim_off_15.txt","sim_off_30.txt",
-             "sim_mut_2.txt","sim_mut_10.txt","sim_mut_20.txt",
-             "sim_dist_0.1.txt","sim_dist_0.5.txt","sim_dist_1.5.txt"]
+filenames = ["sim_bc_10","sim_bc_20","sim_bc_30",
+             "sim_off_5","sim_off_15","sim_off_30",
+             "sim_mut_2","sim_mut_10","sim_mut_20",
+             "sim_dist_0.1","sim_dist_0.5","sim_dist_1.5"]
 
 for i in range(0,12):
 
-    save_pop_dir = filenames[i]
+    save_pop_dir = "NeatAI/pop_saves/" + filenames[i] + "/"
     if i == 0:
         Starting_brain_count = Starting_brain_count_list[0]
     elif i == 1:

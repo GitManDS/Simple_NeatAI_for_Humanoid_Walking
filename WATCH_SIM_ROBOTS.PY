@@ -107,13 +107,13 @@ def objective_function_calculator(sim_results):
             #Left Leg  
             #if leg is behind the target, the velocity should be positive
             if step_result[0] < L_Uleg_pos_parity and L_Uleg_pos_parity > 0:
-                if step_result[6] > 0:
+                if step_result[6] > 1 and L_Uleg_pos_parity != R_Uleg_pos_parity:
                     Leg_correct_vel_counter += 1
                 else:
                     Leg_correct_vel_counter -= 1
             #if the leg is in front of the target, the velocity should be negative
             elif step_result[0] > L_Uleg_pos_parity and L_Uleg_pos_parity < 0:
-                if step_result[6] < 0:
+                if step_result[6] < -1 and L_Uleg_pos_parity != R_Uleg_pos_parity:
                     Leg_correct_vel_counter += 1
                 else:
                     Leg_correct_vel_counter -= 1
@@ -122,18 +122,18 @@ def objective_function_calculator(sim_results):
             else:
                 L_Uleg_pos_parity *= -1
                 
-            l_u_parity.append(L_Uleg_pos_parity)  
+            l_u_leg_TEMPLIST.append(Leg_correct_vel_counter)
             
             #Right Leg
             #if leg is behind the target, the velocity should be positive
             if step_result[3] < R_Uleg_pos_parity and R_Uleg_pos_parity > 0:
-                if step_result[9] > 0:
+                if step_result[9] > 1 and L_Uleg_pos_parity != R_Uleg_pos_parity:
                     Leg_correct_vel_counter += 1
                 else:
                     Leg_correct_vel_counter -= 1
             #if the leg is in front of the target, the velocity should be negative
             elif step_result[3] > R_Uleg_pos_parity and R_Uleg_pos_parity < 0:
-                if step_result[9] < 0:
+                if step_result[9] < -1 and L_Uleg_pos_parity != R_Uleg_pos_parity:
                     Leg_correct_vel_counter += 1
                 else:
                     Leg_correct_vel_counter -= 1
@@ -218,8 +218,9 @@ def objective_function_calculator(sim_results):
         
         #get objective value
         obj_value.append(sum(contributions))
-                         
-        r_u_leg_TEMPLIST = [Leg_correct_vel_counter/max(r_u_leg_TEMPLIST) for Leg_correct_vel_counter in r_u_leg_TEMPLIST]
+           
+        r_u_leg_TEMPLIST_abs = [abs(x) for x in r_u_leg_TEMPLIST]             
+        r_u_leg_TEMPLIST = [Leg_correct_vel_counter/max(r_u_leg_TEMPLIST_abs) for Leg_correct_vel_counter in r_u_leg_TEMPLIST]
         #plot all the inputs
         plt.figure()
         for stored_index in [0,6]:
@@ -268,7 +269,7 @@ NeatAI_pop = cl.population(NOI = 15, NOO = 6,
 maxlist = []
 
 #load all robots in a dir
-dir = "NeatAI/pop_saves/sim1724335223/"
+dir = "NeatAI/pop_saves/sim1724352311/"
 NeatAI_pop.add_new_species()
 
 allfiles=os.listdir(dir)

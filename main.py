@@ -279,179 +279,217 @@ target_list = []
 
 ##############################################################################################
 
-#get storage directory
-if not os.path.exists(save_pop_dir):
-    os.makedirs(save_pop_dir[0:-1])
+Starting_brain_count_list = [10,20,30]
+max_offspring_list = [5,15,30]
+max_mutations_per_gen_list = [2,10,20]
+MaxSpecialDist_list = [0.1,0.5,1.5]
+filenames = ["sim_bc_10.txt","sim_bc_20.txt","sim_bc_30.txt",
+             "sim_off_5.txt","sim_off_15.txt","sim_off_30.txt",
+             "sim_mut_2.txt","sim_mut_10.txt","sim_mut_20.txt",
+             "sim_dist_0.1.txt","sim_dist_0.5.txt","sim_dist_1.5.txt"]
 
-################### AI SETUP ###################
-#1 - initialize AI population
-#11 NOI (2 robot velocities) + 4 (robot joint positions) + 4 (robot joint velocities) + 1 (robot rotation)  
-#4 NOO (4 robot joint torques)
-#define additional settings for the population
-NeatAI_pop = cl.population(NOI = Number_of_inputs, NOO = Number_of_outputs, 
-                        Starting_brain_count= Starting_brain_count, 
-                        MaxSpecialDist= MaxSpecialDist,
-                        min_offspring = min_offspring,
-                        max_offspring= max_offspring,
-                        max_pop_brains= max_pop_brains,
-                        max_mutations_per_gen=max_mutations_per_gen,
-                        preserve_top_brain=preserve_top_brain,
-                        dynamic_mutation_rate=dynamic_mutation_rate,
-                        target_score=target_score,
-                        do_explicit_fitness_sharing=do_explicit_fitness_sharing,
-                        import_population_from_file=import_pop_file,
-                        dir=import_pop_dir)
+for i in range(0,12):
 
-NeatAI_pop.compatability_c1 = fitness_sharing_c1
-NeatAI_pop.compatability_c2 = fitness_sharing_c2
-NeatAI_pop.compatability_c3 = fitness_sharing_c3
+    save_pop_dir = filenames[i]
+    if i == 0:
+        Starting_brain_count = Starting_brain_count_list[0]
+    elif i == 1:
+        Starting_brain_count = Starting_brain_count_list[1]
+    elif i == 2:
+        Starting_brain_count = Starting_brain_count_list[2]
+    elif i == 3:
+        max_offspring = max_offspring_list[0]
+    elif i == 4:
+        max_offspring = max_offspring_list[1]
+    elif i == 5:
+        max_offspring = max_offspring_list[2]
+    elif i == 6:
+        max_mutations_per_gen = max_mutations_per_gen_list[0]
+    elif i == 7:
+        max_mutations_per_gen = max_mutations_per_gen_list[1]
+    elif i == 8:
+        max_mutations_per_gen = max_mutations_per_gen_list[2]
+    elif i == 9:
+        MaxSpecialDist = MaxSpecialDist_list[0]
+    elif i == 10:
+        MaxSpecialDist = MaxSpecialDist_list[1]
+    elif i == 11:
+        MaxSpecialDist = MaxSpecialDist_list[2]
+    
+    
+    #get storage directory
+    if not os.path.exists(save_pop_dir):
+        os.makedirs(save_pop_dir[0:-1])
 
-################### SETUP AND RUN ###################
+    ################### AI SETUP ###################
+    #1 - initialize AI population
+    #11 NOI (2 robot velocities) + 4 (robot joint positions) + 4 (robot joint velocities) + 1 (robot rotation)  
+    #4 NOO (4 robot joint torques)
+    #define additional settings for the population
+    NeatAI_pop = cl.population(NOI = Number_of_inputs, NOO = Number_of_outputs, 
+                            Starting_brain_count= Starting_brain_count, 
+                            MaxSpecialDist= MaxSpecialDist,
+                            min_offspring = min_offspring,
+                            max_offspring= max_offspring,
+                            max_pop_brains= max_pop_brains,
+                            max_mutations_per_gen=max_mutations_per_gen,
+                            preserve_top_brain=preserve_top_brain,
+                            dynamic_mutation_rate=dynamic_mutation_rate,
+                            target_score=target_score,
+                            do_explicit_fitness_sharing=do_explicit_fitness_sharing,
+                            import_population_from_file=import_pop_file,
+                            dir=import_pop_dir)
 
-#create new plot for the debug graph
-plt.figure()
+    NeatAI_pop.compatability_c1 = fitness_sharing_c1
+    NeatAI_pop.compatability_c2 = fitness_sharing_c2
+    NeatAI_pop.compatability_c3 = fitness_sharing_c3
 
-#delete old stop file
-if os.path.exists("stop_sim_now"):
-    os.remove("stop_sim_now")
-    
-#create sim data storage
-file = open(save_pop_dir+"sim_data.txt","w+")
-file.close()
+    ################### SETUP AND RUN ###################
 
-accumulated_time = 0
-for gen in range(max_generations):
-    
-    ################### SIMULATION SETUP ###################
-    
-    if load_from_sim_options_file:
-        #load options from file
-        options = pbsf.load_options_from_file()
-    
-    max_single_process_brains = options["max_single_process_brains"]
-    robot_type= options["robot_type"]
-    joint_friction=options["joint_friction"]
-    torque_multiplier=options["torque_multiplier"]
-    target_joint_velocity = options["target_joint_velocity"]
-    GUI=options["GUI"]
-    time_controlled = options["time_controlled"]
-    step_limit = options["step_limit"]
-    max_processes = options["max_processes"]
-    time_limit = options["time_limit"]
-    max_TPS= options["max_TPS"]
-    debug= options["debug"]
-    show_IDs=options["show_IDs"]
-    show_timer=options["show_timer"]
-    show_coords=options["show_coords"]
+    #create new plot for the debug graph
+    plt.figure()
 
-    #1 - simulate the brains/robots in parallel
-    clock_start = time.time()
-    sim_results, sim_data = mpb.simulate(NeatAI_pop, 
-                            max_single_process_brains = max_single_process_brains,
-                            robot_type= robot_type,
-                            joint_friction=joint_friction,
-                            torque_multiplier=torque_multiplier,
-                            target_joint_velocity=target_joint_velocity,
-                            GUI=GUI,
-                            time_controlled = time_controlled, 
-                            step_limit = step_limit,
-                            max_processes = max_processes,
-                            time_limit = time_limit,
-                            max_TPS= max_TPS,
-                            debug= debug,
-                            show_IDs=show_IDs,
-                            show_timer=show_timer,
-                            show_coords=show_coords)
-    
-    #debug
-    elapsed_time = time.time()-clock_start
-    accumulated_time += elapsed_time
-    print("[!] sim time",round(elapsed_time,2))
-
-
-    ################### RESULTS AND AI UPDATE ###################
-    #2 - update the population with the results
-    #results of interest are y positions
-    res = objective_function_calculator(sim_results)
-    
-    #3 - update the results of the population
-    #also give the initial max score
-    if gen == 0: NeatAI_pop.initial_max_score = max(res)
-    NeatAI_pop.update_results(results=res)
-    
-    NeatAI_pop = NAIsf.order_by_score(NeatAI_pop)
-    
-    #optional preservation of the top performing brain
-    #the .preserve attribute is used to keep the brain from being mutated
-    #once it mutates, this attribute is set to False
-    if NeatAI_pop.preserve_top_brain:
-        specie_index, brain_index = NeatAI_pop.get_highest_score_brain()
-        NeatAI_pop.species[specie_index].brains[brain_index].preserve = True
-        
-    
-    #(debug) print results and other data
-    NeatAI_pop.print(include_results=True, ordered_by_score=True, simplified=True)
-    print(f"max diff distance : {NeatAI_pop.get_max_speciation_difference_per_species()[0]}") 
-    print(f"next max mutations : {NeatAI_pop.maxmutations} mutations per gen") 
-    
-    #4 - (optional) save best brain (connections) every generation
-    #also save the brain_map of the current best brain as a .png
-    maxlist.append(max(res))
-    minlist.append(min(res))
-    avglist.append(sum(res)/len(res))
-    target_list.append(target_score)
-    specie_index, brain_index = NeatAI_pop.get_highest_score_brain()   
-    NeatAI_pop.species[specie_index].brains[brain_index].save_brain(f"best_brain_gen{NeatAI_pop.generation}.txt",
-                                                                                    overwrite=True,
-                                                                                    dir = save_pop_dir)
-    
-    
-    #5 - prepare new gen with the best brains
-    #this is the crossover step
-    NeatAI_pop.create_new_generation()
-                
-    #debug plot
-    if os.path.exists("show_score_graph") or gen == max_generations-1 or os.path.exists("stop_sim_now"):
-        plt.plot(maxlist, color='green')
-        plt.plot(minlist, color='red')
-        plt.plot(avglist, color='blue')
-        plt.plot(target_list, linestyle='dashed', color='red')
-        plt.legend(["max","min","avg","neutral score line"])
-        plt.xlabel("Generation [-]")
-        plt.ylabel("score [-]")
-        plt.grid()
-        hours = math.floor(accumulated_time/3600)
-        minutes = math.floor((accumulated_time%3600)/60)
-        seconds = math.floor(accumulated_time%60)
-        plt.title(f"total sim time = {hours}h:{minutes}m:{seconds}s\nlast sim time = {round(elapsed_time,2)} [s], number of brains = {NeatAI_pop.brain_count}")
-                        
-        plt.savefig(save_pop_dir+"max_score.pdf")
-        
-        #also save graph data to file
-        file = open(save_pop_dir+"sim_data.txt","a")
-        file.write(f"{NeatAI_pop.generation}: {maxlist[-1]}, {minlist[-1]}, {avglist[-1]}, {elapsed_time}\n")
-        file.close()
-        
-        #save population at the end of the training
-        NeatAI_pop.save_population("final_pop.txt", dir = save_pop_dir, overwrite=True)
-
-    #only if the score goes up
-    if len(maxlist)>2 and max(res) >= maxlist[-2]:
-        plt.close()
-        NeatAI_pop.species[specie_index].brains[brain_index].save_mental_map("best_brain_current_gen.pdf",
-                                                                                dir = save_pop_dir,
-                                                                                hide_direct_connections = False)
-    
-        
-    #CHECK FOR IMMEDIATE TERMINATION FILE
+    #delete old stop file
     if os.path.exists("stop_sim_now"):
-        break
-    
-    #6 - do general mutations and reorganization round
-    #THIS HAS TO BE DONE BEFORE THE ROBOTS ARE CREATED SINCE IT SCREWS AROUND WITH THE BRAIN ORDER
-    NeatAI_pop.mutate_all()
+        os.remove("stop_sim_now")
         
-    
+    #create sim data storage
+    file = open(save_pop_dir+"sim_data.txt","w+")
+    file.close()
+
+    accumulated_time = 0
+    for gen in range(max_generations):
+        
+        ################### SIMULATION SETUP ###################
+        
+        if load_from_sim_options_file:
+            #load options from file
+            options = pbsf.load_options_from_file()
+        
+        max_single_process_brains = options["max_single_process_brains"]
+        robot_type= options["robot_type"]
+        joint_friction=options["joint_friction"]
+        torque_multiplier=options["torque_multiplier"]
+        target_joint_velocity = options["target_joint_velocity"]
+        GUI=options["GUI"]
+        time_controlled = options["time_controlled"]
+        step_limit = options["step_limit"]
+        max_processes = options["max_processes"]
+        time_limit = options["time_limit"]
+        max_TPS= options["max_TPS"]
+        debug= options["debug"]
+        show_IDs=options["show_IDs"]
+        show_timer=options["show_timer"]
+        show_coords=options["show_coords"]
+
+        #1 - simulate the brains/robots in parallel
+        clock_start = time.time()
+        sim_results, sim_data = mpb.simulate(NeatAI_pop, 
+                                max_single_process_brains = max_single_process_brains,
+                                robot_type= robot_type,
+                                joint_friction=joint_friction,
+                                torque_multiplier=torque_multiplier,
+                                target_joint_velocity=target_joint_velocity,
+                                GUI=GUI,
+                                time_controlled = time_controlled, 
+                                step_limit = step_limit,
+                                max_processes = max_processes,
+                                time_limit = time_limit,
+                                max_TPS= max_TPS,
+                                debug= debug,
+                                show_IDs=show_IDs,
+                                show_timer=show_timer,
+                                show_coords=show_coords)
+        
+        #debug
+        elapsed_time = time.time()-clock_start
+        accumulated_time += elapsed_time
+        print("[!] sim time",round(elapsed_time,2))
+
+
+        ################### RESULTS AND AI UPDATE ###################
+        #2 - update the population with the results
+        #results of interest are y positions
+        res = objective_function_calculator(sim_results)
+        
+        #3 - update the results of the population
+        #also give the initial max score
+        if gen == 0: NeatAI_pop.initial_max_score = max(res)
+        NeatAI_pop.update_results(results=res)
+        
+        NeatAI_pop = NAIsf.order_by_score(NeatAI_pop)
+        
+        #optional preservation of the top performing brain
+        #the .preserve attribute is used to keep the brain from being mutated
+        #once it mutates, this attribute is set to False
+        if NeatAI_pop.preserve_top_brain:
+            specie_index, brain_index = NeatAI_pop.get_highest_score_brain()
+            NeatAI_pop.species[specie_index].brains[brain_index].preserve = True
+            
+        
+        #(debug) print results and other data
+        NeatAI_pop.print(include_results=True, ordered_by_score=True, simplified=True)
+        print(f"max diff distance : {NeatAI_pop.get_max_speciation_difference_per_species()[0]}") 
+        print(f"next max mutations : {NeatAI_pop.maxmutations} mutations per gen") 
+        
+        #4 - (optional) save best brain (connections) every generation
+        #also save the brain_map of the current best brain as a .png
+        maxlist.append(max(res))
+        minlist.append(min(res))
+        avglist.append(sum(res)/len(res))
+        target_list.append(target_score)
+        specie_index, brain_index = NeatAI_pop.get_highest_score_brain()   
+        NeatAI_pop.species[specie_index].brains[brain_index].save_brain(f"best_brain_gen{NeatAI_pop.generation}.txt",
+                                                                                        overwrite=True,
+                                                                                        dir = save_pop_dir)
+        
+        
+        #5 - prepare new gen with the best brains
+        #this is the crossover step
+        NeatAI_pop.create_new_generation()
+                    
+        #debug plot
+        if os.path.exists("show_score_graph") or gen == max_generations-1 or os.path.exists("stop_sim_now"):
+            plt.plot(maxlist, color='green')
+            plt.plot(minlist, color='red')
+            plt.plot(avglist, color='blue')
+            plt.plot(target_list, linestyle='dashed', color='red')
+            plt.legend(["max","min","avg","neutral score line"])
+            plt.xlabel("Generation [-]")
+            plt.ylabel("score [-]")
+            plt.grid()
+            hours = math.floor(accumulated_time/3600)
+            minutes = math.floor((accumulated_time%3600)/60)
+            seconds = math.floor(accumulated_time%60)
+            plt.title(f"total sim time = {hours}h:{minutes}m:{seconds}s\nlast sim time = {round(elapsed_time,2)} [s], number of brains = {NeatAI_pop.brain_count}")
+                            
+            plt.savefig(save_pop_dir+"max_score.pdf")
+            
+            #also save graph data to file
+            file = open(save_pop_dir+"sim_data.txt","a")
+            file.write(f"{NeatAI_pop.generation}: {maxlist[-1]}, {minlist[-1]}, {avglist[-1]}, {elapsed_time}\n")
+            file.close()
+            
+            #save population at the end of the training
+            NeatAI_pop.save_population("final_pop.txt", dir = save_pop_dir, overwrite=True)
+
+        #only if the score goes up
+        if len(maxlist)>2 and max(res) >= maxlist[-2]:
+            plt.close()
+            NeatAI_pop.species[specie_index].brains[brain_index].save_mental_map("best_brain_current_gen.pdf",
+                                                                                    dir = save_pop_dir,
+                                                                                    hide_direct_connections = False)
+        
+            
+        #CHECK FOR IMMEDIATE TERMINATION FILE
+        if os.path.exists("stop_sim_now"):
+            break
+        
+        #6 - do general mutations and reorganization round
+        #THIS HAS TO BE DONE BEFORE THE ROBOTS ARE CREATED SINCE IT SCREWS AROUND WITH THE BRAIN ORDER
+        NeatAI_pop.mutate_all()
+            
+        
 
 
 

@@ -221,6 +221,71 @@ def objective_function_calculator(sim_results):
     return obj_value
 
 
+#grab the files
+#read from sim_data_file
+sim_file = open("C:/Users/diogo serra/Desktop/sims/sim_mut_0/sim_data.txt", "r")
+sim_data_lines = sim_file.readlines()
+sim_file.close()
+
+sim_file1 = open("C:/Users/diogo serra/Desktop/sims/sim_mut_1/sim_data.txt", "r")
+sim_data_lines1 = sim_file1.readlines()
+sim_file1.close()
+
+sim_file2 = open("C:/Users/diogo serra/Desktop/sims/sim_mut_2/sim_data.txt", "r")
+sim_data_lines2 = sim_file2.readlines()
+sim_file2.close()
+
+sim_data_lines = [dataline.replace(","," ").split() for dataline in sim_data_lines]
+max = [float(dataline[1]) for dataline in sim_data_lines]
+avg = [float(dataline[3]) for dataline in sim_data_lines]
+min = [float(dataline[2]) for dataline in sim_data_lines]
+time = [float(dataline[4]) for dataline in sim_data_lines]
+target_score = [50]*len(max)
+
+sim_data_lines1 = [dataline.replace(","," ").split() for dataline in sim_data_lines1]
+max1 = [float(dataline[1]) for dataline in sim_data_lines1]
+avg1 = [float(dataline[3]) for dataline in sim_data_lines1]
+min1 = [float(dataline[2]) for dataline in sim_data_lines1]
+time1 = [float(dataline[4]) for dataline in sim_data_lines1]
+target_score1 = [50]*len(max1)
+
+sim_data_lines2 = [dataline.replace(","," ").split() for dataline in sim_data_lines2]
+max2 = [float(dataline[1]) for dataline in sim_data_lines2]
+avg2 = [float(dataline[3]) for dataline in sim_data_lines2]
+min2 = [float(dataline[2]) for dataline in sim_data_lines2]
+time2 = [float(dataline[4]) for dataline in sim_data_lines2]
+target_score2 = [50]*len(max1)
+
+#plot score plot
+plt.figure()
+plt.plot(max,color='green')
+plt.plot(max1,color='blue')
+plt.plot(max2,color='red')
+plt.plot(target_score, linestyle='dashed', color='red')
+plt.legend(["mut. per gen: 2","mut. per gen: 6","mut. per gen: 8","target score"])
+plt.xlabel("Generation [-]")
+plt.ylabel("score [-]")
+plt.title("max score per generation for each mutation rate")
+plt.grid()
+plt.savefig("C:/Users/diogo serra/Desktop/MUTATION_RATE_PLOT.pdf")
+plt.close()
+            
+            
+#plot time plot
+total_time = sum(time)
+h = total_time//3600
+m = (total_time - h*3600)//60
+s = total_time - h*3600 - m*60
+plt.figure()
+plt.plot(time)
+plt.xlabel("Generation [-]")
+plt.ylabel("time [s]")
+plt.title(f"Total simulation time: {h}h {m}m {s}s")
+plt.grid()
+plt.savefig(dir + "time_plot_post.pdf")
+plt.close()
+
+
 #7 NOI (3 robot position + 4 robot joint positions) and 8 NOO (4 robot joint torques)
 NeatAI_pop = cl.population(NOI = 15, NOO = 6, 
                             Starting_brain_count= 1, 

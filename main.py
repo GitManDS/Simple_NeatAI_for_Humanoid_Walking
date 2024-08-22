@@ -103,13 +103,13 @@ def objective_function_calculator(sim_results):
             #Left Leg  
             #if leg is behind the target, the velocity should be positive
             if step_result[0] < L_Uleg_pos_parity and L_Uleg_pos_parity > 0:
-                if step_result[6] > 0:
+                if step_result[6] > 1 and L_Uleg_pos_parity != R_Uleg_pos_parity:
                     Leg_correct_vel_counter += 1
                 else:
                     Leg_correct_vel_counter -= 1
             #if the leg is in front of the target, the velocity should be negative
             elif step_result[0] > L_Uleg_pos_parity and L_Uleg_pos_parity < 0:
-                if step_result[6] < 0:
+                if step_result[6] < -1 and L_Uleg_pos_parity != R_Uleg_pos_parity:
                     Leg_correct_vel_counter += 1
                 else:
                     Leg_correct_vel_counter -= 1
@@ -121,13 +121,13 @@ def objective_function_calculator(sim_results):
             #Right Leg
             #if leg is behind the target, the velocity should be positive
             if step_result[3] < R_Uleg_pos_parity and R_Uleg_pos_parity > 0:
-                if step_result[9] > 0:
+                if step_result[9] > 1 and L_Uleg_pos_parity != R_Uleg_pos_parity:
                     Leg_correct_vel_counter += 1
                 else:
                     Leg_correct_vel_counter -= 1
             #if the leg is in front of the target, the velocity should be negative
             elif step_result[3] > R_Uleg_pos_parity and R_Uleg_pos_parity < 0:
-                if step_result[9] < 0:
+                if step_result[9] < -1 and L_Uleg_pos_parity != R_Uleg_pos_parity:
                     Leg_correct_vel_counter += 1
                 else:
                     Leg_correct_vel_counter -= 1
@@ -157,7 +157,6 @@ def objective_function_calculator(sim_results):
         distance_travelled = sim_results[robot_ID][-1][13]
 
         '''STANDING TRAINING'''
-        
         #initial value is target_score
         contributions.append(target_score)
         
@@ -258,7 +257,7 @@ preserve_top_brain = False
 dynamic_mutation_rate = True
 do_explicit_fitness_sharing = False
 import_pop_dir = "NeatAI/pop_saves/"
-import_pop_file = None
+import_pop_file = "sim_base/final_pop.txt"
 target_score = 50
 fitness_sharing_c1 = 1.5
 fitness_sharing_c2 = 1.5
@@ -280,15 +279,15 @@ target_list = []
 ##############################################################################################
 
 Starting_brain_count_list = [10,20,30]
-max_offspring_list = [5,15,30]
+max_offspring_list = [5,15,10]
 max_mutations_per_gen_list = [2,10,20]
 MaxSpecialDist_list = [0.1,0.5,1.5]
 filenames = ["sim_bc_10","sim_bc_20","sim_bc_30",
-             "sim_off_5","sim_off_15","sim_off_30",
+             "sim_off_5","sim_off_15","sim_off_10",
              "sim_mut_2","sim_mut_10","sim_mut_20",
              "sim_dist_0.1","sim_dist_0.5","sim_dist_1.5"]
 
-for i in range(0,12):
+for i in range(5,12):
 
     save_pop_dir = "NeatAI/pop_saves/" + filenames[i] + "/"
     if i == 0:

@@ -44,17 +44,18 @@ def objective_function_calculator(sim_results):
         L_ankle_vel_parity = 1
         R_Lleg_vel_parity = 1
         R_ankle_vel_parity = 1
-        L_Uleg_pos_parity = 1
-        R_Uleg_pos_parity = 1
         
         Lower_leg_integral = 0
-        
-        r_u_leg_TEMPLIST = []
         
         frequency_penalty_counter = 0
         frequency_bonus_counter = 0
         
         Leg_correct_vel_counter = 0
+        
+        r_u_leg_TEMPLIST = []
+        l_u_leg_TEMPLIST = []
+        l_u_parity = []
+        r_u_parity = []
         
         y_vel_integral = 0
         rot_integral = 0
@@ -120,6 +121,8 @@ def objective_function_calculator(sim_results):
             #in which case, invert the target position
             else:
                 L_Uleg_pos_parity *= -1
+                
+            l_u_parity.append(L_Uleg_pos_parity)  
             
             #Right Leg
             #if leg is behind the target, the velocity should be positive
@@ -139,7 +142,9 @@ def objective_function_calculator(sim_results):
             else:
                 R_Uleg_pos_parity *= -1
                 
-            r_u_leg_TEMPLIST.append(R_Uleg_pos_parity)
+            r_u_leg_TEMPLIST.append(Leg_correct_vel_counter)
+            r_u_parity.append(R_Uleg_pos_parity)    
+            
             
             if step_result[7] * L_Lleg_vel_parity < 0:
                 frequency_penalty_counter += 1
@@ -184,18 +189,18 @@ def objective_function_calculator(sim_results):
         
         #deduct points for the z position integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 6 * scale)
+        contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 5 * scale)
         
         #update the objective value for a penalty related to the rotation integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append(-abs(((rot_integral)/(1*step_count))) * 2 * scale)
+        contributions.append(-abs(((rot_integral)/(1*step_count))) * 3 * scale)
         
         #give contribution for the bent knees
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append((Lower_leg_integral/(2*step_count)) * 10 * scale)
+        #contributions.append((Lower_leg_integral/(2*step_count)) * 10 * scale)
         
         #update the objective value with distance travelled
-        contributions.append(distance_travelled * 0.1 * scale)
+        #contributions.append(distance_travelled * 0.1 * scale)
         
         #add bonus points for velocity matched
         #divide by the integral of the desired velocity
@@ -204,24 +209,24 @@ def objective_function_calculator(sim_results):
         #penalize for twitching
         #normalized by the number of steps which would correspond to full twitching behaviour
         #times 4 due to all the joints being studied
-        contributions.append(-abs(frequency_penalty_counter/(step_count*4)) * 1 * scale)
+        #contributions.append(-abs(frequency_penalty_counter/(step_count*4)) * 1 * scale)
         
         #add bonus for alternating legs
         #normalized by the number of steps which would correspond to full alternating behaviour
         #times 2 due to all the joints being studied
-        contributions.append(abs(Leg_correct_vel_counter/(step_count*4)) * 1.5 * scale)  
+        contributions.append((Leg_correct_vel_counter/(step_count*4)) * 3 * scale)  
         
         #get objective value
         obj_value.append(sum(contributions))
-        
-        if robot_ID == "S0:B0":
-            print(contributions)
-                     
+                         
+        r_u_leg_TEMPLIST = [Leg_correct_vel_counter/max(r_u_leg_TEMPLIST) for Leg_correct_vel_counter in r_u_leg_TEMPLIST]
         #plot all the inputs
         plt.figure()
-        for stored_index in [0,3,9,6]:
+        for stored_index in [0,6]:
             plt.plot(stored_inputs[stored_index], label = f"input {stored_index}")
         plt.plot(r_u_leg_TEMPLIST, label = "R_Uleg_pos_parity")
+        plt.plot(l_u_parity, label = "L_Uleg_pos_parity")
+        plt.plot()
         plt.legend()
         plt.grid()
         plt.title("all inputs")
@@ -263,7 +268,7 @@ NeatAI_pop = cl.population(NOI = 15, NOO = 6,
 maxlist = []
 
 #load all robots in a dir
-dir = "NeatAI/pop_saves/sim1724290766/"
+dir = "NeatAI/pop_saves/sim1724335223/"
 NeatAI_pop.add_new_species()
 
 allfiles=os.listdir(dir)
@@ -293,15 +298,15 @@ sim_data_lines = sim_file.readlines()
 sim_file.close()
 
 sim_data_lines = [dataline.replace(","," ").split() for dataline in sim_data_lines]
-max = [float(dataline[1]) for dataline in sim_data_lines]
+maxi = [float(dataline[1]) for dataline in sim_data_lines]
 avg = [float(dataline[3]) for dataline in sim_data_lines]
 min = [float(dataline[2]) for dataline in sim_data_lines]
 time = [float(dataline[4]) for dataline in sim_data_lines]
-target_score = [50]*len(max)
+target_score = [50]*len(maxi)
 
 #plot score plot
 plt.figure()
-plt.plot(max,color='green')
+plt.plot(maxi,color='green')
 plt.plot(avg,color='blue')
 plt.plot(min,color='red')
 plt.plot(target_score, linestyle='dashed', color='red')

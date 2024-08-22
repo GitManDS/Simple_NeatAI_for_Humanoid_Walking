@@ -20,7 +20,7 @@ def objective_function_calculator(sim_results):
     current_robot_input = []
     robot_count = len(sim_results.keys())
     step_count_list = []
-    scale = 3
+    scale = 30
 
     #go robot by robot
     for robot_index, robot_ID in enumerate(sim_results):
@@ -28,15 +28,34 @@ def objective_function_calculator(sim_results):
         #last values of a inputs entry is the last step
         step_count = sim_results[robot_ID][-1][-1]
         step_count_list.append(step_count)
-        target_score = 50
             
               
         #add contribution of the inputs
         #first for every robot, a list is created with the joint positions of the 2 upper legs at every step
-        L_leg_integral = 0
-        R_leg_integral = 0
-        L_leg_vel = []
-        R_leg_vel = []
+        L_leg_vel_integral = 0
+        R_leg_vel_integral = 0
+        L_leg_pos_integral = 0
+        R_leg_pos_integral = 0
+        
+        L_Uleg_pos_parity = 0.7
+        R_Uleg_pos_parity = -0.7
+        
+        L_Lleg_vel_parity = 1
+        L_ankle_vel_parity = 1
+        R_Lleg_vel_parity = 1
+        R_ankle_vel_parity = 1
+        L_Uleg_pos_parity = 1
+        R_Uleg_pos_parity = 1
+        
+        Lower_leg_integral = 0
+        
+        r_u_leg_TEMPLIST = []
+        
+        frequency_penalty_counter = 0
+        frequency_bonus_counter = 0
+        
+        Leg_correct_vel_counter = 0
+        
         y_vel_integral = 0
         rot_integral = 0
         z_pos_integral = 0
@@ -48,23 +67,92 @@ def objective_function_calculator(sim_results):
                   
             #integrate the input values over the step for the L leg
             #L_leg_pos.append(step_result[0])
-            L_leg_integral += abs(step_result[0])
-            L_leg_vel.append(step_result[6])
+            L_leg_pos_integral += step_result[0]
+            L_leg_vel_integral += abs(step_result[6])
             #integrate the input values over the step for the R leg
             #R_leg_pos.append(step_result[2])
-            R_leg_integral += abs(step_result[3])
-            R_leg_vel.append(step_result[9])
+            R_leg_pos_integral += step_result[3]
+            R_leg_vel_integral += abs(step_result[9])
+            
+            #motivate it to bend knees at upright positions
+            if step_result[0] < 0.1 and step_result[0] > -0.1:
+                Lower_leg_integral += -step_result[1]
+            if step_result[3] < 0.1 and step_result[3] > -0.1:
+                Lower_leg_integral += -step_result[4]
             
             #integrate the position z over the step
-            z_pos_integral += abs(step_result[14])
+            z_pos_integral += abs(step_result[14]-1.1)
             
             #integrate the y velocity values over the step
             #target velocity is 1
-            y_vel_integral += abs(step_result[19] - 1)
+            y_vel_integral += (step_result[19])
             
             #integrate the rotation values over the step for the x,y,z values
             #this is done by summing the absolute values of the rotation values
-            rot_integral += abs(step_result[15])
+            rot_integral += abs(step_result[15]-(-0.1))
+            
+            #get the frequency of the leg movement
+            #the leg parity is positive and set at 0.2
+            #if step_result[0] > L_Uleg_vel_parity and L_Uleg_vel_parity > 0:
+            #    frequency_bonus_counter += 1
+            #    L_Uleg_pos_parity *= -1
+            #the leg parity is negative and set at -0.2
+            #elif step_result[0] < L_Uleg_vel_parity and L_Uleg_vel_parity < 0:
+            #    frequency_bonus_counter += 1
+            #    L_Uleg_pos_parity *= -1
+            
+            #Incentivize robot to move his legs in a coordinated fashion
+            #[!]WARNING: THIS CODE REPLACES THE PREVIOUS, DO NOT HAVE BOTH ACTIVE   
+            #Left Leg  
+            #if leg is behind the target, the velocity should be positive
+            if step_result[0] < L_Uleg_pos_parity and L_Uleg_pos_parity > 0:
+                if step_result[6] > 0:
+                    Leg_correct_vel_counter += 1
+                else:
+                    Leg_correct_vel_counter -= 1
+            #if the leg is in front of the target, the velocity should be negative
+            elif step_result[0] > L_Uleg_pos_parity and L_Uleg_pos_parity < 0:
+                if step_result[6] < 0:
+                    Leg_correct_vel_counter += 1
+                else:
+                    Leg_correct_vel_counter -= 1
+            #the only other combinations is that the leg is out of the [-0.7 and 0.7 range]
+            #in which case, invert the target position
+            else:
+                L_Uleg_pos_parity *= -1
+            
+            #Right Leg
+            #if leg is behind the target, the velocity should be positive
+            if step_result[3] < R_Uleg_pos_parity and R_Uleg_pos_parity > 0:
+                if step_result[9] > 0:
+                    Leg_correct_vel_counter += 1
+                else:
+                    Leg_correct_vel_counter -= 1
+            #if the leg is in front of the target, the velocity should be negative
+            elif step_result[3] > R_Uleg_pos_parity and R_Uleg_pos_parity < 0:
+                if step_result[9] < 0:
+                    Leg_correct_vel_counter += 1
+                else:
+                    Leg_correct_vel_counter -= 1
+            #the only other combinations is that the leg is out of the [-0.7 and 0.7 range]
+            #in which case, invert the target position
+            else:
+                R_Uleg_pos_parity *= -1
+                
+            r_u_leg_TEMPLIST.append(R_Uleg_pos_parity)
+            
+            if step_result[7] * L_Lleg_vel_parity < 0:
+                frequency_penalty_counter += 1
+                L_Lleg_vel_parity *= -1
+            if step_result[8] * L_ankle_vel_parity < 0:
+                frequency_penalty_counter += 1
+                L_ankle_vel_parity *= -1
+            if step_result[10] * R_Lleg_vel_parity < 0:
+                frequency_penalty_counter += 1
+                R_Lleg_vel_parity *= -1
+            if step_result[11] * R_ankle_vel_parity < 0:
+                frequency_penalty_counter += 1
+                R_ankle_vel_parity *= -1
           
         contributions = []  
         
@@ -72,48 +160,68 @@ def objective_function_calculator(sim_results):
         distance_travelled = sim_results[robot_ID][-1][13]
 
         '''STANDING TRAINING'''
-
-        #scale objective value by the z-1.11 (height) value of the body position
-        #if final height is 0.24, the obj value is set to ~0
-        #[!]
+        '''
+        #initial value is target_score
         contributions.append(target_score)
-        #contributions.append(-abs(((z_pos_integral-(1*step_count))/(1*step_count))) * 2.5 * scale)
         
-        #add bonus points for velocity matched
-        #divide by the integral of the desired velocity
-        contributions.append(+abs((y_vel_integral)/(2*step_count)) * 1 * scale)
-        
-        #blend z pos and y vel penalties together
-        contributions[-1] *= abs(z_pos_integral/(1.1*step_count)) * 2.5 * scale
+        #deduct points for the z position integral
+        #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
+        contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 2 * scale)
         
         #update the objective value for a penalty related to the rotation integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append(- abs(((rot_integral)/(0.75*step_count))) * 1.25 * scale)
+        contributions.append(-abs(((rot_integral)/(1*step_count))) * 1 * scale)
         
-        #take points away for using leg muscles
-        #the integral should be scaled by the max value of the integral (2 (legs) *  area of the rectangle with height 1.5 and width step_count)
-        #contributions.append(- abs(((L_leg_integral+R_leg_integral)/(2*1.5*step_count))) * 1 * scale)
-        
-        #add bonus points for time survived
-        #obj_value[robot_index] -= (1 - step_count/300) * 0.25 * scale
+        #also remove points for velocity
+        contributions.append(-abs((y_vel_integral)/(2*step_count)) * 1 * scale)
+        '''
         
         
         '''WALKING TRAINING'''
         
-        #add bonus points for distance travelled
-        #0.5 points per unit travelled
-        #obj_value[robot_index] += abs(distance_travelled/1) * 0.5 * scale
+        #initial value is target_score
+        contributions.append(50)
         
+        #deduct points for the z position integral
+        #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
+        contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 6 * scale)
+        
+        #update the objective value for a penalty related to the rotation integral
+        #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
+        contributions.append(-abs(((rot_integral)/(1*step_count))) * 2 * scale)
+        
+        #give contribution for the bent knees
+        #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
+        contributions.append((Lower_leg_integral/(2*step_count)) * 10 * scale)
+        
+        #update the objective value with distance travelled
+        contributions.append(distance_travelled * 0.1 * scale)
+        
+        #add bonus points for velocity matched
+        #divide by the integral of the desired velocity
+        #contributions.append((y_vel_integral)/(2*step_count) * 2 * scale)
+        
+        #penalize for twitching
+        #normalized by the number of steps which would correspond to full twitching behaviour
+        #times 4 due to all the joints being studied
+        contributions.append(-abs(frequency_penalty_counter/(step_count*4)) * 1 * scale)
+        
+        #add bonus for alternating legs
+        #normalized by the number of steps which would correspond to full alternating behaviour
+        #times 2 due to all the joints being studied
+        contributions.append(abs(Leg_correct_vel_counter/(step_count*4)) * 1.5 * scale)  
         
         #get objective value
         obj_value.append(sum(contributions))
         
-           
-           
+        if robot_ID == "S0:B0":
+            print(contributions)
+                     
         #plot all the inputs
         plt.figure()
-        for stored_index in [9,6]:
+        for stored_index in [0,3,9,6]:
             plt.plot(stored_inputs[stored_index], label = f"input {stored_index}")
+        plt.plot(r_u_leg_TEMPLIST, label = "R_Uleg_pos_parity")
         plt.legend()
         plt.grid()
         plt.title("all inputs")
@@ -155,7 +263,7 @@ NeatAI_pop = cl.population(NOI = 15, NOO = 6,
 maxlist = []
 
 #load all robots in a dir
-dir = "NeatAI/pop_saves/sim1724098268/"
+dir = "NeatAI/pop_saves/sim1724290766/"
 NeatAI_pop.add_new_species()
 
 allfiles=os.listdir(dir)
@@ -219,6 +327,7 @@ plt.grid()
 plt.savefig(dir + "time_plot_post.pdf")
 plt.close()
 
+NeatAI_pop.species[0].brains = [NeatAI_pop.species[0].brains[0]]
     
 plt.figure()
 gen = 0

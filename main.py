@@ -86,7 +86,7 @@ def objective_function_calculator(sim_results):
             
             #integrate the y velocity values over the step
             #target velocity is 1
-            y_vel_integral += (step_result[19])
+            y_vel_integral += (step_result[19]-0.5)
             
             #integrate the rotation values over the step for the x,y,z values
             #this is done by summing the absolute values of the rotation values
@@ -185,27 +185,28 @@ def objective_function_calculator(sim_results):
         
         #deduct points for the z position integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 0.5 * scale)
+        contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 5 * scale)
         
         #update the objective value for a penalty related to the rotation integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append(-abs(((rot_integral)/(1*step_count))) * 0.5 * scale)
+        contributions.append(-abs(((rot_integral)/(1*step_count))) * 5 * scale)
+        
+        #add bonus points for velocity matched
+        #divide by the integral of the desired velocity
+        contributions.append((y_vel_integral)/(2*step_count) * 2 * scale)
         
         #give contribution for the bent knees
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append((Lower_leg_integral/(2*step_count)) * 20 * scale)
+        #contributions.append((Lower_leg_integral/(2*step_count)) * 20 * scale)
         
         #add bonus for alternating legs
         #normalized by the number of steps which would correspond to full alternating behaviour
         #times 2 due to all the joints being studied
-        contributions.append((Leg_correct_vel_counter/(step_count*4)) * 3 * scale)  
+        #contributions.append((Leg_correct_vel_counter/(step_count*4)) * 2 * scale)  
         
         #update the objective value with distance travelled
         #contributions.append(distance_travelled * 0.1 * scale)
         
-        #add bonus points for velocity matched
-        #divide by the integral of the desired velocity
-        #contributions.append((y_vel_integral)/(2*step_count) * 2 * scale)
         
         #penalize for twitching
         #normalized by the number of steps which would correspond to full twitching behaviour
@@ -263,7 +264,7 @@ preserve_top_brain = False
 dynamic_mutation_rate = True
 do_explicit_fitness_sharing = False
 import_pop_dir = "NeatAI/pop_saves/"
-import_pop_file = "sim_base_standing/final_pop.txt"
+import_pop_file = "sim_leg_flexing/final_pop.txt"
 target_score = 50
 fitness_sharing_c1 = 1.5
 fitness_sharing_c2 = 1.5

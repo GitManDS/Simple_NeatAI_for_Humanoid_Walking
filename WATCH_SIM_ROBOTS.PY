@@ -227,10 +227,10 @@ def objective_function_calculator(sim_results):
         r_u_leg_TEMPLIST = [Leg_correct_vel_counter/maxim for Leg_correct_vel_counter in r_u_leg_TEMPLIST]
         #plot all the inputs
         plt.figure()
-        for stored_index in [3,9]:
+        for stored_index in [19]:
             plt.plot(stored_inputs[stored_index], label = f"input {stored_index}")
-        plt.plot(r_u_leg_TEMPLIST, label = "R_Uleg_pos_parity")
-        plt.plot(r_u_parity, label = "L_Uleg_pos_parity")
+        #plt.plot(r_u_leg_TEMPLIST, label = "R_Uleg_pos_parity")
+        #plt.plot(r_u_parity, label = "L_Uleg_pos_parity")
         plt.plot()
         plt.legend()
         plt.grid()
@@ -286,7 +286,7 @@ NeatAI_pop = cl.population(NOI = 15, NOO = 6,
 maxlist = []
 
 #load all robots in a dir
-dir = "NeatAI/pop_saves/sim1724407024/"
+dir = "NeatAI/pop_saves/sim1724419370/"
 NeatAI_pop.add_new_species()
 
 allfiles=os.listdir(dir)

@@ -223,17 +223,21 @@ def objective_function_calculator(sim_results):
 
 #grab the files
 #read from sim_data_file
-sim_file = open("C:/Users/diogo serra/Desktop/sims/sim_mut_0/sim_data.txt", "r")
+sim_file = open("NeatAI/pop_saves/sim_standard_1/sim_data.txt", "r")
 sim_data_lines = sim_file.readlines()
 sim_file.close()
 
-sim_file1 = open("C:/Users/diogo serra/Desktop/sims/sim_mut_1/sim_data.txt", "r")
+sim_file1 = open("NeatAI/pop_saves/sim_standard_2/sim_data.txt", "r")
 sim_data_lines1 = sim_file1.readlines()
 sim_file1.close()
 
-sim_file2 = open("C:/Users/diogo serra/Desktop/sims/sim_mut_2/sim_data.txt", "r")
+sim_file2 = open("NeatAI/pop_saves/sim_standard_3/sim_data.txt", "r")
 sim_data_lines2 = sim_file2.readlines()
 sim_file2.close()
+
+sim_file3= open("NeatAI/pop_saves/sim_standard_4/sim_data.txt", "r")
+sim_data_lines3 = sim_file3.readlines()
+sim_file3.close()
 
 sim_data_lines = [dataline.replace(","," ").split() for dataline in sim_data_lines]
 max = [float(dataline[1]) for dataline in sim_data_lines]
@@ -254,20 +258,27 @@ max2 = [float(dataline[1]) for dataline in sim_data_lines2]
 avg2 = [float(dataline[3]) for dataline in sim_data_lines2]
 min2 = [float(dataline[2]) for dataline in sim_data_lines2]
 time2 = [float(dataline[4]) for dataline in sim_data_lines2]
-target_score2 = [50]*len(max1)
+target_score2 = [50]*len(max2)
+
+sim_data_lines3 = [dataline.replace(","," ").split() for dataline in sim_data_lines3]
+max3 = [float(dataline[1]) for dataline in sim_data_lines3]
+avg3 = [float(dataline[3]) for dataline in sim_data_lines3]
+min3 = [float(dataline[2]) for dataline in sim_data_lines3]
+time3 = [float(dataline[4]) for dataline in sim_data_lines3]
+target_score3 = [50]*len(max3)
 
 #plot score plot
 plt.figure()
-plt.plot(max,color='green')
-plt.plot(max1,color='blue')
-plt.plot(max2,color='red')
-plt.plot(target_score, linestyle='dashed', color='red')
-plt.legend(["mut. per gen: 2","mut. per gen: 6","mut. per gen: 8","target score"])
+plt.plot(max,color='green',linestyle='solid', marker='o', label="reference population (sim 1)")
+plt.plot(max1,color='blue',linestyle='solid', marker='s', label="reference population (sim 2)")
+plt.plot(max2,color='red',linestyle='solid', marker='^', label="reference population (sim 3)")
+plt.plot(max3,color='purple',linestyle='solid', marker='v', label="random population (sim 4)")
+plt.plot(target_score, linestyle='dashed', color='red', label="neutral score")
+plt.legend()
 plt.xlabel("Generation [-]")
 plt.ylabel("score [-]")
-plt.title("max score per generation for each mutation rate")
 plt.grid()
-plt.savefig("C:/Users/diogo serra/Desktop/MUTATION_RATE_PLOT.pdf")
+plt.savefig("sources and docs/sensitivity_standard.pdf")
 plt.close()
             
             

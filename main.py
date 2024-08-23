@@ -38,8 +38,8 @@ def objective_function_calculator(sim_results):
         L_leg_pos_integral = 0
         R_leg_pos_integral = 0
         
-        L_Uleg_pos_parity = 0.7
-        R_Uleg_pos_parity = -0.7
+        L_Uleg_pos_parity = -0.2
+        R_Uleg_pos_parity = 0.2
         
         L_Lleg_vel_parity = 1
         L_ankle_vel_parity = 1
@@ -72,10 +72,14 @@ def objective_function_calculator(sim_results):
             R_leg_vel_integral += abs(step_result[9])
             
             #motivate it to bend knees at upright positions
-            if step_result[0] < 0.1 and step_result[0] > -0.1:
-                Lower_leg_integral += -step_result[1]
-            if step_result[3] < 0.1 and step_result[3] > -0.1:
-                Lower_leg_integral += -step_result[4]
+            if step_result[0] > -0.1:
+                Lower_leg_integral += -step_result[7]
+            else:
+                Lower_leg_integral += step_result[7]
+            if step_result[3] > -0.1:
+                Lower_leg_integral += -step_result[10]
+            else:
+                Lower_leg_integral += -step_result[10]
             
             #integrate the position z over the step
             z_pos_integral += abs(step_result[14]-1.1)
@@ -86,7 +90,7 @@ def objective_function_calculator(sim_results):
             
             #integrate the rotation values over the step for the x,y,z values
             #this is done by summing the absolute values of the rotation values
-            rot_integral += abs(step_result[15]-(-0.1))
+            rot_integral += abs(step_result[15])
             
             #get the frequency of the leg movement
             #the leg parity is positive and set at 0.2
@@ -175,20 +179,26 @@ def objective_function_calculator(sim_results):
         
         
         '''WALKING TRAINING'''
+        
         #initial value is target_score
         contributions.append(target_score)
         
         #deduct points for the z position integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 5 * scale)
+        contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 0.5 * scale)
         
         #update the objective value for a penalty related to the rotation integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append(-abs(((rot_integral)/(1*step_count))) * 3 * scale)
+        contributions.append(-abs(((rot_integral)/(1*step_count))) * 0.5 * scale)
         
         #give contribution for the bent knees
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        #contributions.append((Lower_leg_integral/(2*step_count)) * 10 * scale)
+        contributions.append((Lower_leg_integral/(2*step_count)) * 20 * scale)
+        
+        #add bonus for alternating legs
+        #normalized by the number of steps which would correspond to full alternating behaviour
+        #times 2 due to all the joints being studied
+        contributions.append((Leg_correct_vel_counter/(step_count*4)) * 3 * scale)  
         
         #update the objective value with distance travelled
         #contributions.append(distance_travelled * 0.1 * scale)
@@ -202,10 +212,6 @@ def objective_function_calculator(sim_results):
         #times 4 due to all the joints being studied
         #contributions.append(-abs(frequency_penalty_counter/(step_count*4)) * 1 * scale)
         
-        #add bonus for alternating legs
-        #normalized by the number of steps which would correspond to full alternating behaviour
-        #times 2 due to all the joints being studied
-        contributions.append((Leg_correct_vel_counter/(step_count*4)) * 1.5 * scale)  
         
         #get objective value
         obj_value.append(sum(contributions))
@@ -221,7 +227,7 @@ def objective_function_calculator(sim_results):
 #################################### TRAINING PARAMETERS ####################################
 
 #simulation specific
-max_generations = 30
+max_generations = 50
 load_from_sim_options_file = True
 options = {"robot_type" : "biped_freeman_abs.urdf",
             "joint_friction" : 10,
@@ -248,7 +254,7 @@ Number_of_inputs = 15
 Number_of_outputs = 6
 save_pop_dir = f"NeatAI/pop_saves/sim{int(time.time())}/"
 Starting_brain_count= 40 
-MaxSpecialDist= 0.25
+MaxSpecialDist= 0.15
 max_offspring= 6
 min_offspring= 1
 max_pop_brains= 40
@@ -257,7 +263,7 @@ preserve_top_brain = False
 dynamic_mutation_rate = True
 do_explicit_fitness_sharing = False
 import_pop_dir = "NeatAI/pop_saves/"
-import_pop_file = "sim_base/final_pop.txt"
+import_pop_file = "sim_base_standing/final_pop.txt"
 target_score = 50
 fitness_sharing_c1 = 1.5
 fitness_sharing_c2 = 1.5

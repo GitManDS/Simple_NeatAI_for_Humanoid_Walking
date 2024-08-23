@@ -37,8 +37,8 @@ def objective_function_calculator(sim_results):
         L_leg_pos_integral = 0
         R_leg_pos_integral = 0
         
-        L_Uleg_pos_parity = 0.7
-        R_Uleg_pos_parity = -0.7
+        L_Uleg_pos_parity = 0.2
+        R_Uleg_pos_parity = -0.2
         
         L_Lleg_vel_parity = 1
         L_ankle_vel_parity = 1
@@ -52,11 +52,9 @@ def objective_function_calculator(sim_results):
         
         Leg_correct_vel_counter = 0
         
-        r_u_leg_TEMPLIST = []
-        l_u_leg_TEMPLIST = []
         l_u_parity = []
         r_u_parity = []
-        
+        r_u_leg_TEMPLIST = []
         y_vel_integral = 0
         rot_integral = 0
         z_pos_integral = 0
@@ -76,10 +74,16 @@ def objective_function_calculator(sim_results):
             R_leg_vel_integral += abs(step_result[9])
             
             #motivate it to bend knees at upright positions
-            if step_result[0] < 0.1 and step_result[0] > -0.1:
-                Lower_leg_integral += -step_result[1]
-            if step_result[3] < 0.1 and step_result[3] > -0.1:
-                Lower_leg_integral += -step_result[4]
+            if step_result[0] > -0.1:
+                if step_result[1] < 0:
+                    Lower_leg_integral += 1
+                else:
+                    Lower_leg_integral -= 1
+            if step_result[3] > -0.1:
+                if step_result[4] < 0:
+                    Lower_leg_integral += 1
+                else:
+                    Lower_leg_integral -= 1
             
             #integrate the position z over the step
             z_pos_integral += abs(step_result[14]-1.1)
@@ -121,8 +125,8 @@ def objective_function_calculator(sim_results):
             #in which case, invert the target position
             else:
                 L_Uleg_pos_parity *= -1
-                
-            l_u_leg_TEMPLIST.append(Leg_correct_vel_counter)
+            
+            l_u_parity.append(L_Uleg_pos_parity)
             
             #Right Leg
             #if leg is behind the target, the velocity should be positive
@@ -141,10 +145,9 @@ def objective_function_calculator(sim_results):
             #in which case, invert the target position
             else:
                 R_Uleg_pos_parity *= -1
-                
-            r_u_leg_TEMPLIST.append(Leg_correct_vel_counter)
-            r_u_parity.append(R_Uleg_pos_parity)    
             
+            r_u_leg_TEMPLIST.append(Leg_correct_vel_counter)
+            r_u_parity.append(R_Uleg_pos_parity)
             
             if step_result[7] * L_Lleg_vel_parity < 0:
                 frequency_penalty_counter += 1
@@ -189,15 +192,20 @@ def objective_function_calculator(sim_results):
         
         #deduct points for the z position integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 5 * scale)
+        contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 2 * scale)
         
         #update the objective value for a penalty related to the rotation integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append(-abs(((rot_integral)/(1*step_count))) * 3 * scale)
+        contributions.append(-abs(((rot_integral)/(1*step_count))) * 2 * scale)
         
         #give contribution for the bent knees
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        #contributions.append((Lower_leg_integral/(2*step_count)) * 10 * scale)
+        contributions.append((Lower_leg_integral/(2*step_count)) * 0.5 * scale)
+        
+        #add bonus for alternating legs
+        #normalized by the number of steps which would correspond to full alternating behaviour
+        #times 2 due to all the joints being studied
+        contributions.append((Leg_correct_vel_counter/(step_count*4)) * 1.5 * scale)  
         
         #update the objective value with distance travelled
         #contributions.append(distance_travelled * 0.1 * scale)
@@ -210,18 +218,26 @@ def objective_function_calculator(sim_results):
         #normalized by the number of steps which would correspond to full twitching behaviour
         #times 4 due to all the joints being studied
         #contributions.append(-abs(frequency_penalty_counter/(step_count*4)) * 1 * scale)
-        
-        #add bonus for alternating legs
-        #normalized by the number of steps which would correspond to full alternating behaviour
-        #times 2 due to all the joints being studied
-        contributions.append((Leg_correct_vel_counter/(step_count*4)) * 3 * scale)  
+          
         
         #get objective value
         obj_value.append(sum(contributions))
-           
-        r_u_leg_TEMPLIST_abs = [abs(x) for x in r_u_leg_TEMPLIST]             
-        r_u_leg_TEMPLIST = [Leg_correct_vel_counter/max(r_u_leg_TEMPLIST_abs) for Leg_correct_vel_counter in r_u_leg_TEMPLIST]
+                         
+        maxim = max([abs(x) for x in r_u_leg_TEMPLIST])
+        r_u_leg_TEMPLIST = [Leg_correct_vel_counter/maxim for Leg_correct_vel_counter in r_u_leg_TEMPLIST]
         #plot all the inputs
+        plt.figure()
+        for stored_index in [3,9]:
+            plt.plot(stored_inputs[stored_index], label = f"input {stored_index}")
+        plt.plot(r_u_leg_TEMPLIST, label = "R_Uleg_pos_parity")
+        plt.plot(r_u_parity, label = "L_Uleg_pos_parity")
+        plt.plot()
+        plt.legend()
+        plt.grid()
+        plt.title("all inputs")
+        #save plot 
+        
+        
         plt.figure()
         for stored_index in [0,6]:
             plt.plot(stored_inputs[stored_index], label = f"input {stored_index}")
@@ -232,6 +248,7 @@ def objective_function_calculator(sim_results):
         plt.grid()
         plt.title("all inputs")
         plt.show()
+        #save plot 
         
         '''
          
@@ -269,7 +286,7 @@ NeatAI_pop = cl.population(NOI = 15, NOO = 6,
 maxlist = []
 
 #load all robots in a dir
-dir = "NeatAI/pop_saves/sim1724352311/"
+dir = "NeatAI/pop_saves/sim1724407024/"
 NeatAI_pop.add_new_species()
 
 allfiles=os.listdir(dir)
@@ -288,7 +305,7 @@ for file_index,filename in enumerate(allfiles):
     custum_id_list.update({id : allnames[file_index]})
 
 #save the mental brain
-#NeatAI_pop.species[0].brains[0].save_mental_map(filename="best_brain_mental_map.pdf", 
+#NeatAI_pop.species[0].brains[30].save_mental_map(filename="best_brain_mental_map.pdf", 
 #                                                dir=dir,
 #                                                hide_direct_connections = True)
 

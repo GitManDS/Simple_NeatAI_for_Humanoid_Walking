@@ -86,7 +86,7 @@ def objective_function_calculator(sim_results):
             
             #integrate the y velocity values over the step
             #target velocity is 1
-            y_vel_integral += (step_result[19]-0.5)
+            y_vel_integral += abs(step_result[19]-0.5)
             
             #integrate the rotation values over the step for the x,y,z values
             #this is done by summing the absolute values of the rotation values
@@ -189,20 +189,20 @@ def objective_function_calculator(sim_results):
         
         #update the objective value for a penalty related to the rotation integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append(-abs(((rot_integral)/(1*step_count))) * 5 * scale)
+        contributions.append(-abs(((rot_integral)/(1*step_count))) * 3 * scale)
         
         #add bonus points for velocity matched
         #divide by the integral of the desired velocity
-        contributions.append((y_vel_integral)/(2*step_count) * 2 * scale)
+        contributions.append(-(y_vel_integral)/(2*step_count) * 5 * scale)
         
         #give contribution for the bent knees
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        #contributions.append((Lower_leg_integral/(2*step_count)) * 20 * scale)
+        contributions.append((Lower_leg_integral/(2*step_count)) * 10 * scale)
         
         #add bonus for alternating legs
         #normalized by the number of steps which would correspond to full alternating behaviour
         #times 2 due to all the joints being studied
-        #contributions.append((Leg_correct_vel_counter/(step_count*4)) * 2 * scale)  
+        contributions.append((Leg_correct_vel_counter/(step_count*4)) * 1 * scale)  
         
         #update the objective value with distance travelled
         #contributions.append(distance_travelled * 0.1 * scale)
@@ -255,7 +255,7 @@ Number_of_inputs = 15
 Number_of_outputs = 6
 save_pop_dir = f"NeatAI/pop_saves/sim{int(time.time())}/"
 Starting_brain_count= 40 
-MaxSpecialDist= 0.15
+MaxSpecialDist= 0.2
 max_offspring= 6
 min_offspring= 1
 max_pop_brains= 40

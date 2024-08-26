@@ -37,6 +37,7 @@ def objective_function_calculator(sim_results):
         R_leg_vel_integral = 0
         L_leg_pos_integral = 0
         R_leg_pos_integral = 0
+        distance_travelled = 0
         
         L_Uleg_pos_parity_std = -0.2
         R_Uleg_pos_parity_std = 0.2
@@ -50,13 +51,19 @@ def objective_function_calculator(sim_results):
         
         frequency_penalty_counter = 0
         frequency_bonus_counter = 0
-        intermediate_pos_std = np.linspace(-0.2,0.2,20)
-        intermediate_pos_L = [i for i in reversed(intermediate_pos_std)]
-        current_L_dir = -1
-        current_R_dir = 1
-        intermediate_pos_R = [i for i in intermediate_pos_std]
+        intermediate_theta_std = list(np.linspace(-0.6,0.6,30))
+        intermediate_theta = [i for i in intermediate_theta_std]
+        theta_dir = -1
+        last_theta = 0
+        intermediate_theta_R = [i for i in intermediate_theta_std]
+        
+        theta_counter = 0
         
         Leg_correct_vel_counter = 0
+        distance_accumulated_local = 0
+        last_dir = theta_dir
+        last_pos_y = 0
+        local_leg_step_counter = 0
         
         y_vel_integral = 0
         rot_integral = 0
@@ -151,6 +158,7 @@ def objective_function_calculator(sim_results):
             else:
                 R_Uleg_pos_parity *= -1
             '''
+            '''
             if step_result[15] < 0.6 and step_result[15] > -0.6:
                 #Left Leg  
                 #if leg is behind the target, the velocity should be positive
@@ -203,7 +211,7 @@ def objective_function_calculator(sim_results):
    
                
                 if current_L_dir == current_R_dir:
-                    Leg_correct_vel_counter -= 2
+                    Leg_correct_vel_counter -= 200
                 if current_L_dir * step_result[6] < 0:
                     Leg_correct_vel_counter -= 1
                 if current_R_dir * step_result[9] < 0:
@@ -211,6 +219,55 @@ def objective_function_calculator(sim_results):
                     
             else:
                 Leg_correct_vel_counter -= 5
+            '''
+            
+            #Left Leg  
+            #if leg is behind the target, the velocity should be positive            
+            if step_result[15] < 0.6 and step_result[15] > -0.6:
+
+                L_leg_pos = step_result[0] - step_result[15]   
+                R_leg_pos = step_result[3] - step_result[15]   
+                
+                #measure angle between the 2 legs
+                theta = L_leg_pos - R_leg_pos
+                if theta_dir > 0:
+                    while theta > intermediate_theta[0]:
+                        intermediate_theta.pop(0)
+                        theta_counter += 3
+                        if len(intermediate_theta) == 0:
+                            break
+                elif theta_dir < 0:
+                    while theta < intermediate_theta[0]:
+                        intermediate_theta.pop(0)
+                        theta_counter += 3
+                        if len(intermediate_theta) == 0:
+                            break
+                
+                if len(intermediate_theta) == 0:
+                    theta_dir *= -1
+                    if theta_dir > 0:
+                        intermediate_theta = [i for i in intermediate_theta_std]
+                    elif theta_dir < 0:
+                        intermediate_theta = [i for i in reversed(intermediate_theta_std)]
+                
+                #time deduction
+                theta_counter -= 1
+                
+            else:
+                theta_counter -= 50
+                
+            #no more distance travelled if legs are kept in the same place
+            if last_dir != theta_dir:
+                last_dir = theta_dir
+                local_leg_step_counter = 0
+                distance_travelled += distance_accumulated_local
+                distance_accumulated_local = 0
+            else:
+                if local_leg_step_counter < 250:
+                    distance_accumulated_local += step_result[13] - last_pos_y
+                    local_leg_step_counter += 1
+                
+                last_pos_y = step_result[13]
                 
             
             if step_result[7] * L_Lleg_vel_parity < 0:
@@ -225,11 +282,12 @@ def objective_function_calculator(sim_results):
             if step_result[11] * R_ankle_vel_parity < 0:
                 frequency_penalty_counter += 1
                 R_ankle_vel_parity *= -1
-          
+        
         contributions = []  
         
         #get the final distance travelled 
-        distance_travelled = sim_results[robot_ID][-1][13]
+        distance_travelled += distance_accumulated_local
+        #distance_travelled = sim_results[robot_ID][-1][13]
 
         '''STANDING TRAINING'''
         '''
@@ -256,7 +314,7 @@ def objective_function_calculator(sim_results):
         
         #deduct points for the z position integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        #contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 2 * scale)
+        contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 5 * scale)
         
         #update the objective value for a penalty related to the rotation integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
@@ -273,10 +331,10 @@ def objective_function_calculator(sim_results):
         #add bonus for alternating legs
         #normalized by the number of steps which would correspond to full alternating behaviour
         #times 2 due to all the joints being studied
-        contributions.append((Leg_correct_vel_counter/(step_count*4)) * 6 * scale)  
+        contributions.append((theta_counter/(step_count*4)) * 6 * scale)  
         
         #update the objective value with distance travelled
-        contributions.append(distance_travelled * 10 * scale)
+        #contributions.append(distance_travelled * 10 * scale)
         
         
         #penalize for twitching

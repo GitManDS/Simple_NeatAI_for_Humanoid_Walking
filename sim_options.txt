@@ -1,7 +1,7 @@
 robot_type = biped_2d_simple.urdf
 joint_friction = 5
 torque_multiplier = 400
-target_joint_velocity = 2.5
+target_joint_velocity = 5
 GUI = False
 max_single_process_brains = 7
 max_processes = 4
@@ -13,5 +13,5 @@ debug = False
 show_timer = False
 show_axis = False 
 show_IDs = False
-show_coords = True
+show_coords = False
 cam_focus_ID = None

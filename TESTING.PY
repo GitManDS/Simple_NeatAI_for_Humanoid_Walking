@@ -220,7 +220,7 @@ def objective_function_calculator(sim_results):
     
     return obj_value
 
-
+'''
 #grab the files
 #read from sim_data_file
 sim_file = open("NeatAI/pop_saves/sim_standard_1/sim_data.txt", "r")
@@ -295,7 +295,32 @@ plt.title(f"Total simulation time: {h}h {m}m {s}s")
 plt.grid()
 plt.savefig(dir + "time_plot_post.pdf")
 plt.close()
+'''
 
+dir = "NeatAI/pop_saves/TOTAL_sim_walking_1/"
+sim_file = open(dir + "sim_data.txt", "r")
+sim_data_lines = sim_file.readlines()
+sim_file.close()
+
+sim_data_lines = [dataline.replace(","," ").split() for dataline in sim_data_lines]
+maxi = [float(dataline[1]) for dataline in sim_data_lines]
+avg = [float(dataline[3]) for dataline in sim_data_lines]
+min = [float(dataline[2]) for dataline in sim_data_lines]
+time = [float(dataline[4]) for dataline in sim_data_lines]
+target_score = [50]*len(maxi)
+
+#plot score plot
+plt.figure()
+plt.plot(maxi,color='green',label="max")
+#plt.plot(avg,color='blue',label="avg")
+#plt.plot(min,color='red',label="min")
+plt.plot(target_score, linestyle='dashed', color='red',label="neutral score line")
+plt.legend()
+plt.xlabel("Generation [-]")
+plt.ylabel("score [-]")
+plt.grid()
+plt.savefig(dir + "score_plot_post.pdf")
+plt.close()
 
 #7 NOI (3 robot position + 4 robot joint positions) and 8 NOO (4 robot joint torques)
 NeatAI_pop = cl.population(NOI = 15, NOO = 6, 
@@ -304,7 +329,7 @@ NeatAI_pop = cl.population(NOI = 15, NOO = 6,
                             max_offspring= 5,
                             max_pop_brains= 30,
                             max_mutations_per_gen=2,
-                            import_brains_from_file=None,
+                            import_brains_from_file="sim_walking_70/best_brain_gen60.txt",
                             import_population_from_file=None,
                             dir="NeatAI/pop_saves/")
 
@@ -316,20 +341,22 @@ gen = 0
 for gen in range(1000000):
     sim_results, sim_data = mpb.simulate(NeatAI_pop, 
                     robot_type= "biped_2d_simple.urdf",
-                    joint_friction=10,
-                    torque_multiplier=50,
+                    joint_friction=5,
+                    torque_multiplier=400,
                     max_single_process_brains=70,
+                    target_joint_velocity=5,
                     GUI=True,
                     time_controlled = False, 
-                    step_limit = 600,
+                    step_limit = 2000,
                     time_limit = 100,
                     max_TPS= None,
-                    debug= True,
-                    show_IDs=False,
+                    debug= False,
+                    show_IDs=True,
                     show_timer=False,
                     show_coords=False,
                     show_axis=False,
-                    cam_focus_ID=None)
+                    cam_focus_ID=None,
+                    custum_id_list = None)
     
     #calculate objective value
     res = objective_function_calculator(sim_results)

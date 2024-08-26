@@ -38,8 +38,8 @@ def objective_function_calculator(sim_results):
         L_leg_pos_integral = 0
         R_leg_pos_integral = 0
         
-        L_Uleg_pos_parity = -0.2
-        R_Uleg_pos_parity = 0.2
+        L_Uleg_pos_parity_std = -0.2
+        R_Uleg_pos_parity_std = 0.2
         
         L_Lleg_vel_parity = 1
         L_ankle_vel_parity = 1
@@ -50,6 +50,11 @@ def objective_function_calculator(sim_results):
         
         frequency_penalty_counter = 0
         frequency_bonus_counter = 0
+        intermediate_pos_std = np.linspace(-0.2,0.2,20)
+        intermediate_pos_L = [i for i in reversed(intermediate_pos_std)]
+        current_L_dir = -1
+        current_R_dir = 1
+        intermediate_pos_R = [i for i in intermediate_pos_std]
         
         Leg_correct_vel_counter = 0
         
@@ -86,7 +91,7 @@ def objective_function_calculator(sim_results):
             
             #integrate the y velocity values over the step
             #target velocity is 1
-            y_vel_integral += abs(step_result[19]-0.5)
+            y_vel_integral += (step_result[19])
             
             #integrate the rotation values over the step for the x,y,z values
             #this is done by summing the absolute values of the rotation values
@@ -103,18 +108,24 @@ def objective_function_calculator(sim_results):
             #    L_Uleg_pos_parity *= -1
             
             #Incentivize robot to move his legs in a coordinated fashion
-            #[!]WARNING: THIS CODE REPLACES THE PREVIOUS, DO NOT HAVE BOTH ACTIVE   
+            #[!]WARNING: THIS CODE REPLACES THE PREVIOUS, DO NOT HAVE BOTH ACTIVE 
+            R_Uleg_pos_parity = L_Uleg_pos_parity_std - step_result[15]
+            L_Uleg_pos_parity = L_Uleg_pos_parity_std - step_result[15]
+            
+            '''
             #Left Leg  
             #if leg is behind the target, the velocity should be positive
+            if step_result[15] > 0.9 or step_result[15] < -0.9:
+                Leg_correct_vel_counter -= 3
             if step_result[0] < L_Uleg_pos_parity and L_Uleg_pos_parity > 0:
                 if step_result[6] > 1 and L_Uleg_pos_parity != R_Uleg_pos_parity:
-                    Leg_correct_vel_counter += 1
+                    Leg_correct_vel_counter += 3
                 else:
                     Leg_correct_vel_counter -= 1
             #if the leg is in front of the target, the velocity should be negative
             elif step_result[0] > L_Uleg_pos_parity and L_Uleg_pos_parity < 0:
                 if step_result[6] < -1 and L_Uleg_pos_parity != R_Uleg_pos_parity:
-                    Leg_correct_vel_counter += 1
+                    Leg_correct_vel_counter += 3
                 else:
                     Leg_correct_vel_counter -= 1
             #the only other combinations is that the leg is out of the [-0.7 and 0.7 range]
@@ -132,15 +143,75 @@ def objective_function_calculator(sim_results):
             #if the leg is in front of the target, the velocity should be negative
             elif step_result[3] > R_Uleg_pos_parity and R_Uleg_pos_parity < 0:
                 if step_result[9] < -1 and L_Uleg_pos_parity != R_Uleg_pos_parity:
-                    Leg_correct_vel_counter += 1
+                    Leg_correct_vel_counter += 1 
                 else:
                     Leg_correct_vel_counter -= 1
             #the only other combinations is that the leg is out of the [-0.7 and 0.7 range]
             #in which case, invert the target position
             else:
                 R_Uleg_pos_parity *= -1
+            '''
+            if step_result[15] < 0.6 and step_result[15] > -0.6:
+                #Left Leg  
+                #if leg is behind the target, the velocity should be positive
+                #Left Leg  
+                #if leg is behind the target, the velocity should be positive
                 
-            
+                L_leg_pos = step_result[0] - step_result[15]   
+                if current_L_dir == 1:
+                    while L_leg_pos > intermediate_pos_L[0]:
+                        intermediate_pos_L.pop(0)
+                        Leg_correct_vel_counter += 3
+                        if len(intermediate_pos_L) == 0:
+                            break   
+                elif current_L_dir == -1:
+                    while L_leg_pos < intermediate_pos_L[0]:
+                        intermediate_pos_L.pop(0)
+                        Leg_correct_vel_counter += 3
+                        if len(intermediate_pos_L) == 0:
+                            break  
+                
+                if len(intermediate_pos_L) == 0:
+                    current_L_dir *= -1
+                    if current_L_dir == 1:
+                        intermediate_pos_L = [i for i in intermediate_pos_std]
+                    else:
+                        intermediate_pos_L = [i for i in reversed(intermediate_pos_std)]
+                
+                #Right Leg
+                #if leg is behind the target, the velocity should be positive
+                R_leg_pos = step_result[3] - step_result[15]   
+                if current_R_dir == 1:
+                    while R_leg_pos > intermediate_pos_R[0]:
+                        intermediate_pos_R.pop(0)
+                        Leg_correct_vel_counter += 3
+                        if len(intermediate_pos_R) == 0:
+                            break   
+                elif current_R_dir == -1:
+                    while R_leg_pos < intermediate_pos_R[0]:
+                        intermediate_pos_R.pop(0)
+                        Leg_correct_vel_counter += 3
+                        if len(intermediate_pos_R) == 0:
+                            break
+                
+                if len(intermediate_pos_R) == 0:
+                    current_R_dir *= -1
+                    if current_R_dir == 1:
+                        intermediate_pos_R = [i for i in intermediate_pos_std]
+                    else:
+                        intermediate_pos_R = [i for i in reversed(intermediate_pos_std)]
+   
+               
+                if current_L_dir == current_R_dir:
+                    Leg_correct_vel_counter -= 2
+                if current_L_dir * step_result[6] < 0:
+                    Leg_correct_vel_counter -= 1
+                if current_R_dir * step_result[9] < 0:
+                    Leg_correct_vel_counter -= 1
+                    
+            else:
+                Leg_correct_vel_counter -= 5
+                
             
             if step_result[7] * L_Lleg_vel_parity < 0:
                 frequency_penalty_counter += 1
@@ -185,27 +256,27 @@ def objective_function_calculator(sim_results):
         
         #deduct points for the z position integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 5 * scale)
+        #contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 2 * scale)
         
         #update the objective value for a penalty related to the rotation integral
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append(-abs(((rot_integral)/(1*step_count))) * 3 * scale)
+        #contributions.append(-abs(((rot_integral)/(1*step_count))) * 2 * scale)
         
         #add bonus points for velocity matched
         #divide by the integral of the desired velocity
-        contributions.append(-(y_vel_integral)/(2*step_count) * 5 * scale)
+        #contributions.append((y_vel_integral)/(2*step_count) * 5 * scale)
         
         #give contribution for the bent knees
         #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        contributions.append((Lower_leg_integral/(2*step_count)) * 10 * scale)
+        #contributions.append((Lower_leg_integral/(2*step_count)) * 3 * scale)
         
         #add bonus for alternating legs
         #normalized by the number of steps which would correspond to full alternating behaviour
         #times 2 due to all the joints being studied
-        contributions.append((Leg_correct_vel_counter/(step_count*4)) * 1 * scale)  
+        contributions.append((Leg_correct_vel_counter/(step_count*4)) * 6 * scale)  
         
         #update the objective value with distance travelled
-        #contributions.append(distance_travelled * 0.1 * scale)
+        contributions.append(distance_travelled * 10 * scale)
         
         
         #penalize for twitching
@@ -259,12 +330,12 @@ MaxSpecialDist= 0.2
 max_offspring= 6
 min_offspring= 1
 max_pop_brains= 40
-max_mutations_per_gen=6
+max_mutations_per_gen=5
 preserve_top_brain = False
 dynamic_mutation_rate = True
 do_explicit_fitness_sharing = False
 import_pop_dir = "NeatAI/pop_saves/"
-import_pop_file = "sim_leg_flexing/final_pop.txt"
+import_pop_file = None
 target_score = 50
 fitness_sharing_c1 = 1.5
 fitness_sharing_c2 = 1.5
@@ -306,6 +377,7 @@ NeatAI_pop = cl.population(NOI = Number_of_inputs, NOO = Number_of_outputs,
                         dynamic_mutation_rate=dynamic_mutation_rate,
                         target_score=target_score,
                         do_explicit_fitness_sharing=do_explicit_fitness_sharing,
+                        import_brains_from_file=None,
                         import_population_from_file=import_pop_file,
                         dir=import_pop_dir)
 

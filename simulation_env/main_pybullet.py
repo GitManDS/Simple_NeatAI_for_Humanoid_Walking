@@ -212,7 +212,7 @@ class sim_client:
                                                             main_body_rotation+ velocity+ [self.step])
                     
                     #if the robot fell, delete it
-                    if main_body_position[2] < 0.45:
+                    if main_body_position[2] < 0.5:
                         self.Client.removeBody(robot_list_copy[robot_ID])
                         
                         #delete robot, robot ID and brain

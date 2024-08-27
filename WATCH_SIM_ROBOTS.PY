@@ -50,24 +50,23 @@ def objective_function_calculator(sim_results):
         
         frequency_penalty_counter = 0
         frequency_bonus_counter = 0
-        intermediate_theta_std = list(np.linspace(-0.6,0.6,30))
-        intermediate_theta = [i for i in intermediate_theta_std]
-        theta_dir = -1
-        last_theta = 0
-        intermediate_theta_R = [i for i in intermediate_theta_std]
-        
-        distance_accumulated_local = 0
-        local_leg_step_counter = 0
+        intermediate_pos_std = list(np.linspace(-0.2,0.2,20))
+        intermediate_pos_L = [i for i in reversed(intermediate_pos_std)]
+        current_L_dir = -1
+        current_R_dir = 1
+        intermediate_pos_R = [i for i in intermediate_pos_std]
+
+        last_R_dir = 1
+        last_y_pos = 0
         distance_travelled = 0
+        distance_accumulated = 0
+        local_leg_step_counter = 0
+
         
-        theta_counter = 0
-        last_dir= 0
-        last_pos_y = 0
-        
-        theta_list = []
-        theta_target_list = []
+        current_R_pos = []
+        current_L_pos = []
         score_list = []
-        locked_list = []
+        locked_in = []
         
         Leg_correct_vel_counter = 0
         
@@ -166,58 +165,88 @@ def objective_function_calculator(sim_results):
             '''
             #Left Leg  
             #if leg is behind the target, the velocity should be positive            
+            L_leg_pos = step_result[0] + step_result[15]   
+            R_leg_pos = step_result[3] + step_result[15]   
             if step_result[15] < 0.6 and step_result[15] > -0.6:
+                #Left Leg  
+                #if leg is behind the target, the velocity should be positive
+                #Left Leg  
+                #if leg is behind the target, the velocity should be positive
+                
+                if current_L_dir == 1:
+                    while L_leg_pos > intermediate_pos_L[0]:
+                        intermediate_pos_L.pop(0)
+                        Leg_correct_vel_counter += 3
+                        if len(intermediate_pos_L) == 0:
+                            break   
+                elif current_L_dir == -1:
+                    while L_leg_pos < intermediate_pos_L[0]:
+                        intermediate_pos_L.pop(0)
+                        Leg_correct_vel_counter += 3
+                        if len(intermediate_pos_L) == 0:
+                            break  
+                
+                if len(intermediate_pos_L) == 0:
+                    current_L_dir *= -1
+                    if current_L_dir == 1:
+                        intermediate_pos_L = [i for i in intermediate_pos_std]
+                    else:
+                        intermediate_pos_L = [i for i in reversed(intermediate_pos_std)]
+                
+                #Right Leg
+                #if leg is behind the target, the velocity should be positive
+                if current_R_dir == 1:
+                    while R_leg_pos > intermediate_pos_R[0]:
+                        intermediate_pos_R.pop(0)
+                        Leg_correct_vel_counter += 3
+                        if len(intermediate_pos_R) == 0:
+                            break   
+                elif current_R_dir == -1:
+                    while R_leg_pos < intermediate_pos_R[0]:
+                        intermediate_pos_R.pop(0)
+                        Leg_correct_vel_counter += 3
+                        if len(intermediate_pos_R) == 0:
+                            break
+                
+                if len(intermediate_pos_R) == 0:
+                    current_R_dir *= -1
+                    if current_R_dir == 1:
+                        intermediate_pos_R = [i for i in intermediate_pos_std]
+                    else:
+                        intermediate_pos_R = [i for i in reversed(intermediate_pos_std)]
+                
+                if last_R_dir != current_R_dir:
+                    last_R_dir = current_R_dir
+                    distance_travelled += distance_accumulated
+                    distance_accumulated = 0
+                    local_leg_step_counter = 0
 
-                L_leg_pos = step_result[0] - step_result[15]   
-                R_leg_pos = step_result[3] - step_result[15]   
-                
-                #measure angle between the 2 legs
-                theta = L_leg_pos - R_leg_pos
-                if theta_dir > 0:
-                    while theta > intermediate_theta[0]:
-                        intermediate_theta.pop(0)
-                        theta_counter += 3
-                        if len(intermediate_theta) == 0:
-                            break
-                elif theta_dir < 0:
-                    while theta < intermediate_theta[0]:
-                        intermediate_theta.pop(0)
-                        theta_counter += 3
-                        if len(intermediate_theta) == 0:
-                            break
-                
-                if len(intermediate_theta) == 0:
-                    theta_dir *= -1
-                    if theta_dir > 0:
-                        intermediate_theta = [i for i in intermediate_theta_std]
-                    elif theta_dir < 0:
-                        intermediate_theta = [i for i in reversed(intermediate_theta_std)]
-                
-                #time deduction
-                theta_counter -= 1
-                
-            else:
-                theta_counter -= 5
-                
-            #no more distance travelled if legs are kept in the same place
-            if last_dir != theta_dir:
-                last_dir = theta_dir
-                local_leg_step_counter = 0
-                distance_travelled += distance_accumulated_local
-                distance_accumulated_local = 0
-            else:
-                if local_leg_step_counter < 200:
-                    distance_accumulated_local += step_result[13] - last_pos_y
-                    local_leg_step_counter += 1
-                    locked_list.append(0)
                 else:
-                    locked_list.append(1)
-                
-                last_pos_y = step_result[13]
+                    if local_leg_step_counter < 250:
+                        distance_accumulated += step_result[13] - last_y_pos
+                        local_leg_step_counter += 1
+                        locked_in.append(0)
+                    else:
+                        locked_in.append(1)
+
+                    last_y_pos = step_result[13]
+                    
+   
+               
+                if current_L_dir == current_R_dir:
+                    Leg_correct_vel_counter -= 2
+                if current_L_dir * step_result[6] < 0:
+                    Leg_correct_vel_counter -= 1
+                if current_R_dir * step_result[9] < 0:
+                    Leg_correct_vel_counter -= 1
+                    
+            else:
+                Leg_correct_vel_counter -= 5
+                locked_in.append(1)
             
-            score_list.append(theta_counter)
-            theta_list.append(theta)
-            theta_target_list.append(intermediate_theta[0])
+            score_list.append(Leg_correct_vel_counter)
+            current_L_pos.append(intermediate_pos_L[0])
+            current_R_pos.append(intermediate_pos_R[0])
             
             if step_result[7] * L_Lleg_vel_parity < 0:
                 frequency_penalty_counter += 1
@@ -235,8 +264,7 @@ def objective_function_calculator(sim_results):
         contributions = []  
         
         #get the final distance travelled 
-        distance_travelled += distance_accumulated_local
-        #distance_travelled = sim_results[robot_ID][-1][13]
+        distance_travelled = sim_results[robot_ID][-1][13]
 
         '''STANDING TRAINING'''
         '''
@@ -302,11 +330,12 @@ def objective_function_calculator(sim_results):
         score_list = [Leg_correct_vel_counter/maxim for Leg_correct_vel_counter in score_list]
         #plot all the inputs
         plt.figure()
-        for stored_index in [3,9,14]:
+        for stored_index in [3,9,15]:
             plt.plot(stored_inputs[stored_index], label = f"input {stored_index}")
-        #plt.plot(score_list, label = "score_legs")
-        #plt.plot(theta_list, label = "theta")
-        #plt.plot(locked_list, label = "locked")
+        plt.plot(score_list, label = "score_legs")
+        plt.plot(current_R_pos, label = "target pos")
+        plt.plot(locked_in, label = "locked in")
+        plt.plot()
         plt.title("current score: " + str(obj_value[-1]))
         plt.legend()
         plt.grid()
@@ -314,12 +343,10 @@ def objective_function_calculator(sim_results):
         
         
         plt.figure()
-        #for stored_index in [0,6]:
-        #    plt.plot(stored_inputs[stored_index], label = f"input {stored_index}")
-        plt.plot(theta_target_list, label = "theta_target")
+        for stored_index in [0,6]:
+            plt.plot(stored_inputs[stored_index], label = f"input {stored_index}")
         plt.plot(score_list, label = "score_legs")
-        plt.plot(theta_list, label = "theta")
-        plt.plot(locked_list, label = "locked")
+        plt.plot(current_L_pos, label = "target pos")
         plt.plot()
         plt.legend()
         plt.title("current score: " + str(obj_value[-1]))
@@ -363,7 +390,7 @@ NeatAI_pop = cl.population(NOI = 15, NOO = 6,
 maxlist = []
 
 #load all robots in a dir
-dir = "NeatAI/pop_saves/sim1724705366/"
+dir = "NeatAI/pop_saves/sim_finals/sim_notwalking_c/"
 NeatAI_pop.add_new_species()
 
 allfiles=os.listdir(dir)
@@ -444,7 +471,7 @@ for gen in range(1000000):
                     time_controlled = False, 
                     step_limit = 2000,
                     time_limit = 100,
-                    max_TPS= None,
+                    max_TPS= 60,
                     debug= False,
                     show_IDs=True,
                     show_timer=False,

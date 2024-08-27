@@ -1,14 +1,16 @@
 # Report support file
 This file is used to compliment the results of the report by providing visual references to the simulation results in gif format
 
-# Table of contents
-1. [PE](##Performance evaluation)
-    1. [PE:T](###Training rules)
-    2. [PE:R](###Results)
-2. [BC](##Training of Bipedal controller )
-    1. [BC:T](###Training rules)
-    2. [BC:R](###Results)
-    3. [BC:AR](###Additional Results)
+- [Report support file](#report-support-file)
+  * [Performance evaluation <a name="PE"></a>](#performance-evaluation--a-name--pe----a-)
+    + [Training rules <a name="PE:T"></a>](#training-rules--a-name--pe-t----a-)
+    + [Results <a name="PE:R"></a>](#results--a-name--pe-r----a-)
+  * [Training of Bipedal controller <a name="BC"></a>](#training-of-bipedal-controller--a-name--bc----a-)
+    + [Training rules <a name="BC:T"></a>](#training-rules--a-name--bc-t----a-)
+    + [Results <a name="BC:R"></a>](#results--a-name--bc-r----a-)
+    + [Additional Results <a name="BC:AR"></a>](#additional-results--a-name--bc-ar----a-)
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
 
 ## Performance evaluation <a name="PE"></a>
@@ -73,12 +75,38 @@ Training the algorithm to walk is a challenge since walking requires the network
 
   - Intermediate generations
 <p float="left">
-  <img src="report_files\sim_walking_B_20.gif" width="500" />
-  <img src="report_files\sim_walking_B_40.gif" width="500" /> 
-  <img src="report_files\sim_walking_B_60.gif" width="500" /> 
+  <img src="report_files\sim_walking_B_20.gif" width="300" />
+  <img src="report_files\sim_walking_B_40.gif" width="300" /> 
+  <img src="report_files\sim_walking_B_60.gif" width="300" /> 
 </p>
 
   - final result (gen = 80)
+  ![Sim B best network gif (gen 80)](report_files\sim_walking_B_80.gif)
+
+- Alternative sucessful simulation (Sim A)
+
+![Sim A best network gif (gen 80)](report_files\sim_walking_A.gif)
+
+- Other simulations that converged to random results (Sim C, D and E)
+
+<p float="left">
+  <img src="report_files/sim_nonwalking_c.gif" width="300" />
+  <img src="report_files/sim_nonwalking_d.gif" width="300" /> 
+  <img src="report_files/sim_nonwalking_e.gif" width="300" /> 
+</p>
+
+- Convergence data and phenotype of the resulting networks
+
+![Convergence graph of all simulations](report_files/sim_walking_graphs.png)
+
+  - Phenotype of best network of Sim A (input-output direct connections hidden for readability)
+  ![Phenotype diagramn of Sim A](report_files\simA_phenotype.png)
+
+  - Phenotype of best network of Sim B (input-output direct connections hidden for readability)
+  ![Phenotype diagramn of Sim B](report_files\simB_phenotype.png)
      
 ### Additional Results <a name="BC:AR"></a>
 
+As mentioned, one other result of this training was skipping, which was achieved by simply increasing the simulation step counter from 150 simulation steps to 250 simulation steps
+
+![Skipping Sim graph](report_files\sim_skipping_graph.png)

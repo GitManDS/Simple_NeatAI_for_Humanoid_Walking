@@ -10,8 +10,6 @@ This file is used to compliment the results of the report by providing visual re
     + [Results <a name="BC:R"></a>](#results--a-name--bc-r----a-)
     + [Additional Results <a name="BC:AR"></a>](#additional-results--a-name--bc-ar----a-)
 
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
-
 
 ## Performance evaluation <a name="PE"></a>
 In order to verify the NeatAI is capable of correctly achieving neuroevolution and converging to a specific solution, a test was made to see if it could obbey 3 simple rules in training a network on a arbitrary run

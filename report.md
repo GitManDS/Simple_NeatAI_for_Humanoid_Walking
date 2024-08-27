@@ -51,7 +51,9 @@ Training the algorithm to walk is a challenge since walking requires the network
     - EXCEPTIONS: The network does NOT gain any additional points for any distance travelled with legs that haven't cycled for more than 150 simulation steps
 
   - Leg cycling: The network is rewarded for cycling its legs in the correct direction, every simulation step, a point is deducted to deter stagnation in the leg movement
-    '''
+
+  '''python
+
     #Right leg case
     #if leg is behind the target, the velocity should be positive
                   #current R dir stores the target velocity direction of the right leg
@@ -64,8 +66,9 @@ Training the algorithm to walk is a challenge since walking requires the network
                           intermediate_pos_R.pop(0)
                           Leg_correct_vel_counter += 3
                           if len(intermediate_pos_R) == 0:
-    '''
-    - EXCEPTIONS: If the network is upside down, the network does not gain any points and is severelly penalized every simulation step
+  '''
+                
+  - EXCEPTIONS: If the network is upside down, the network does not gain any points and is severelly penalized every simulation step
     
 
 ### Results <a name="BC:R"></a>
@@ -73,15 +76,12 @@ Training the algorithm to walk is a challenge since walking requires the network
 
 - Best simulation (Sim B)
 
-  - Intermediate generations
 <p float="left">
-  <img src="report_files\sim_walking_B_20.gif" width="300" />
-  <img src="report_files\sim_walking_B_40.gif" width="300" /> 
-  <img src="report_files\sim_walking_B_60.gif" width="300" /> 
+  <img src="report_files\sim_walking_B_20.gif" width="500" />
+  <img src="report_files\sim_walking_B_40.gif" width="500" /> 
+  <img src="report_files\sim_walking_B_60.gif" width="500" /> 
+  <img src="report_files\sim_walking_B_80.gif" width="500" /> 
 </p>
-
-  - final result (gen = 80)
-  ![Sim B best network gif (gen 80)](report_files\sim_walking_B_80.gif)
 
 - Alternative sucessful simulation (Sim A)
 

@@ -390,7 +390,7 @@ NeatAI_pop = cl.population(NOI = 15, NOO = 6,
 maxlist = []
 
 #load all robots in a dir
-dir = "NeatAI/pop_saves/sim_finals/sim_notwalking_c/"
+dir = "NeatAI/pop_saves/sim_finals/sim_walking_final_A/"
 NeatAI_pop.add_new_species()
 
 allfiles=os.listdir(dir)
@@ -409,9 +409,9 @@ for file_index,filename in enumerate(allfiles):
     custum_id_list.update({id : allnames[file_index]})
 
 #save the mental brain
-#NeatAI_pop.species[0].brains[30].save_mental_map(filename="best_brain_mental_map.pdf", 
-#                                                dir=dir,
-#                                                hide_direct_connections = True)
+NeatAI_pop.species[0].brains[0].save_mental_map(filename="best_brain_mental_map.pdf", 
+                                                dir=dir,
+                                                hide_direct_connections = True)
 
 
 #read from sim_data_file
@@ -431,7 +431,7 @@ plt.figure()
 plt.plot(maxi,color='green')
 plt.plot(avg,color='blue')
 plt.plot(min,color='red')
-plt.plot(target_score, linestyle='dashed', color='red')
+#plt.plot(target_score, linestyle='dashed', color='red')
 plt.legend(["max","min","avg","neutral score line"])
 plt.xlabel("Generation [-]")
 plt.ylabel("score [-]")
@@ -455,7 +455,8 @@ plt.savefig(dir + "time_plot_post.pdf")
 plt.close()
 
 #NeatAI_pop.species[0].brains = [NeatAI_pop.species[0].brains[i] for i in range(24,30)]
-NeatAI_pop.species[0].brains = [NeatAI_pop.species[0].brains[1]]
+NeatAI_pop.species[0].brains = [NeatAI_pop.species[0].brains[-1]]
+custum_id_list = {"S0:B0" : "Best score (gen = 80)"}
 #NeatAI_pop.species[0].brains[0].save_brain(filename="best_brain.txt", dir='')
     
 plt.figure()
@@ -472,12 +473,12 @@ for gen in range(1000000):
                     step_limit = 2000,
                     time_limit = 100,
                     max_TPS= 60,
-                    debug= False,
+                    debug= True,
                     show_IDs=True,
                     show_timer=False,
                     show_coords=False,
                     show_axis=False,
-                    cam_focus_ID=None,
+                    cam_focus_ID="S0:B0",
                     custum_id_list = custum_id_list)
     
     #calculate objective value

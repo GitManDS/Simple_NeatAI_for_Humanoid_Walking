@@ -220,24 +220,32 @@ def objective_function_calculator(sim_results):
     
     return obj_value
 
-'''
+
 #grab the files
 #read from sim_data_file
-sim_file = open("NeatAI/pop_saves/sim_standard_1/sim_data.txt", "r")
+sim_file = open("NeatAI/pop_saves/sim_finals/sim_walking_final_A/sim_data.txt", "r")
 sim_data_lines = sim_file.readlines()
 sim_file.close()
 
-sim_file1 = open("NeatAI/pop_saves/sim_standard_2/sim_data.txt", "r")
+sim_file1 = open("NeatAI/pop_saves/sim_finals/sim_walking_final_B/sim_data.txt", "r")
 sim_data_lines1 = sim_file1.readlines()
 sim_file1.close()
 
-sim_file2 = open("NeatAI/pop_saves/sim_standard_3/sim_data.txt", "r")
+sim_file2 = open("NeatAI/pop_saves/sim_finals/skipping/sim_data.txt", "r")
 sim_data_lines2 = sim_file2.readlines()
 sim_file2.close()
 
-sim_file3= open("NeatAI/pop_saves/sim_standard_4/sim_data.txt", "r")
+sim_file3= open("NeatAI/pop_saves/sim_finals/sim_notwalking_c/sim_data.txt", "r")
 sim_data_lines3 = sim_file3.readlines()
 sim_file3.close()
+
+sim_file4= open("NeatAI/pop_saves/sim_finals/sim_notwalking_d/sim_data.txt", "r")
+sim_data_lines4 = sim_file4.readlines()
+sim_file4.close()
+
+sim_file5= open("NeatAI/pop_saves/sim_finals/sim_notwalking_e/sim_data.txt", "r")
+sim_data_lines5 = sim_file5.readlines()
+sim_file5.close()
 
 sim_data_lines = [dataline.replace(","," ").split() for dataline in sim_data_lines]
 max = [float(dataline[1]) for dataline in sim_data_lines]
@@ -267,18 +275,34 @@ min3 = [float(dataline[2]) for dataline in sim_data_lines3]
 time3 = [float(dataline[4]) for dataline in sim_data_lines3]
 target_score3 = [50]*len(max3)
 
+sim_data_lines4 = [dataline.replace(","," ").split() for dataline in sim_data_lines4]
+max4 = [float(dataline[1]) for dataline in sim_data_lines4]
+avg4 = [float(dataline[3]) for dataline in sim_data_lines4]
+min4 = [float(dataline[2]) for dataline in sim_data_lines4]
+time4 = [float(dataline[4]) for dataline in sim_data_lines4]
+target_score4 = [50]*len(max4)
+
+sim_data_lines5 = [dataline.replace(","," ").split() for dataline in sim_data_lines5]
+max5 = [float(dataline[1]) for dataline in sim_data_lines5]
+avg5 = [float(dataline[3]) for dataline in sim_data_lines5]
+min5 = [float(dataline[2]) for dataline in sim_data_lines5]
+time5 = [float(dataline[4]) for dataline in sim_data_lines5]
+
 #plot score plot
+marker_size = 1
+line_width=1
 plt.figure()
-plt.plot(max,color='green',linestyle='solid', marker='o', label="reference population (sim 1)")
-plt.plot(max1,color='blue',linestyle='solid', marker='s', label="reference population (sim 2)")
-plt.plot(max2,color='red',linestyle='solid', marker='^', label="reference population (sim 3)")
-plt.plot(max3,color='purple',linestyle='solid', marker='v', label="random population (sim 4)")
-plt.plot(target_score, linestyle='dashed', color='red', label="neutral score")
+plt.plot(max,color='green',linestyle='solid', marker='o',linewidth=line_width, markersize=marker_size, label="Sim A (sucessful walking)")
+plt.plot(max1,color='blue',linestyle='solid', marker='s',linewidth=line_width,markersize=marker_size, label="Sim B (sucessful walking)")
+plt.plot(max3,color='purple',linestyle='solid', marker='v',linewidth=line_width,markersize=marker_size, label="Sim C (unsucessful walking)")
+plt.plot(max4,color='orange',linestyle='solid', marker='x',linewidth=line_width,markersize=marker_size, label="Sim D (unsucessful walking)")
+plt.plot(max5,color='black',linestyle='solid', marker='*',linewidth=line_width,markersize=marker_size, label="Sim E (unsucessful walking)")
+#plt.plot(max2,color='red',linestyle='solid', marker='^',linewidth=line_width,markersize=marker_size, label="Sim Z (Skipping)")
 plt.legend()
 plt.xlabel("Generation [-]")
 plt.ylabel("score [-]")
 plt.grid()
-plt.savefig("sources and docs/sensitivity_standard.pdf")
+plt.savefig("sources and docs/walking_sim_graphs.pdf")
 plt.close()
             
             
@@ -295,7 +319,7 @@ plt.title(f"Total simulation time: {h}h {m}m {s}s")
 plt.grid()
 plt.savefig(dir + "time_plot_post.pdf")
 plt.close()
-'''
+
 
 dir = "NeatAI/pop_saves/TOTAL_sim_walking_1/"
 sim_file = open(dir + "sim_data.txt", "r")

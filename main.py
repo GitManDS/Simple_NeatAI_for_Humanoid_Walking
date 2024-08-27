@@ -38,9 +38,6 @@ def objective_function_calculator(sim_results):
         L_leg_pos_integral = 0
         R_leg_pos_integral = 0
         
-        L_Uleg_pos_parity_std = -0.3
-        R_Uleg_pos_parity_std = 0.3
-        
         L_Lleg_vel_parity = 1
         L_ankle_vel_parity = 1
         R_Lleg_vel_parity = 1
@@ -102,60 +99,7 @@ def objective_function_calculator(sim_results):
             #this is done by summing the absolute values of the rotation values
             rot_integral += abs(step_result[15])
             
-            #get the frequency of the leg movement
-            #the leg parity is positive and set at 0.2
-            #if step_result[0] > L_Uleg_vel_parity and L_Uleg_vel_parity > 0:
-            #    frequency_bonus_counter += 1
-            #    L_Uleg_pos_parity *= -1
-            #the leg parity is negative and set at -0.2
-            #elif step_result[0] < L_Uleg_vel_parity and L_Uleg_vel_parity < 0:
-            #    frequency_bonus_counter += 1
-            #    L_Uleg_pos_parity *= -1
-            
-            #Incentivize robot to move his legs in a coordinated fashion
-            #[!]WARNING: THIS CODE REPLACES THE PREVIOUS, DO NOT HAVE BOTH ACTIVE 
-            R_Uleg_pos_parity = L_Uleg_pos_parity_std - step_result[15]
-            L_Uleg_pos_parity = L_Uleg_pos_parity_std - step_result[15]
-            
-            '''
-            #Left Leg  
-            #if leg is behind the target, the velocity should be positive
-            if step_result[15] > 0.9 or step_result[15] < -0.9:
-                Leg_correct_vel_counter -= 3
-            if step_result[0] < L_Uleg_pos_parity and L_Uleg_pos_parity > 0:
-                if step_result[6] > 1 and L_Uleg_pos_parity != R_Uleg_pos_parity:
-                    Leg_correct_vel_counter += 3
-                else:
-                    Leg_correct_vel_counter -= 1
-            #if the leg is in front of the target, the velocity should be negative
-            elif step_result[0] > L_Uleg_pos_parity and L_Uleg_pos_parity < 0:
-                if step_result[6] < -1 and L_Uleg_pos_parity != R_Uleg_pos_parity:
-                    Leg_correct_vel_counter += 3
-                else:
-                    Leg_correct_vel_counter -= 1
-            #the only other combinations is that the leg is out of the [-0.7 and 0.7 range]
-            #in which case, invert the target position
-            else:
-                L_Uleg_pos_parity *= -1
-            
-            #Right Leg
-            #if leg is behind the target, the velocity should be positive
-            if step_result[3] < R_Uleg_pos_parity and R_Uleg_pos_parity > 0:
-                if step_result[9] > 1 and L_Uleg_pos_parity != R_Uleg_pos_parity:
-                    Leg_correct_vel_counter += 1
-                else:
-                    Leg_correct_vel_counter -= 1
-            #if the leg is in front of the target, the velocity should be negative
-            elif step_result[3] > R_Uleg_pos_parity and R_Uleg_pos_parity < 0:
-                if step_result[9] < -1 and L_Uleg_pos_parity != R_Uleg_pos_parity:
-                    Leg_correct_vel_counter += 1 
-                else:
-                    Leg_correct_vel_counter -= 1
-            #the only other combinations is that the leg is out of the [-0.7 and 0.7 range]
-            #in which case, invert the target position
-            else:
-                R_Uleg_pos_parity *= -1
-            '''
+                
             L_leg_pos = step_result[0] + 3*step_result[15]   
             R_leg_pos = step_result[3] + 3*step_result[15]   
             if step_result[15] < 0.5 and step_result[15] > -0.5:
@@ -186,7 +130,12 @@ def objective_function_calculator(sim_results):
                 
                 #Right Leg
                 #if leg is behind the target, the velocity should be positive
+                #current R dir stores the target velocity direction of the right leg
+                #1 is forwards, -1 is backwards
                 if current_R_dir == 1:
+                    #intermediate_pos_R has 20 "checkpoints" until the target position
+                    #the if the right leg crosses a checkpoint, the checkpoint is removed
+                    #and 3 points are added
                     while R_leg_pos > intermediate_pos_R[0]:
                         intermediate_pos_R.pop(0)
                         Leg_correct_vel_counter += 3
@@ -275,23 +224,7 @@ def objective_function_calculator(sim_results):
         
         #initial value is target_score
         contributions.append(target_score)
-        
-        #deduct points for the z position integral
-        #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        #contributions.append(-abs(z_pos_integral/(1.1*step_count)) * 2 * scale)
-        
-        #update the objective value for a penalty related to the rotation integral
-        #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        #contributions.append(-abs(((rot_integral)/(1*step_count))) * 2 * scale)
-        
-        #add bonus points for velocity matched
-        #divide by the integral of the desired velocity
-        #contributions.append((y_vel_integral)/(2*step_count) * 5 * scale)
-        
-        #give contribution for the bent knees
-        #the integral should be scaled by the max value of the integral *  area of the rectangle with height 1 and width step_count)
-        #contributions.append((Lower_leg_integral/(2*step_count)) * 3 * scale)
-        
+          
         #add bonus for alternating legs
         #normalized by the number of steps which would correspond to full alternating behaviour
         #times 2 due to all the joints being studied
@@ -300,13 +233,7 @@ def objective_function_calculator(sim_results):
         #update the objective value with distance travelled
         contributions.append(distance_travelled * 4 * scale)
         
-        
-        #penalize for twitching
-        #normalized by the number of steps which would correspond to full twitching behaviour
-        #times 4 due to all the joints being studied
-        #contributions.append(-abs(frequency_penalty_counter/(step_count*4)) * 1 * scale)
-        
-        
+             
         #get objective value
         obj_value.append(sum(contributions))
         
@@ -321,7 +248,7 @@ def objective_function_calculator(sim_results):
 #################################### TRAINING PARAMETERS ####################################
 
 #simulation specific
-max_generations = 80
+max_generations = 20
 load_from_sim_options_file = True
 options = {"robot_type" : "biped_freeman_abs.urdf",
             "joint_friction" : 10,
@@ -357,7 +284,7 @@ preserve_top_brain = False
 dynamic_mutation_rate = True
 do_explicit_fitness_sharing = False
 import_pop_dir = "NeatAI/pop_saves/"
-import_pop_file = "sim1724731590/final_pop.txt"
+import_pop_file = "sim_finals/sim_walking_final_A/final_pop.txt"
 target_score = 50
 fitness_sharing_c1 = 1.5
 fitness_sharing_c2 = 1.5

@@ -401,10 +401,10 @@ class sim_client:
         
         if robot != None:
             Pos=self.Client.getLinkState(robot,4)[0]
-            self.Client.resetDebugVisualizerCamera(3, 
-                                        -45, 
-                                        -45, 
-                                        Pos)
+            Pos = [Pos[0],Pos[1],Pos[2]-0.5]
+            self.Client.resetDebugVisualizerCamera(cameraDistance=3.5, 
+                                               cameraYaw=65, 
+                                               cameraPitch=-25, cameraTargetPosition = Pos)
         else:
             print("No robot to focus on, quitting focusing")
             pass

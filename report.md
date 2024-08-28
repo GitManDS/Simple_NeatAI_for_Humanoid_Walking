@@ -83,7 +83,9 @@ Training the algorithm to walk is a challenge since walking requires the network
 
 - Alternative sucessful simulation (Sim A)
 
-![Sim A best network gif (gen 80)](report_files\sim_walking_A.gif)
+<p float="left">
+  <img src="report_files\sim_walking_A.gif" width="500" />
+</p> 
 
 - Other simulations that converged to random results (Sim C, D and E)
 
@@ -107,4 +109,7 @@ Training the algorithm to walk is a challenge since walking requires the network
 
 As mentioned, one other result of this training was skipping, which was achieved by simply increasing the simulation step counter from 150 simulation steps to 250 simulation steps
 
-![Skipping Sim graph](report_files\sim_skipping_graph.png)
+<p float="left">
+  <img src="report_files\sim_skipping.gif" width="500" />
+  <img src="report_files\sim_skipping_graph.png" width="500" />
+</p> 

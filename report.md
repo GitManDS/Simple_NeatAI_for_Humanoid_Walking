@@ -99,11 +99,11 @@ Training the algorithm to walk is a challenge since walking requires the network
 
 ![Convergence graph of all simulations](report_files/sim_walking_graphs.png)
 
-  - Phenotype of best network of Sim A (input-output direct connections hidden for readability)
-  ![Phenotype diagramn of Sim A](report_files\simA_phenotype.png)
-
-  - Phenotype of best network of Sim B (input-output direct connections hidden for readability)
-  ![Phenotype diagramn of Sim B](report_files\simB_phenotype.png)
+  - Phenotype of best network of Sim A(left) and Sim B(right) (input-output direct connections hidden for readability)
+  <p float="left">
+  <img src="report_files/simA_phenotype.gif" width="300" />
+  <img src="report_files/simB_phenotype.gif" width="300" /> 
+  </p>
      
 ### Additional Results <a name="BC:AR"></a>
 
